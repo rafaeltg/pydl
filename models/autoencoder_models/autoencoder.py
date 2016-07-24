@@ -50,16 +50,16 @@ class Autoencoder(UnsupervisedModel):
 
         print('{} __init__'.format(__class__.__name__))
 
-        super().__init__(model_name,
-                         main_dir,
-                         cost_func,
-                         num_epochs,
-                         batch_size,
-                         opt,
-                         learning_rate,
-                         momentum,
-                         seed,
-                         verbose)
+        super().__init__(model_name=model_name,
+                         main_dir=main_dir,
+                         cost_func=cost_func,
+                         num_epochs=num_epochs,
+                         batch_size=batch_size,
+                         opt=opt,
+                         learning_rate=learning_rate,
+                         momentum=momentum,
+                         seed=seed,
+                         verbose=verbose)
 
         # Validations
         assert n_hidden > 0

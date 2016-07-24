@@ -1,7 +1,7 @@
 import tensorflow as tf
 import utils.utilities as utils
-import command_runner.helper as cmd_helper
-
+import command_runner.cmd_flags
+from command_runner.cmd_model_run import run_unsupervised_model
 from models.autoencoder_models.autoencoder import Autoencoder
 
 
@@ -13,7 +13,7 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # Global configuration
-cmd_helper.set_unsupervised_model_flags('ae', flags)
+set_unsupervised_model_flags('ae', flags)
 
 # Autoencoder specific parameters
 flags.DEFINE_integer('n_hidden', 128, 'Number of hidden units of the Autoencoder.')
@@ -24,11 +24,13 @@ flags.DEFINE_float('n_lambda', 0.0001, '')
 
 # Global parameters
 global_params = {
-    'train_dataset': FLAGS.train_dataset,
-    'test_dataset':  FLAGS.test_dataset,
-    'valid_dataset': FLAGS.valid_dataset,
-    'restore_model': FLAGS.restore_model,
-    'save_encode':   FLAGS.save_encode
+    'train_dataset':     FLAGS.train_dataset,
+    'test_dataset':      FLAGS.test_dataset,
+    'valid_dataset':     FLAGS.valid_dataset,
+    'restore_model':     FLAGS.restore_model,
+    'save_encode_train': FLAGS.save_encode_train,
+    'save_encode_valid': FLAGS.save_encode_valid,
+    'save_encode_test':  FLAGS.save_encode_test,
 }
 
 # Autoencoder parameters
@@ -58,4 +60,4 @@ if __name__ == '__main__':
     # Create the Autoencoder object
     ae = Autoencoder(**ae_params)
 
-    cmd_helper.run_unsupervised_model(ae, global_params)
+    run_unsupervised_model(ae, global_params)

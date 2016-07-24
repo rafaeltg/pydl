@@ -189,7 +189,6 @@ class StackedAutoencoder(MLP):
                 params = autoenc.get_model_parameters(graph=graph)
 
                 # Set finetuning network paramenters
-                ## TODO: Variational has multiple weights
                 self._layer_nodes[l].set_weights(params['enc_w'])
                 self._layer_nodes[l].set_biases(params['enc_b'])
 

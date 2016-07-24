@@ -4,7 +4,7 @@ import tensorflow as tf
 # Constants
 ONE = tf.constant(1.0)
 
-valid_act_functions               = ['sigmoid', 'tanh', 'relu', 'none', None]
+valid_act_functions               = ['sigmoid', 'tanh', 'relu', 'none']
 valid_supervised_cost_functions   = ['rmse', 'cross_entropy', 'softmax_cross_entropy']
 valid_unsupervised_cost_functions = ['rmse', 'cross_entropy', 'softmax_cross_entropy', 'sparse']
 valid_optimization_functions      = ['gradient_descent', 'ada_grad', 'momentum', 'adam', 'rms_prop']
