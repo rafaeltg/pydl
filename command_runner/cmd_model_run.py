@@ -33,10 +33,10 @@ def run_supervised_model(model, global_params):
 
     trainX = data.train.data
     trainY = data.train.target
-    testX  = data.test.data
-    testY  = data.test.target
     validX = data.validation.data
     validY = data.validation.target
+    testX  = data.test.data
+    testY  = data.test.target
 
     # Train the model
     model.fit(trainX, trainY, validX, validY, restore_previous_model=global_params['restore_model'])
@@ -44,7 +44,10 @@ def run_supervised_model(model, global_params):
     if testX is not None:
         test_cost = model.calc_total_cost(testX, testY)
         print('Test Cost = {}'.format(test_cost))
-        #metrics
+
+        # Save the predictions of the model
+        if global_params['save_predictions']:
+            np.save(global_params['save_predictions'], model.predict(testX))
 
 
 def run_unsupervised_model(model, global_params):

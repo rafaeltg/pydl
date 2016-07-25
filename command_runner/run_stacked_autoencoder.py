@@ -33,13 +33,14 @@ flags.DEFINE_string('ae_n_beta', '0.0001,', 'Sparse autoencoder parameter beta.'
 
 # Global parameters
 global_params = {
-    'train_dataset': FLAGS.train_dataset,
-    'train_labels':  FLAGS.train_labels,
-    'test_dataset':  FLAGS.test_dataset,
-    'test_labels':   FLAGS.test_labels,
-    'valid_dataset': FLAGS.valid_dataset,
-    'valid_labels':  FLAGS.valid_labels,
-    'restore_model': FLAGS.restore_model,
+    'train_dataset':    FLAGS.train_dataset,
+    'train_labels':     FLAGS.train_labels,
+    'test_dataset':     FLAGS.test_dataset,
+    'test_labels':      FLAGS.test_labels,
+    'valid_dataset':    FLAGS.valid_dataset,
+    'valid_labels':     FLAGS.valid_labels,
+    'restore_model':    FLAGS.restore_model,
+    'save_predictions': FLAGS.save_predictions
 }
 
 # Get parameters

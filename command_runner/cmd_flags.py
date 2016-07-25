@@ -47,6 +47,8 @@ def set_supervised_model_global_flags(model_name, flags):
     flags.DEFINE_string('test_labels', '', 'Path to test labels file (.npy or .csv).')
     flags.DEFINE_string('valid_labels', '', 'Path to validation labels file (.npy or .csv).')
 
+    flags.DEFINE_string('save_predictions', '', 'Path to a .npy file to save predictions for the test set.')
+
 
 def set_supervised_model_flags(model_name, flags):
 
