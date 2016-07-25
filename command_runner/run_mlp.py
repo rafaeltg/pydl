@@ -1,7 +1,8 @@
-import command_runner.helper as cmd_helper
 import tensorflow as tf
-
 import utils.utilities as utils
+from command_runner.cmd_flags import set_supervised_model_flags
+from command_runner.cmd_model_run import run_supervised_model
+
 from models.nnet_models.mlp import MLP
 
 # #################### #
@@ -10,7 +11,7 @@ from models.nnet_models.mlp import MLP
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-cmd_helper.set_supervised_model_flags('mlp', flags)
+set_supervised_model_flags('mlp', flags)
 flags.DEFINE_string('layers', '64,32', 'String representing the architecture of the network.')
 
 
@@ -52,4 +53,4 @@ if __name__ == '__main__':
      # Create MLP object
     mlp = MLP(**mlp_params)
 
-    cmd_helper.run_supervised_model(mlp, global_params)
+    run_supervised_model(mlp, global_params)

@@ -1,7 +1,8 @@
-import command_runner.helper as cmd_helper
 import tensorflow as tf
-
 import utils.utilities as utils
+from command_runner.cmd_flags import set_supervised_model_flags
+from command_runner.cmd_model_run import run_supervised_model
+
 from models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
 
 # #################### #
@@ -12,7 +13,7 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # Global configuration
-cmd_helper.set_supervised_model_flags('sae', flags)
+set_supervised_model_flags('sae', flags)
 
 # Autoencoder layers specific parameters
 flags.DEFINE_string('layers', '512,256,', 'Comma-separated values for the layers in the SAE.')
@@ -78,4 +79,4 @@ if __name__ == '__main__':
     # Create the SAE object
     sae = StackedAutoencoder(**sae_params)
 
-    cmd_helper.run_supervised_model(sae, global_params)
+    run_supervised_model(sae, global_params)
