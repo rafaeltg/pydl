@@ -1,10 +1,8 @@
-import numpy as np
 import tensorflow as tf
-from tensorflow.python.framework import ops
 
-from models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
-from models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
 import utils.utilities as utils
+from models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
+from models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
 
 
 class StackedDenoisingAutoencoder(StackedAutoencoder):

@@ -1,9 +1,8 @@
-import tensorflow as tf
-import utils.utilities as utils
 import command_runner.helper as cmd_helper
+import tensorflow as tf
 
+import utils.utilities as utils
 from models.autoencoder_models.stacked_denoising_autoencoder import StackedDenoisingAutoencoder
-
 
 # #################### #
 #   Flags definition   #

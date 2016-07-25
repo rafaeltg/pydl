@@ -1,10 +1,8 @@
-import numpy as np
 import tensorflow as tf
-from tensorflow.python.framework import ops
 
+import utils.utilities as utils
 from models.autoencoder_models.autoencoder import Autoencoder
 from models.nnet_models.mlp import MLP
-import utils.utilities as utils
 
 
 class StackedAutoencoder(MLP):

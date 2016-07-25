@@ -1,5 +1,4 @@
 import numpy as np
-import utils.utilities as utils
 
 from models.base.supervised_model import SupervisedModel
 from models.base.unsupervised_model import UnsupervisedModel

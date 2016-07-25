@@ -1,10 +1,9 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.framework import ops
 
+import utils.utilities as utils
 from models.base.supervised_model import SupervisedModel
 from models.nnet_models import nn_layer
-import utils.utilities as utils
 
 
 class MLP(SupervisedModel):

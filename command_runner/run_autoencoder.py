@@ -1,9 +1,7 @@
 import tensorflow as tf
-import utils.utilities as utils
-import command_runner.cmd_flags
 from command_runner.cmd_model_run import run_unsupervised_model
-from models.autoencoder_models.autoencoder import Autoencoder
 
+from models.autoencoder_models.autoencoder import Autoencoder
 
 # #################### #
 #   Flags definition   #

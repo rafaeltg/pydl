@@ -1,7 +1,6 @@
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
-import utils.utilities as utils
 from models.autoencoder_models.autoencoder import Autoencoder
 from models.nnet_models.nn_layer import NNetLayer
 

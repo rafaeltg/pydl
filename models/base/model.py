@@ -1,9 +1,11 @@
-import tensorflow as tf
+import errno
 import numpy as np
-import os, errno
+import os
+import tensorflow as tf
 from os.path import expanduser
-import utils.utilities as utils
+
 import utils.config as config
+import utils.utilities as utils
 
 
 class Model:

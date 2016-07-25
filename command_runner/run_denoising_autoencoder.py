@@ -1,8 +1,7 @@
 import tensorflow as tf
-import command_runner.cmd_flags
 from command_runner.cmd_model_run import run_unsupervised_model
-from models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
 
+from models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
 
 # #################### #
 #   Flags definition   #

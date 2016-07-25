@@ -1,5 +1,5 @@
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 import utils.utilities as utils
 from models.base.unsupervised_model import UnsupervisedModel
