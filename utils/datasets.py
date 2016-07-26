@@ -1,7 +1,8 @@
 import collections
 import csv
-import numpy as np
 import os
+
+import numpy as np
 from tensorflow.python.platform import gfile
 
 Dataset = collections.namedtuple('Dataset', ['data', 'target'])

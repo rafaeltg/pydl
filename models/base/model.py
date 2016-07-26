@@ -1,8 +1,9 @@
 import errno
-import numpy as np
 import os
-import tensorflow as tf
 from os.path import expanduser
+
+import numpy as np
+import tensorflow as tf
 
 import utils.config as config
 import utils.utilities as utils
