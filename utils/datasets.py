@@ -2,7 +2,6 @@ import collections
 import csv
 import numpy as np
 import os
-import tempfile
 from tensorflow.python.platform import gfile
 
 Dataset = collections.namedtuple('Dataset', ['data', 'target'])
@@ -14,7 +13,7 @@ def load_csv(filename, data_type=np.float64, has_header=True):
         data_file = csv.reader(csv_file)
 
         if has_header:
-            header = next(data_file)
+            _ = next(data_file)
 
         data = []
         for ir in data_file:
@@ -69,29 +68,3 @@ def load_datasets(train_dataset,
     return Datasets(train=load_dataset(train_dataset, train_labels, labels_dtype, has_header),
                     test=load_dataset(test_dataset, test_labels, labels_dtype, has_header),
                     validation=load_dataset(valid_dataset, valid_labels, labels_dtype, has_header))
-
-
-def maybe_download(filename, work_directory, source_url):
-
-    """Download the data from source url, unless it's already here.
-    :param filename: string, name of the file in the directory.
-    :param work_directory: string, path to working directory.
-    :param source_url: url to download from if file doesn't exist.
-    :return: path to resulting file.
-    """
-
-    if not gfile.Exists(work_directory):
-        gfile.MakeDirs(work_directory)
-        filepath = os.path.join(work_directory, filename)
-
-    if not gfile.Exists(filepath):
-        with tempfile.NamedTemporaryFile() as tmpfile:
-            temp_file_name = tmpfile.name
-            urllib.request.urlretrieve(source_url, temp_file_name)
-            gfile.Copy(temp_file_name, filepath)
-
-        with gfile.GFile(filepath) as f:
-            size = f.Size()
-        print('Successfully downloaded', filename, size, 'bytes.')
-
-    return filepath

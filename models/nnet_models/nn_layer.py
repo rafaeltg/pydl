@@ -21,9 +21,9 @@ class NNetLayer(object):
                  init=True):
 
         """
-        :param input:
+        :param input_layer:
         :param hidden_units:
-        :param act_func: Activation function. ['tanh', 'sigmoid', 'relu', 'none']
+        :param act_function: Activation function. ['tanh', 'sigmoid', 'relu', 'none']
         :param dropout: The probability that each element is kept. Default = 1 (keep all)
         :param xavier_init:
         :param name_scope:
@@ -37,11 +37,9 @@ class NNetLayer(object):
         if init:
 
             self._w = tf.Variable(utils.xavier_init(np.int_(self._input.get_shape()[1]),
-                                                    hidden_units, xavier_init), name='w-' + name_scope)
+                                                    hidden_units, xavier_init), name='w-'+name_scope)
 
-
-            self._b = tf.Variable(tf.truncated_normal([hidden_units], stddev=0.01),
-                                  name='b-' + name_scope)
+            self._b = tf.Variable(tf.truncated_normal([hidden_units], stddev=0.01), name='b-'+name_scope)
 
         else:
 
@@ -57,7 +55,6 @@ class NNetLayer(object):
 
         print('Done {} __init__'.format(self.__NAME))
 
-
     def get_output(self):
 
         """
@@ -65,7 +62,6 @@ class NNetLayer(object):
         """
 
         return self._output
-
 
     def get_weights(self):
 
@@ -75,15 +71,14 @@ class NNetLayer(object):
 
         return self._w
 
-
     def set_weights(self, w):
 
         """
+        :param w: weights values
         :return: self
         """
 
         self._w.assign(w)
-
 
     def get_biases(self):
 
@@ -93,10 +88,10 @@ class NNetLayer(object):
 
         return self._b
 
-
     def set_biases(self, b):
 
         """
+        :param b: biases values
         :return: self
         """
 

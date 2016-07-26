@@ -123,25 +123,25 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
 
             print('l = {}, layer = {}'.format(l, layer))
 
-            self.autoencoders.append(DenoisingAutoencoder(model_name = '{}_dae_{}'.format(self.model_name, l),
-                                                          main_dir = self.main_dir,
-                                                          n_hidden = layer,
-                                                          enc_act_func = self.ae_args['enc_act_func'][l],
-                                                          dec_act_func = self.ae_args['dec_act_func'][l],
-                                                          cost_func = self.ae_args['cost_func'][l],
-                                                          num_epochs = self.ae_args['num_epochs'][l],
-                                                          batch_size = self.ae_args['batch_size'][l],
-                                                          xavier_init = self.ae_args['xavier_init'][l],
-                                                          opt = self.ae_args['opt'][l],
-                                                          learning_rate = self.ae_args['learning_rate'][l],
-                                                          momentum = self.ae_args['momentum'][l],
-                                                          corr_type = self.ae_args['corr_type'][l],
-                                                          corr_scale = self.ae_args['corr_scale'][l],
-                                                          corr_keep_prob = self.ae_args['corr_keep_prob'][l],
-                                                          rho = self.ae_args['rho'][l],
-                                                          n_beta = self.ae_args['n_beta'][l],
-                                                          n_lambda = self.ae_args['n_lambda'][l],
-                                                          verbose = self.verbose))
+            self.autoencoders.append(DenoisingAutoencoder(model_name='{}_dae_{}'.format(self.model_name, l),
+                                                          main_dir=self.main_dir,
+                                                          n_hidden=layer,
+                                                          enc_act_func=self.ae_args['enc_act_func'][l],
+                                                          dec_act_func=self.ae_args['dec_act_func'][l],
+                                                          cost_func=self.ae_args['cost_func'][l],
+                                                          num_epochs=self.ae_args['num_epochs'][l],
+                                                          batch_size=self.ae_args['batch_size'][l],
+                                                          xavier_init=self.ae_args['xavier_init'][l],
+                                                          opt=self.ae_args['opt'][l],
+                                                          learning_rate=self.ae_args['learning_rate'][l],
+                                                          momentum=self.ae_args['momentum'][l],
+                                                          corr_type=self.ae_args['corr_type'][l],
+                                                          corr_scale=self.ae_args['corr_scale'][l],
+                                                          corr_keep_prob=self.ae_args['corr_keep_prob'][l],
+                                                          rho=self.ae_args['rho'][l],
+                                                          n_beta=self.ae_args['n_beta'][l],
+                                                          n_lambda=self.ae_args['n_lambda'][l],
+                                                          verbose=self.verbose))
 
             self.autoencoder_graphs.append(tf.Graph())
 

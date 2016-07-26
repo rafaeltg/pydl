@@ -109,10 +109,11 @@ class StackedAutoencoder(MLP):
 
         print('Done {} __init__'.format(__class__.__name__))
 
-
     def _create_layers(self, n_input, n_output):
 
         """
+        :param n_input:
+        :param n_output:
         :return: self
         """
 
@@ -121,7 +122,6 @@ class StackedAutoencoder(MLP):
 
         # Create finetuning network
         super()._create_layers(n_input, n_output)
-
 
     def _create_autoencoders(self):
 
@@ -138,27 +138,26 @@ class StackedAutoencoder(MLP):
 
             print('l = {}, layer = {}'.format(l, layer))
 
-            self.autoencoders.append(Autoencoder(model_name = '{}_ae_{}'.format(self.model_name, l),
-                                                 main_dir = self.main_dir,
-                                                 n_hidden = layer,
-                                                 enc_act_func = self.ae_args['enc_act_func'][l],
-                                                 dec_act_func = self.ae_args['dec_act_func'][l],
-                                                 cost_func = self.ae_args['cost_func'][l],
-                                                 num_epochs = self.ae_args['num_epochs'][l],
-                                                 batch_size = self.ae_args['batch_size'][l],
-                                                 xavier_init = self.ae_args['xavier_init'][l],
-                                                 opt = self.ae_args['opt'][l],
-                                                 learning_rate = self.ae_args['learning_rate'][l],
-                                                 momentum = self.ae_args['momentum'][l],
-                                                 rho = self.ae_args['rho'][l],
-                                                 n_beta = self.ae_args['n_beta'][l],
-                                                 n_lambda = self.ae_args['n_lambda'][l],
-                                                 verbose = self.verbose))
+            self.autoencoders.append(Autoencoder(model_name='{}_ae_{}'.format(self.model_name, l),
+                                                 main_dir=self.main_dir,
+                                                 n_hidden=layer,
+                                                 enc_act_func=self.ae_args['enc_act_func'][l],
+                                                 dec_act_func=self.ae_args['dec_act_func'][l],
+                                                 cost_func=self.ae_args['cost_func'][l],
+                                                 num_epochs=self.ae_args['num_epochs'][l],
+                                                 batch_size=self.ae_args['batch_size'][l],
+                                                 xavier_init=self.ae_args['xavier_init'][l],
+                                                 opt=self.ae_args['opt'][l],
+                                                 learning_rate=self.ae_args['learning_rate'][l],
+                                                 momentum=self.ae_args['momentum'][l],
+                                                 rho=self.ae_args['rho'][l],
+                                                 n_beta=self.ae_args['n_beta'][l],
+                                                 n_lambda=self.ae_args['n_lambda'][l],
+                                                 verbose=self.verbose))
 
             self.autoencoder_graphs.append(tf.Graph())
 
         print('Done creating {} pretrain nodes...'.format(self.model_name))
-
 
     def pretrain(self, train_set, valid_set):
 
@@ -168,7 +167,7 @@ class StackedAutoencoder(MLP):
         :return: return data encoded by the last layer
         """
 
-        print('Starting {} unsupervisioned pretraining...'.format(self.model_name))
+        print('Starting {} unsupervised pretraining...'.format(self.model_name))
 
         next_train = train_set
         next_valid = valid_set
@@ -194,15 +193,15 @@ class StackedAutoencoder(MLP):
                 next_train = autoenc.transform(data=next_train, graph=graph)
                 next_valid = autoenc.transform(data=next_valid, graph=graph)
 
-
-        print('Done {} unsupervisioned pretraining...'.format(self.model_name))
-
+        print('Done {} unsupervised pretraining...'.format(self.model_name))
 
     def _train_model(self, train_set, train_labels, valid_set, valid_labels):
 
         """ Train the model.
         :param train_set: training set
         :param train_labels: training labels
+        :param valid_set: validation set
+        :param valid_labels: validation labels
         :return: self
         """
 

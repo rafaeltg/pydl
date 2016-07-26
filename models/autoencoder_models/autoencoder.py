@@ -86,7 +86,6 @@ class Autoencoder(UnsupervisedModel):
 
         print('Done {} __init__'.format(__class__.__name__))
 
-
     def _create_layers(self, n_inputs):
 
         """ Create the encoding and the decoding layers of the autoencoder.
@@ -95,7 +94,6 @@ class Autoencoder(UnsupervisedModel):
 
         self._create_encoding_layer()
         self._create_decoding_layer(n_inputs)
-
 
     def _create_encoding_layer(self):
 
@@ -115,10 +113,10 @@ class Autoencoder(UnsupervisedModel):
 
         print('Done creating {} encoding layer'.format(self.model_name))
 
-
     def _create_decoding_layer(self, n_inputs):
 
         """ Create the decoding layers of the autoencoder.
+        :param n_inputs:
         :return: self
         """
 
@@ -134,10 +132,10 @@ class Autoencoder(UnsupervisedModel):
 
         print('Done creating {} decoding layer'.format(self.model_name))
 
-
     def _create_cost_node(self, ref_input):
 
         """
+        :param ref_input:
         :return: self
         """
 
@@ -163,12 +161,11 @@ class Autoencoder(UnsupervisedModel):
 
             with tf.name_scope("cost"):
                 self.cost = tf.add(tf.add(cost_j, cost_reg), cost_sparse)
-                _ = tf.scalar_summary("sparse", cost)
+                _ = tf.scalar_summary("sparse", self.cost)
 
         else:
 
             super(Autoencoder, self)._create_cost_node(ref_input)
-
 
     def _train_model(self, train_set, valid_set):
 
@@ -187,18 +184,17 @@ class Autoencoder(UnsupervisedModel):
             batches = [_ for _ in utils.gen_batches(train_set, self.batch_size)]
 
             for batch in batches:
-                self.tf_session.run(self.optimizer, feed_dict = {self._input: batch})
+                self.tf_session.run(self.optimizer, feed_dict={self._input: batch})
 
             if valid_set is not None:
                 self._run_validation_cost_and_summaries(i, {self._input: valid_set})
 
         print('Done Training {}'.format(self.model_name))
 
-
     def get_model_parameters(self, graph=None):
 
         """ Return the model parameters in the form of numpy arrays.
-        :param graph: tf graph object
+        :param graph: tensorflow graph object
         :return: model parameters
         """
 
@@ -210,7 +206,7 @@ class Autoencoder(UnsupervisedModel):
                 params = {
                     'enc_w': self._encode_layer.get_weights().eval(),
                     'enc_b': self._encode_layer.get_biases().eval()
-                    # dont care about decoder params
+                    # don't care about decoder params
                 }
 
         return params

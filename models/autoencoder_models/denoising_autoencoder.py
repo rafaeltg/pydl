@@ -11,26 +11,26 @@ class DenoisingAutoencoder(Autoencoder):
     """
 
     def __init__(self,
-                model_name='dae',
-                main_dir='dae/',
-                n_hidden=256,
-                enc_act_func='tanh',
-                dec_act_func='none',
-                cost_func='rmse',
-                num_epochs=10,
-                batch_size=100,
-                xavier_init=1,
-                opt='adam',
-                learning_rate=0.01,
-                momentum=0.5,
-                corr_type='masking',
-                corr_scale=0.1,
-                corr_keep_prob=0.9,
-                rho=0.001,
-                n_beta=3.0,
-                n_lambda=0.0001,
-                verbose=0,
-                seed=-1):
+                 model_name='dae',
+                 main_dir='dae/',
+                 n_hidden=256,
+                 enc_act_func='tanh',
+                 dec_act_func='none',
+                 cost_func='rmse',
+                 num_epochs=10,
+                 batch_size=100,
+                 xavier_init=1,
+                 opt='adam',
+                 learning_rate=0.01,
+                 momentum=0.5,
+                 corr_type='masking',
+                 corr_scale=0.1,
+                 corr_keep_prob=0.9,
+                 rho=0.001,
+                 n_beta=3.0,
+                 n_lambda=0.0001,
+                 verbose=0,
+                 seed=-1):
 
         """
         :param n_hidden: number of hidden units
@@ -85,7 +85,6 @@ class DenoisingAutoencoder(Autoencoder):
 
         print('Done {} __init__'.format(__class__.__name__))
 
-
     def _create_encoding_layer(self):
 
         """ Create the encoding layer based on the corrupted version of X.
@@ -106,7 +105,6 @@ class DenoisingAutoencoder(Autoencoder):
 
         print('Done creating {} encoding layer'.format(self.model_name))
 
-
     def _corrupt_input(self):
 
         """ Create the activation function corrupting X based on corruption type
@@ -121,4 +119,4 @@ class DenoisingAutoencoder(Autoencoder):
 
             elif self.corr_type == 'gaussian':
                 self._corr_input = tf.add(self._input,
-                                          tf.constant(self.corr_scale) * tf.random_normal( (np.int_(self._input.get_shape()[1]),) ))
+                                          tf.constant(self.corr_scale)*tf.random_normal((np.int_(self._input.get_shape()[1]),)))

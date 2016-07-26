@@ -57,11 +57,11 @@ class Model:
         self.tf_summary_dir = os.path.join(home, config.summary_dir, main_dir)
         self.model_path = os.path.join(self.models_dir, self.model_name)
 
-        print('Creating %s directory to save/restore models' % (self.models_dir))
+        print('Creating %s directory to save/restore models' % self.models_dir)
         self._create_dir(self.models_dir)
-        print('Creating %s directory to save model generated data' % (self.data_dir))
+        print('Creating %s directory to save model generated data' % self.data_dir)
         self._create_dir(self.data_dir)
-        print('Creating %s directory to save tensorboard logs' % (self.tf_summary_dir))
+        print('Creating %s directory to save tensorboard logs' % self.tf_summary_dir)
         self._create_dir(self.tf_summary_dir)
 
         # Model input data

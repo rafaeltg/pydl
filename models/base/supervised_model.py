@@ -40,12 +40,11 @@ class SupervisedModel(Model):
         # Supervised Model output values placeholder
         self._target_output = None
 
-
     def build_model(self, n_input, n_output=1):
 
         """ Creates the computational graph for the Supervised Model.
         :param n_input: Number of features.
-        :param n_outputs: number of output values.
+        :param n_output: number of output values.
         :return: self
         """
 
@@ -59,22 +58,19 @@ class SupervisedModel(Model):
 
         print('Done building {} model'.format(self.model_name))
 
-
     def _create_placeholders(self, n_input, n_output):
 
         """ Create the TensorFlow placeholders for the Supervised Model.
         :param n_input: number of features of the first layer
-        :param n_outputs: size of the output layer
+        :param n_output: size of the output layer
         :return: self
         """
 
         self._input = tf.placeholder('float', [None, n_input], name='x-input')
         self._target_output = tf.placeholder('float', [None, n_output], name='y-input')
 
-
     def _create_layers(self, n_input, n_output):
         pass
-
 
     def fit(self, train_set, train_labels, valid_set, valid_labels, restore_previous_model=False, graph=None):
 
@@ -90,7 +86,7 @@ class SupervisedModel(Model):
         :return: self
         """
 
-        print('Starting {} supervisioned training...'.format(self.model_name))
+        print('Starting {} supervised training...'.format(self.model_name))
 
         if len(train_labels.shape) != 1:
             num_classes = train_labels.shape[1]
@@ -108,17 +104,15 @@ class SupervisedModel(Model):
                 self._train_model(train_set, train_labels, valid_set, valid_labels)
                 self.tf_saver.save(self.tf_session, self.model_path)
 
-        print('Done {} supervisioned training...'.format(self.model_name))
-
+        print('Done {} supervised training...'.format(self.model_name))
 
     def _train_model(self, train_set, train_labels, valid_set, valid_labels):
         pass
 
-
     def predict(self, data):
 
         """ Predict the labels for the test set.
-        :param test_set: Testing data. shape(n_test_samples, n_features)
+        :param data: Testing data. shape(n_test_samples, n_features)
         :return: labels
         """
 
@@ -129,11 +123,12 @@ class SupervisedModel(Model):
 
         return preds
 
-
     def calc_total_cost(self, data, data_labels, graph=None):
 
         """ Compute the total reconstruction cost.
         :param data: Input data
+        :param data_labels:
+        :param graph: tensorflow graph object
         :return: reconstruction cost
         """
 

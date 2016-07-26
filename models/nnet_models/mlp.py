@@ -41,7 +41,7 @@ class MLP(SupervisedModel):
         :param opt: Which optimizer to use. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
         :param learning_rate: Initial learning rate
         :param momentum: Momentum parameter
-        :param init_layers: Initilialize hidden layers' weights and biases.
+        :param init_layers: Initialize hidden layers' weights and biases.
         :param verbose: Level of verbosity. 0 - silent, 1 - print accuracy.
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         :param task: ['regression', 'classification']
@@ -77,16 +77,16 @@ class MLP(SupervisedModel):
         self.dropout = dropout
         self.init_layers = init_layers
 
-
         self._layer_nodes = []
         self._model_predictions = None
 
         print('Done {} __init__'.format(__class__.__name__))
 
-
     def _create_layers(self, n_input, n_output):
 
         """ Create the network
+        :param n_input:
+        :param n_output:
         :return: self
         """
 
@@ -108,11 +108,11 @@ class MLP(SupervisedModel):
 
         self._create_output_layer(n_output, layer_inp)
 
-
     def _create_output_layer(self, n_output, input_layer):
 
         """ Create the final layer for finetuning.
         :param n_output: size of the output layer
+        :param input_layer:
         :return: self
         """
 
@@ -133,12 +133,13 @@ class MLP(SupervisedModel):
             else:
                 self.model_predictions = self._model_output
 
-
     def _train_model(self, train_set, train_labels, valid_set, valid_labels):
 
         """ Train the model.
         :param train_set: training set
         :param train_labels: training labels
+        :param valid_set:
+        :param valid_labels:
         :return: self
         """
 
@@ -161,9 +162,7 @@ class MLP(SupervisedModel):
             if valid_set is not None:
                 self._run_validation_cost_and_summaries(i, {self._input: valid_set, self._target_output: valid_labels})
 
-
         print('Done Training {}'.format(self.model_name))
-
 
     def get_model_parameters(self, graph=None):
 
@@ -187,7 +186,6 @@ class MLP(SupervisedModel):
                     })
 
         return params
-
 
     def get_layers_output(self, dataset):
 

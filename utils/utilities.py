@@ -16,6 +16,12 @@ valid_optimization_functions      = ['gradient_descent', 'ada_grad', 'momentum',
 
 def activate(act_f, input_layer):
 
+    """
+    :param act_f:
+    :param input_layer:
+    :return:
+    """
+
     if act_f == 'sigmoid':
         return tf.nn.sigmoid(input_layer)
 
@@ -32,20 +38,20 @@ def activate(act_f, input_layer):
         raise Exception("Incorrect activation function")
 
 
-def xavier_init(fan_in, fan_out, constant = 1):
+def xavier_init(fan_in, fan_out, constant=1):
 
-    """ Initialize values for the weights of a hidden layer i. It should be uniformly sampled from a symmetric interval that depends
-    on the activation function.
-
+    """ Initialize values for the weights of a hidden layer i. It should be uniformly sampled from a symmetric
+    interval that depends on the activation function.
     For 'tanh', constanta = 1.
     For 'sigmoid', constant = 4
+    :param fan_in:
+    :param fan_out:
+    :param constant:
+    :return:
     """
     low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
     high = constant * np.sqrt(6.0 / (fan_in + fan_out))
-    return tf.random_uniform((fan_in, fan_out),
-                             minval = low,
-                             maxval = high,
-                             dtype = tf.float32)
+    return tf.random_uniform((fan_in, fan_out), minval=low, maxval=high, dtype=tf.float32)
 
 
 # ################ #
@@ -53,11 +59,10 @@ def xavier_init(fan_in, fan_out, constant = 1):
 # ################ #
 
 def gen_batches(data, batch_size):
-    """ Divide input data into batches.
 
+    """ Divide input data into batches.
     :param data: input data
     :param batch_size: size of each batch
-
     :return: data divided into batches
     """
     data = np.array(data)
@@ -91,6 +96,8 @@ def expand_args(args_to_expand):
     This is used as a convenience so that the user does not need to specify the
     complete list of parameters for model initialization.
     IE: the user can just specify one parameter and this function will expand it
+    :param args_to_expand:
+    :return:
     """
 
     layers = args_to_expand['layers']
@@ -103,6 +110,12 @@ def expand_args(args_to_expand):
 
 
 def flag_to_list(flag_val, dtype):
+
+    """
+    :param flag_val:
+    :param dtype:
+    :return:
+    """
 
     if dtype == 'int':
         return [int(_) for _ in flag_val.split(',') if _]

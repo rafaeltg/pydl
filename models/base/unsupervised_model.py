@@ -39,7 +39,6 @@ class UnsupervisedModel(Model):
 
         self._encode = None
 
-
     def build_model(self, n_input):
 
         """ Creates the computational graph for the Unsupervised Model.
@@ -57,7 +56,6 @@ class UnsupervisedModel(Model):
 
         print('Done building {} model'.format(self.model_name))
 
-
     def _create_placeholders(self, n_input):
 
         """ Create the TensorFlow placeholders for the Unsupervised Model.
@@ -67,24 +65,21 @@ class UnsupervisedModel(Model):
 
         self._input = tf.placeholder('float', [None, n_input], name='x-input')
 
-
     def _create_layers(self, n_input):
         pass
-
 
     def fit(self, train_set, valid_set, restore_previous_model=False, graph=None):
 
         """ Fit the model to the data.
         :param train_set: Training data. shape(n_samples, n_features)
         :param valid_set: Validation data. shape(n_samples, n_features)
-        :param restore_previous_model:
-                    if true, a previous trained model
-                    with the same name of this model is restored from disk to continue training.
+        :param restore_previous_model: if true, a previous trained model with the same name of this model
+            is restored to continue training.
         :param graph: tensorflow graph object
         :return: self
         """
 
-        print('Starting {} unsupervisioned training...'.format(self.model_name))
+        print('Starting {} unsupervised training...'.format(self.model_name))
 
         g = graph if graph is not None else self.tf_graph
 
@@ -97,12 +92,10 @@ class UnsupervisedModel(Model):
                 self._train_model(train_set, valid_set)
                 self.tf_saver.save(self.tf_session, self.model_path)
 
-        print('Done {} unsupervisioned training...'.format(self.model_name))
-
+        print('Done {} unsupervised training...'.format(self.model_name))
 
     def _train_model(self, train_set, valid_set):
         pass
-
 
     def transform(self, data, graph=None):
 
@@ -121,11 +114,11 @@ class UnsupervisedModel(Model):
 
         return encoded_data
 
-
     def calc_total_cost(self, data, graph=None):
 
         """ Compute the total reconstruction cost.
         :param data: Input data
+        :param graph: tensorflow graph object
         :return: reconstruction cost
         """
 
