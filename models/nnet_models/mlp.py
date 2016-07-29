@@ -3,7 +3,7 @@ import tensorflow as tf
 
 import utils.utilities as utils
 from models.base.supervised_model import SupervisedModel
-from models.nnet_models import nn_layer
+from models.nnet_models import hidden_layer
 
 
 class MLP(SupervisedModel):
@@ -20,7 +20,6 @@ class MLP(SupervisedModel):
                  cost_func='rmse',
                  num_epochs=10,
                  batch_size=100,
-                 xavier_init=1,
                  opt='adam',
                  learning_rate=0.01,
                  momentum=0.5,
@@ -30,35 +29,37 @@ class MLP(SupervisedModel):
                  seed=-1,
                  task='regression'):
 
+
         """
-        :param layers: number of hidden units in each layer
-        :param enc_act_func: Activation function for the encoder. ['tanh', 'sigmoid', 'relu', 'none']
-        :param dec_act_func: Activation function for the decoder. ['tanh', 'sigmoid', 'relu', 'none']
+        :param model_name: Name of the model.
+        :param main_dir: Directory to save the model data.
+        :param layers: Number of hidden units in each layer.
+        :param enc_act_func: Activation function for the hidden layers. ['tanh', 'sigmoid', 'relu', 'none']
+        :param dec_act_func: Activation function for the output layer. ['tanh', 'sigmoid', 'relu', 'none']
         :param cost_func: Cost function. ['rmse', 'cross_entropy', 'softmax_cross_entropy']
-        :param num_epochs: Number of epochs for training
-        :param batch_size: Size of each mini-batch
-        :param xavier_init: Value of the constant for xavier weights initialization
-        :param opt: Which optimizer to use. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
-        :param learning_rate: Initial learning rate
-        :param momentum: Momentum parameter
+        :param num_epochs: Number of training epochs.
+        :param batch_size: Size of each training mini-batch.
+        :param opt: Optimizer function. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
+        :param learning_rate: Initial learning rate.
+        :param momentum: Initial momentum value.
+        :param dropout: The probability that each element is kept at each layer. Default = 1.0 (keep all).
         :param init_layers: Initialize hidden layers' weights and biases.
-        :param verbose: Level of verbosity. 0 - silent, 1 - print accuracy.
+        :param verbose: Level of verbosity. 0 - silent, 1 - print everything.
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         :param task: ['regression', 'classification']
         """
 
-        SupervisedModel.__init__(self,
-                                 model_name,
-                                 main_dir,
-                                 cost_func,
-                                 num_epochs,
-                                 batch_size,
-                                 opt,
-                                 learning_rate,
-                                 momentum,
-                                 seed,
-                                 verbose,
-                                 task)
+        super().__init__(model_name,
+                         main_dir,
+                         cost_func,
+                         num_epochs,
+                         batch_size,
+                         opt,
+                         learning_rate,
+                         momentum,
+                         seed,
+                         verbose,
+                         task)
 
         print('{} __init__'.format(__class__.__name__))
 
@@ -73,7 +74,6 @@ class MLP(SupervisedModel):
         self.layers = layers
         self.enc_act_func = enc_act_func
         self.dec_act_func = dec_act_func
-        self.xavier_init = xavier_init
         self.dropout = dropout
         self.init_layers = init_layers
 
@@ -84,7 +84,7 @@ class MLP(SupervisedModel):
 
     def _create_layers(self, n_input, n_output):
 
-        """ Create the network
+        """ Create the network layers
         :param n_input:
         :param n_output:
         :return: self
@@ -94,13 +94,12 @@ class MLP(SupervisedModel):
         self._layer_nodes = []
 
         for l, layer in enumerate(self.layers):
-            layer_node = nn_layer.NNetLayer(input_layer=layer_inp,
-                                            hidden_units=layer,
-                                            act_function=self.enc_act_func,
-                                            dropout=self.dropout,
-                                            xavier_init=self.xavier_init,
-                                            name_scope='mlp_layer_{}'.format(l),
-                                            init=self.init_layers)
+            layer_node = hidden_layer.HiddenLayer(input_layer=layer_inp,
+                                                  hidden_units=layer,
+                                                  act_func=self.enc_act_func,
+                                                  dropout=self.dropout,
+                                                  name_scope='mlp_layer_{}'.format(l),
+                                                  init=self.init_layers)
 
             layer_inp = layer_node.get_output()
 
@@ -116,11 +115,10 @@ class MLP(SupervisedModel):
         :return: self
         """
 
-        out_layer = nn_layer.NNetLayer(input_layer=input_layer,
-                                       hidden_units=n_output,
-                                       act_function=self.dec_act_func,
-                                       xavier_init=self.xavier_init,
-                                       name_scope='mlp_output_layer')
+        out_layer = hidden_layer.HiddenLayer(input_layer=input_layer,
+                                             hidden_units=n_output,
+                                             act_func=self.dec_act_func,
+                                             name_scope='mlp_output_layer')
 
         self._layer_nodes.append(out_layer)
 

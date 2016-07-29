@@ -42,7 +42,6 @@ ae_params = {
     'cost_func':     FLAGS.cost_func,
     'num_epochs':    FLAGS.num_epochs,
     'batch_size':    FLAGS.batch_size,
-    'xavier_init':   FLAGS.xavier_init,
     'opt':           FLAGS.opt,
     'learning_rate': FLAGS.learning_rate,
     'momentum':      FLAGS.momentum,

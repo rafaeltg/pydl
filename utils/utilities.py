@@ -38,22 +38,6 @@ def activate(act_f, input_layer):
         raise Exception("Incorrect activation function")
 
 
-def xavier_init(fan_in, fan_out, constant=1):
-
-    """ Initialize values for the weights of a hidden layer i. It should be uniformly sampled from a symmetric
-    interval that depends on the activation function.
-    For 'tanh', constanta = 1.
-    For 'sigmoid', constant = 4
-    :param fan_in:
-    :param fan_out:
-    :param constant:
-    :return:
-    """
-    low = -constant * np.sqrt(6.0 / (fan_in + fan_out))
-    high = constant * np.sqrt(6.0 / (fan_in + fan_out))
-    return tf.random_uniform((fan_in, fan_out), minval=low, maxval=high, dtype=tf.float32)
-
-
 # ################ #
 #   Data helpers   #
 # ################ #

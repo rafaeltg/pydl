@@ -128,12 +128,11 @@ class SupervisedModel(Model):
         """ Compute the total reconstruction cost.
         :param data: Input data
         :param data_labels:
-        :param graph: tensorflow graph object
+        :param graph: TensorFlow graph object
         :return: reconstruction cost
         """
 
         g = graph if graph is not None else self.tf_graph
-
         with g.as_default():
             with tf.Session() as self.tf_session:
                 self.tf_saver.restore(self.tf_session, self.model_path)

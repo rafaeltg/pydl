@@ -19,7 +19,6 @@ class StackedAutoencoder(MLP):
                  cost_func=list(['rmse']),
                  num_epochs=list([10]),
                  batch_size=list([10]),
-                 xavier_init=list([1]),
                  opt=list(['adam']),
                  learning_rate=list([0.01]),
                  momentum=list([0.5]),
@@ -45,7 +44,6 @@ class StackedAutoencoder(MLP):
         :param cost_func: Cost function. ['cross_entropy', 'rmse', 'softmax_cross_entropy', 'sparse'].
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
-        :param xavier_init: Value of the constant for xavier weights initialization.
         :param opt: Optimizer to use. string, default 'gradient_descent'. ['gradient_descent', 'ada_grad', 'momentum', 'rms_prop']
         :param learning_rate: Initial learning rate.
         :param momentum: 'Momentum parameter.
@@ -92,7 +90,6 @@ class StackedAutoencoder(MLP):
             'cost_func':     cost_func,
             'num_epochs':    num_epochs,
             'batch_size':    batch_size,
-            'xavier_init':   xavier_init,
             'opt':           opt,
             'learning_rate': learning_rate,
             'momentum':      momentum,
@@ -146,7 +143,6 @@ class StackedAutoencoder(MLP):
                                                  cost_func=self.ae_args['cost_func'][l],
                                                  num_epochs=self.ae_args['num_epochs'][l],
                                                  batch_size=self.ae_args['batch_size'][l],
-                                                 xavier_init=self.ae_args['xavier_init'][l],
                                                  opt=self.ae_args['opt'][l],
                                                  learning_rate=self.ae_args['learning_rate'][l],
                                                  momentum=self.ae_args['momentum'][l],

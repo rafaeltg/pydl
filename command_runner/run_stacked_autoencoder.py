@@ -23,7 +23,7 @@ flags.DEFINE_string('ae_cost_func', 'rmse', 'Cost function of each layer. {}'.fo
 flags.DEFINE_string('ae_num_epochs', '30,', 'Number of training epochs of each layer.')
 flags.DEFINE_string('ae_batch_size', '200,', 'Size of each training mini-batch of each layer.')
 flags.DEFINE_string('ae_xavier_init', '1,', 'Value for the constant in xavier weights initialization.')
-flags.DEFINE_string('ae_opt', 'adam,', 'Optmizer algorithm. {}'.format(utils.valid_optimization_functions))
+flags.DEFINE_string('ae_opt', 'adam,', 'Optimizer algorithm. {}'.format(utils.valid_optimization_functions))
 flags.DEFINE_string('ae_learning_rate', '0.01,', 'Initial learning rate.')
 flags.DEFINE_string('ae_momentum', '0.5,', 'Momentum parameter.')
 flags.DEFINE_string('ae_rho', '0.001,', 'Sparse autoencoder parameter rho.')
@@ -53,7 +53,6 @@ sae_params = {
     'cost_func':              utils.flag_to_list(FLAGS.ae_cost_func, 'str'),
     'num_epochs':             utils.flag_to_list(FLAGS.ae_num_epochs, 'int'),
     'batch_size':             utils.flag_to_list(FLAGS.ae_batch_size, 'int'),
-    'xavier_init':            utils.flag_to_list(FLAGS.ae_xavier_init, 'int'),
     'opt':                    utils.flag_to_list(FLAGS.ae_opt, 'str'),
     'learning_rate':          utils.flag_to_list(FLAGS.ae_learning_rate, 'float'),
     'momentum':               utils.flag_to_list(FLAGS.ae_momentum, 'float'),

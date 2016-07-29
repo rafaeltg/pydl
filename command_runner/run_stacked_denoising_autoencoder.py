@@ -56,7 +56,6 @@ sdae_params = {
     'cost_func':              utils.flag_to_list(FLAGS.dae_cost_func, 'str'),
     'num_epochs':             utils.flag_to_list(FLAGS.dae_num_epochs, 'int'),
     'batch_size':             utils.flag_to_list(FLAGS.dae_batch_size, 'int'),
-    'xavier_init':            utils.flag_to_list(FLAGS.dae_xavier_init, 'int'),
     'opt':                    utils.flag_to_list(FLAGS.dae_opt, 'str'),
     'learning_rate':          utils.flag_to_list(FLAGS.dae_learning_rate, 'float'),
     'momentum':               utils.flag_to_list(FLAGS.dae_momentum, 'float'),

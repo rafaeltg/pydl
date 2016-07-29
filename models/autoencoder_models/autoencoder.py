@@ -3,7 +3,7 @@ import tensorflow as tf
 
 import utils.utilities as utils
 from models.base.unsupervised_model import UnsupervisedModel
-from models.nnet_models.nn_layer import NNetLayer
+from models.nnet_models.hidden_layer import HiddenLayer
 
 
 class Autoencoder(UnsupervisedModel):
@@ -20,7 +20,6 @@ class Autoencoder(UnsupervisedModel):
                  cost_func='rmse',
                  num_epochs=10,
                  batch_size=100,
-                 xavier_init=1,
                  opt='adam',
                  learning_rate=0.01,
                  momentum=0.5,
@@ -37,7 +36,6 @@ class Autoencoder(UnsupervisedModel):
         :param cost_func: Cost function. ['rmse', 'cross_entropy', 'softmax_cross_entropy', 'sparse']
         :param num_epochs: Number of epochs for training
         :param batch_size: Size of each mini-batch
-        :param xavier_init: Value of the constant for xavier weights initialization
         :param opt: Which tensorflow optimizer to use. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
         :param learning_rate: Initial learning rate
         :param momentum: Momentum parameter
@@ -73,7 +71,6 @@ class Autoencoder(UnsupervisedModel):
         self.n_hidden = n_hidden
         self.enc_act_func = enc_act_func
         self.dec_act_func = dec_act_func
-        self.xavier_init = xavier_init
 
         # Sparse Variables
         if cost_func == 'sparse':
@@ -103,11 +100,10 @@ class Autoencoder(UnsupervisedModel):
 
         print('Creating {} encoding layer'.format(self.model_name))
 
-        self._encode_layer = NNetLayer(input_layer=self._input,
-                                       hidden_units=self.n_hidden,
-                                       act_function=self.enc_act_func,
-                                       xavier_init=self.xavier_init,
-                                       name_scope='encode_layer')
+        self._encode_layer = HiddenLayer(input_layer=self._input,
+                                         hidden_units=self.n_hidden,
+                                         act_func=self.enc_act_func,
+                                         name_scope='encode_layer')
 
         self._encode = self._encode_layer.get_output()
 
@@ -122,11 +118,10 @@ class Autoencoder(UnsupervisedModel):
 
         print('Creating {} decoding layer'.format(self.model_name))
 
-        self._decode_layer = NNetLayer(input_layer=self._encode,
-                                       hidden_units=n_inputs,
-                                       act_function=self.dec_act_func,
-                                       xavier_init=self.xavier_init,
-                                       name_scope='decode_layer')
+        self._decode_layer = HiddenLayer(input_layer=self._encode,
+                                         hidden_units=n_inputs,
+                                         act_func=self.dec_act_func,
+                                         name_scope='decode_layer')
 
         self._model_output = self._decode_layer.get_output()
 

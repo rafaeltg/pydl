@@ -122,7 +122,6 @@ class Model:
         :return: cost function node
         """
 
-        ## TODO: COST FUNCTION FOR MULTIPLE OUTPUTS y = y1, y2...
         with tf.name_scope("cost"):
             if self.cost_func == 'cross_entropy':
                 self.cost = -tf.reduce_mean(tf.mul(ref_input, tf.log(tf.clip_by_value(self._model_output, 1e-10, float('inf')))) +

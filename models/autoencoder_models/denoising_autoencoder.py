@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from models.autoencoder_models.autoencoder import Autoencoder
-from models.nnet_models.nn_layer import NNetLayer
+from models.nnet_models.hidden_layer import HiddenLayer
 
 
 class DenoisingAutoencoder(Autoencoder):
@@ -19,7 +19,6 @@ class DenoisingAutoencoder(Autoencoder):
                  cost_func='rmse',
                  num_epochs=10,
                  batch_size=100,
-                 xavier_init=1,
                  opt='adam',
                  learning_rate=0.01,
                  momentum=0.5,
@@ -39,8 +38,7 @@ class DenoisingAutoencoder(Autoencoder):
         :param cost_func: Cost function. ['rmse', 'cross_entropy', 'softmax_cross_entropy', 'sparse']
         :param num_epochs: Number of epochs
         :param batch_size: Size of each mini-batch
-        :param xavier_init: Value of the constant for xavier weights initialization
-        :param opt: Which tensorflow optimizer to use. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
+        :param opt: Which TensorFlow optimizer to use. ['gradient_descent', 'momentum', 'ada_grad', 'adam', 'rms_prop']
         :param learning_rate: Initial learning rate
         :param momentum: Momentum parameter
         :param corr_type: Type of input corruption. ["masking", "gaussian"]
@@ -63,7 +61,6 @@ class DenoisingAutoencoder(Autoencoder):
                          cost_func=cost_func,
                          num_epochs=num_epochs,
                          batch_size=batch_size,
-                         xavier_init=xavier_init,
                          opt=opt,
                          learning_rate=learning_rate,
                          momentum=momentum,
@@ -95,11 +92,10 @@ class DenoisingAutoencoder(Autoencoder):
 
         self._corrupt_input()
 
-        self._encode_layer = NNetLayer(input_layer=self._corr_input,
-                                       hidden_units=self.n_hidden,
-                                       act_function=self.enc_act_func,
-                                       xavier_init=self.xavier_init,
-                                       name_scope='encode_layer')
+        self._encode_layer = HiddenLayer(input_layer=self._corr_input,
+                                         hidden_units=self.n_hidden,
+                                         act_func=self.enc_act_func,
+                                         name_scope='encode_layer')
 
         self._encode = self._encode_layer.get_output()
 

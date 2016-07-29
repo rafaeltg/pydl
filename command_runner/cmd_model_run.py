@@ -18,8 +18,8 @@ def run_supervised_model(model, global_params):
     """
 
     assert isinstance(model, SupervisedModel)
-    assert global_params['train_dataset'] != ''
-    assert global_params['train_labels'] != ''
+    assert global_params['train_dataset'] != '', 'Missing training dataset!'
+    assert global_params['train_labels'] != '', 'Missing training labels!'
 
     # Read dataset
     data = datasets.load_datasets(train_dataset=global_params['train_dataset'],
@@ -58,7 +58,7 @@ def run_unsupervised_model(model, global_params):
     """
 
     assert isinstance(model, UnsupervisedModel)
-    assert global_params['train_dataset'] != ''
+    assert global_params['train_dataset'] != '', 'Missing training dataset!'
 
     # Read dataset
     data = datasets.load_datasets(train_dataset=global_params['train_dataset'],
