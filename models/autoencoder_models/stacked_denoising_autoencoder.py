@@ -72,33 +72,33 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
         :param task: ['regression', 'classification']
         """
 
-        print('{} __init__'.format(__class__.__name__))
+        super().__init__(model_name=model_name,
+                         main_dir=main_dir,
+                         layers=layers,
+                         enc_act_func=enc_act_func,
+                         dec_act_func=dec_act_func,
+                         cost_func=cost_func,
+                         num_epochs=num_epochs,
+                         batch_size=batch_size,
+                         opt=opt,
+                         learning_rate=learning_rate,
+                         momentum=momentum,
+                         rho=rho,
+                         n_beta=n_beta,
+                         n_lambda=n_lambda,
+                         hidden_dropout=hidden_dropout,
+                         finetune_cost_func=finetune_cost_func,
+                         finetune_act_func=finetune_act_func,
+                         finetune_opt=finetune_opt,
+                         finetune_learning_rate=finetune_learning_rate,
+                         finetune_momentum=finetune_momentum,
+                         finetune_num_epochs=finetune_num_epochs,
+                         finetune_batch_size=finetune_batch_size,
+                         seed=seed,
+                         verbose=verbose,
+                         task=task)
 
-        super().__init__(model_name,
-                         main_dir,
-                         layers,
-                         enc_act_func,
-                         dec_act_func,
-                         cost_func,
-                         num_epochs,
-                         batch_size,
-                         opt,
-                         learning_rate,
-                         momentum,
-                         rho,
-                         n_beta,
-                         n_lambda,
-                         hidden_dropout,
-                         finetune_cost_func,
-                         finetune_act_func,
-                         finetune_opt,
-                         finetune_learning_rate,
-                         finetune_momentum,
-                         finetune_num_epochs,
-                         finetune_batch_size,
-                         seed,
-                         verbose,
-                         task)
+        self.logger.info('{} __init__'.format(__class__.__name__))
 
         # Denoising Autoencoder parameters
         self.ae_args['corr_type']      = corr_type
@@ -107,7 +107,7 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
 
         self.ae_args = utils.expand_args(self.ae_args)
 
-        print('Done {} __init__'.format(__class__.__name__))
+        self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def _create_autoencoders(self):
 
@@ -115,14 +115,14 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
         :return: self
         """
 
-        print('Creating {} pretrain nodes...'.format(self.model_name))
+        self.logger.info('Creating {} pretrain nodes...'.format(self.model_name))
 
         self.autoencoders = []
         self.autoencoder_graphs = []
 
         for l, layer in enumerate(self.layers):
 
-            print('l = {}, layer = {}'.format(l, layer))
+            self.logger.info('Node {} - size = {}'.format(l, layer))
 
             self.autoencoders.append(DenoisingAutoencoder(model_name='{}_dae_{}'.format(self.model_name, l),
                                                           main_dir=self.main_dir,
@@ -145,4 +145,4 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
 
             self.autoencoder_graphs.append(tf.Graph())
 
-        print('Done creating {} pretrain nodes...'.format(self.model_name))
+        self.logger.info('Done creating {} pretrain nodes...'.format(self.model_name))

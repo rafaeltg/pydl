@@ -55,8 +55,6 @@ class DenoisingAutoencoder(Autoencoder):
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         """
 
-        print('{} __init__'.format(__class__.__name__))
-
         super().__init__(model_name=model_name,
                          main_dir=main_dir,
                          n_hidden=n_hidden,
@@ -74,6 +72,8 @@ class DenoisingAutoencoder(Autoencoder):
                          verbose=verbose,
                          seed=seed)
 
+        self.logger.info('{} __init__'.format(__class__.__name__))
+
         # Validations
         assert corr_type in ["masking", "gaussian"]
         assert corr_scale > 0 if corr_type == 'gaussian' else True
@@ -84,7 +84,7 @@ class DenoisingAutoencoder(Autoencoder):
         self.corr_scale = corr_scale
         self.corr_keep_prob = corr_keep_prob
 
-        print('Done {} __init__'.format(__class__.__name__))
+        self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def _create_encoding_layer(self):
 
@@ -92,7 +92,7 @@ class DenoisingAutoencoder(Autoencoder):
         :return: self
         """
 
-        print('Creating {} encoding layer'.format(self.model_name))
+        self.logger.info('Creating {} encoding layer'.format(self.model_name))
 
         self._corrupt_input()
 
@@ -103,7 +103,7 @@ class DenoisingAutoencoder(Autoencoder):
 
         self._encode = self._encode_layer.get_output()
 
-        print('Done creating {} encoding layer'.format(self.model_name))
+        self.logger.info('Done creating {} encoding layer'.format(self.model_name))
 
     def _corrupt_input(self):
 
@@ -111,7 +111,7 @@ class DenoisingAutoencoder(Autoencoder):
         :return: self
         """
 
-        print('Corrupting Input Data')
+        self.logger.info('Corrupting Input Data')
 
         with tf.name_scope('corrupted_input'):
             if self.corr_type == 'masking':

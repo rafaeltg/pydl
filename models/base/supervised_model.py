@@ -52,7 +52,7 @@ class SupervisedModel(Model):
         :return: self
         """
 
-        print('Building {} model'.format(self.model_name))
+        self.logger.info('Building {} model'.format(self.model_name))
 
         self._create_placeholders(n_input, n_output)
         self._create_layers(n_input, n_output)
@@ -60,7 +60,7 @@ class SupervisedModel(Model):
         self._create_cost_node(self._target_output)
         self._create_optimizer_node()
 
-        print('Done building {} model'.format(self.model_name))
+        self.logger.info('Done building {} model'.format(self.model_name))
 
     def _create_placeholders(self, n_input, n_output):
 
@@ -86,29 +86,30 @@ class SupervisedModel(Model):
         :param restore_previous_model:
                     if true, a previous trained model
                     with the same name of this model is restored from disk to continue training.
-        :param graph: tensorflow graph object
+        :param graph: TensorFlow graph object
         :return: self
         """
 
-        print('Starting {} supervised training...'.format(self.model_name))
+        self.logger.info('Starting {} supervised training...'.format(self.model_name))
 
         if len(train_labels.shape) != 1:
-            num_classes = train_labels.shape[1]
+            num_out = train_labels.shape[1]
         else:
+            self.logger.error('Invalid training labels shape')
             raise Exception("Please convert the labels with one-hot encoding.")
 
         g = graph if graph is not None else self.tf_graph
 
         with g.as_default():
 
-            self.build_model(train_set.shape[1], num_classes)
+            self.build_model(train_set.shape[1], num_out)
 
             with tf.Session() as self.tf_session:
                 self._initialize_tf(restore_previous_model)
                 self._train_model(train_set, train_labels, valid_set, valid_labels)
                 self.tf_saver.save(self.tf_session, self.model_path)
 
-        print('Done {} supervised training...'.format(self.model_name))
+        self.logger.info('Done {} supervised training...'.format(self.model_name))
 
     def _train_model(self, train_set, train_labels, valid_set, valid_labels):
         pass

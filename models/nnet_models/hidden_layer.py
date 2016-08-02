@@ -30,8 +30,6 @@ class HiddenLayer(object):
         :param init:
         """
 
-        print('{} __init__ (hidden_units = {})'.format(__class__.__name__, hidden_units))
-
         assert hidden_units > 0
         assert act_func in utils.valid_act_functions
         assert 0 <= dropout <= 1.0
@@ -63,8 +61,6 @@ class HiddenLayer(object):
 
             if dropout != 1.0:
                 self._output = tf.nn.dropout(self._output, tf.constant(dropout))
-
-        print('Done {} __init__'.format(__class__.__name__))
 
     def get_output(self):
 

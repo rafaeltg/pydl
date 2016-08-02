@@ -50,8 +50,6 @@ class Autoencoder(UnsupervisedModel):
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         """
 
-        print('{} __init__'.format(__class__.__name__))
-
         super().__init__(model_name=model_name,
                          main_dir=main_dir,
                          cost_func=cost_func,
@@ -62,6 +60,8 @@ class Autoencoder(UnsupervisedModel):
                          momentum=momentum,
                          seed=seed,
                          verbose=verbose)
+
+        self.logger.info('{} __init__'.format(__class__.__name__))
 
         # Validations
         assert n_hidden > 0
@@ -85,7 +85,7 @@ class Autoencoder(UnsupervisedModel):
         self._encode_layer = None
         self._decode_layer = None
 
-        print('Done {} __init__'.format(__class__.__name__))
+        self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def _create_layers(self, n_inputs):
 
@@ -102,7 +102,7 @@ class Autoencoder(UnsupervisedModel):
         :return: self
         """
 
-        print('Creating {} encoding layer'.format(self.model_name))
+        self.logger.info('Creating {} encoding layer'.format(self.model_name))
 
         self._encode_layer = HiddenLayer(input_layer=self._input,
                                          hidden_units=self.n_hidden,
@@ -111,7 +111,7 @@ class Autoencoder(UnsupervisedModel):
 
         self._encode = self._encode_layer.get_output()
 
-        print('Done creating {} encoding layer'.format(self.model_name))
+        self.logger.info('Done creating {} encoding layer'.format(self.model_name))
 
     def _create_decoding_layer(self, n_inputs):
 
@@ -120,7 +120,7 @@ class Autoencoder(UnsupervisedModel):
         :return: self
         """
 
-        print('Creating {} decoding layer'.format(self.model_name))
+        self.logger.info('Creating {} decoding layer'.format(self.model_name))
 
         self._decode_layer = HiddenLayer(input_layer=self._encode,
                                          hidden_units=n_inputs,
@@ -129,7 +129,7 @@ class Autoencoder(UnsupervisedModel):
 
         self._model_output = self._decode_layer.get_output()
 
-        print('Done creating {} decoding layer'.format(self.model_name))
+        self.logger.info('Done creating {} decoding layer'.format(self.model_name))
 
     def _create_cost_node(self, ref_input):
 
@@ -164,7 +164,7 @@ class Autoencoder(UnsupervisedModel):
 
         else:
 
-            super(Autoencoder, self)._create_cost_node(ref_input)
+            super()._create_cost_node(ref_input)
 
     def _train_model(self, train_set, valid_set):
 
@@ -174,10 +174,10 @@ class Autoencoder(UnsupervisedModel):
         :return: self
         """
 
-        print('Training {}'.format(self.model_name))
+        self.logger.info('Training {}'.format(self.model_name))
 
         for i in range(self.num_epochs):
-            print('Training epoch {}...'.format(i))
+            self.logger.info('Training epoch {}...'.format(i))
 
             np.random.shuffle(train_set)
             batches = [_ for _ in utils.gen_batches(train_set, self.batch_size)]
@@ -188,7 +188,7 @@ class Autoencoder(UnsupervisedModel):
             if valid_set is not None:
                 self._run_validation_cost_and_summaries(i, {self._input: valid_set})
 
-        print('Done Training {}'.format(self.model_name))
+        self.logger.info('Done Training {}'.format(self.model_name))
 
     def get_model_parameters(self, graph=None):
 

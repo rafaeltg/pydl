@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import tensorflow as tf
 
@@ -73,6 +75,20 @@ def normalize(data):
 # ############# #
 #   Utilities   #
 # ############# #
+
+def create_dir(dir_path):
+
+    """
+    :param dir_path: directory to be created
+    """
+
+    try:
+        if not os.path.exists(dir_path):
+            print('Creating %s directory.' % dir_path)
+            os.makedirs(dir_path)
+    except OSError as e:
+        raise e
+
 
 def expand_args(args_to_expand):
 

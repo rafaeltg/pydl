@@ -65,7 +65,7 @@ class MLP(SupervisedModel):
                          verbose,
                          task)
 
-        print('{} __init__'.format(__class__.__name__))
+        self.logger.info('{} __init__'.format(__class__.__name__))
 
         # Validations
         assert len(layers) > 0
@@ -84,7 +84,7 @@ class MLP(SupervisedModel):
         self._layer_nodes = []
         self._model_predictions = None
 
-        print('Done {} __init__'.format(__class__.__name__))
+        self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def _create_layers(self, n_input, n_output):
 
@@ -145,26 +145,28 @@ class MLP(SupervisedModel):
         :return: self
         """
 
-        print('Training {}'.format(self.model_name))
+        self.logger.info('Training {}'.format(self.model_name))
+
+        n_out = train_labels.shape[1]
 
         shuff = list(zip(train_set, train_labels))
 
         for i in range(self.num_epochs):
-            print('Training epoch {}...'.format(i))
+            self.logger.info('Training epoch {}...'.format(i))
 
             np.random.shuffle(shuff)
             batches = [_ for _ in utils.gen_batches(shuff, self.batch_size)]
 
             for batch in batches:
                 x_batch, y_batch = list(zip(*batch))
-                y_batch = np.reshape(y_batch, (-1, 1))
+                y_batch = np.reshape(y_batch, (-1, n_out))
                 self.tf_session.run(self.optimizer, feed_dict={self._input: x_batch,
                                                                self._target_output: y_batch})
 
             if valid_set is not None:
                 self._run_validation_cost_and_summaries(i, {self._input: valid_set, self._target_output: valid_labels})
 
-        print('Done Training {}'.format(self.model_name))
+        self.logger.info('Done Training {}'.format(self.model_name))
 
     def get_model_parameters(self, graph=None):
 

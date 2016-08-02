@@ -22,19 +22,20 @@ def model_flags(model_name, flags):
     flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
     flags.DEFINE_float('momentum', 0.5, 'Momentum parameter.')
 
-    flags.DEFINE_integer('verbose', 1, 'Level of verbosity. 0 - silent, 1 - print accuracy.')
+    flags.DEFINE_integer('verbose', 1, 'Level of verbosity. 0 - silent, 1 - print everything.')
     flags.DEFINE_integer('seed', -1, 'Seed for the random generators (>= 0). Useful for testing hyperparameters.')
 
     flags.DEFINE_string('train_dataset', '', 'Path to train set file (.npy or .csv).')
     flags.DEFINE_string('test_dataset', '', 'Path to test set file (.npy or .csv).')
     flags.DEFINE_string('valid_dataset', '', 'Path to validation set file (.npy or .csv).')
+
     flags.DEFINE_boolean('restore_model', False, 'If true, restore previous model corresponding to model name.')
+    flags.DEFINE_boolean('save_summery', False, 'If true, save Tensorboard logs.')
 
 
 ############################
 #  Supervised Model Flags  #
 ############################
-
 
 def set_supervised_model_global_flags(model_name, flags):
 

@@ -66,8 +66,6 @@ class StackedAutoencoder(MLP):
         :param task: ['regression', 'classification']
         """
 
-        print('{} __init__'.format(__class__.__name__))
-
         # Finetuning network
         super().__init__(model_name=model_name,
                          main_dir=main_dir,
@@ -85,6 +83,8 @@ class StackedAutoencoder(MLP):
                          verbose=verbose,
                          seed=seed,
                          task=task)
+
+        self.logger.info('{} __init__'.format(__class__.__name__))
 
         # Autoencoder parameters
         ae_args = {
@@ -108,7 +108,7 @@ class StackedAutoencoder(MLP):
         self.autoencoders = []
         self.autoencoder_graphs = []
 
-        print('Done {} __init__'.format(__class__.__name__))
+        self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def _create_layers(self, n_input, n_output):
 
@@ -130,14 +130,14 @@ class StackedAutoencoder(MLP):
         :return: self
         """
 
-        print('Creating {} pretrain nodes...'.format(self.model_name))
+        self.logger.info('Creating {} pretrain nodes...'.format(self.model_name))
 
         self.autoencoders = []
         self.autoencoder_graphs = []
 
         for l, layer in enumerate(self.ae_args['layers']):
 
-            print('l = {}, layer = {}'.format(l, layer))
+            self.logger.info('l = {}, layer = {}'.format(l, layer))
 
             self.autoencoders.append(Autoencoder(model_name='{}_ae_{}'.format(self.model_name, l),
                                                  main_dir=self.main_dir,
@@ -157,7 +157,7 @@ class StackedAutoencoder(MLP):
 
             self.autoencoder_graphs.append(tf.Graph())
 
-        print('Done creating {} pretrain nodes...'.format(self.model_name))
+        self.logger.info('Done creating {} pretrain nodes...'.format(self.model_name))
 
     def pretrain(self, train_set, valid_set):
 
@@ -167,14 +167,14 @@ class StackedAutoencoder(MLP):
         :return: return data encoded by the last layer
         """
 
-        print('Starting {} unsupervised pretraining...'.format(self.model_name))
+        self.logger.info('Starting {} unsupervised pretraining...'.format(self.model_name))
 
         next_train = train_set
         next_valid = valid_set
 
         for l, autoenc in enumerate(self.autoencoders):
 
-            print('Training layer {}'.format(l+1))
+            self.logger.info('Training layer {}'.format(l+1))
 
             graph = self.autoencoder_graphs[l]
 
@@ -193,7 +193,7 @@ class StackedAutoencoder(MLP):
                 next_train = autoenc.transform(data=next_train, graph=graph)
                 next_valid = autoenc.transform(data=next_valid, graph=graph)
 
-        print('Done {} unsupervised pretraining...'.format(self.model_name))
+        self.logger.info('Done {} unsupervised pretraining...'.format(self.model_name))
 
     def _train_model(self, train_set, train_labels, valid_set, valid_labels):
 

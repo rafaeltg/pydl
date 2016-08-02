@@ -50,7 +50,7 @@ class UnsupervisedModel(Model):
         :return: self
         """
 
-        print('Building {} model'.format(self.model_name))
+        self.logger.info('Building {} model'.format(self.model_name))
 
         self._create_placeholders(n_input)
         self._create_layers(n_input)
@@ -58,7 +58,7 @@ class UnsupervisedModel(Model):
         self._create_cost_node(self._input)
         self._create_optimizer_node()
 
-        print('Done building {} model'.format(self.model_name))
+        self.logger.info('Done building {} model'.format(self.model_name))
 
     def _create_placeholders(self, n_input):
 
@@ -79,11 +79,11 @@ class UnsupervisedModel(Model):
         :param valid_set: Validation data. shape(n_samples, n_features)
         :param restore_previous_model: if true, a previous trained model with the same name of this model
             is restored to continue training.
-        :param graph: tensorflow graph object
+        :param graph: TensorFlow graph object
         :return: self
         """
 
-        print('Starting {} unsupervised training...'.format(self.model_name))
+        self.logger.info('Starting {} unsupervised training...'.format(self.model_name))
 
         g = graph if graph is not None else self.tf_graph
 
@@ -96,7 +96,7 @@ class UnsupervisedModel(Model):
                 self._train_model(train_set, valid_set)
                 self.tf_saver.save(self.tf_session, self.model_path)
 
-        print('Done {} unsupervised training...'.format(self.model_name))
+        self.logger.info('Done {} unsupervised training...'.format(self.model_name))
 
     def _train_model(self, train_set, valid_set):
         pass

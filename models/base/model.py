@@ -2,15 +2,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import errno
 import os
-from os.path import expanduser
 
 import numpy as np
 import tensorflow as tf
 
 import utils.config as config
 import utils.utilities as utils
+from utils.logger import Logger
 
 
 class Model:
@@ -27,22 +26,24 @@ class Model:
                  opt='adam',
                  learning_rate=0.001,
                  momentum=0.1,
+                 task='regression',
                  save_summary=False,
                  seed=-1,
-                 verbose=0,
-                 task='regression'):
+                 verbose=0):
 
         """
-        :param model_name: name of the model, used as filename. string, default 'dae'
-        :param main_dir: main directory to put the stored_models, data and summary directories
+        :param model_name: Name of the model, used as filename.
+        :param main_dir: Main directory to put the stored_models, data and summary directories.
         :param cost_func:
+        :param num_epochs:
+        :param batch_size:
         :param opt:
         :param learning_rate:
         :param momentum:
+        :param task: 'classification' or 'regression'
         :param save_summary:
         :param seed: positive integer for seeding random generators. Ignored if < 0.
-        :param verbose: Level of verbosity. 0 - silent, 1 - print accuracy.
-        :param task: 'classification' or 'regression'
+        :param verbose: Level of verbosity. 0 - silent, 1 - print.
         """
 
         # Validations
@@ -81,44 +82,29 @@ class Model:
         self.tf_graph = tf.Graph()
         self.tf_session = None
         self.tf_saver = None
-        self.tf_merged_summaries = None
 
         if seed >= 0:
             np.random.seed(seed)
             tf.set_random_seed(seed)
 
-        self.verbose = verbose
         self.task = task
+        self.verbose = verbose
+
+        # Create the logger
+        self.logger = Logger(model_name, verbose)
 
         # Create directories
         self.models_dir = os.path.join(config.models_dir, main_dir)
-        print('Creating %s directory to save/restore models' % self.models_dir)
-        self._create_dir(self.models_dir)
-
-        self.data_dir = os.path.join(config.data_dir, main_dir)
-        print('Creating %s directory to save model generated data' % self.data_dir)
-        self._create_dir(self.data_dir)
+        utils.create_dir(self.models_dir)
 
         self.model_path = os.path.join(self.models_dir, self.model_name)
 
         self.save_summary = save_summary
         if save_summary:
+            self.tf_merged_summaries = None
             self.tf_summary_writer = None
             self.tf_summary_dir = os.path.join(config.summary_dir, main_dir)
-            print('Creating %s directory to save Tensorboard logs' % self.tf_summary_dir)
-            self._create_dir(self.tf_summary_dir)
-
-    def _create_dir(self, dirpath):
-
-        """
-        :param dirpath: directory to be created
-        """
-
-        try:
-            os.makedirs(dirpath)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+            utils.create_dir(self.tf_summary_dir)
 
     def _create_cost_node(self, ref_input):
 
@@ -181,6 +167,7 @@ class Model:
         self.tf_saver = tf.train.Saver()
 
         if restore_previous_model:
+            self.logger.info('Restoring previous model from %s' % self.model_path)
             self.tf_saver.restore(self.tf_session, self.model_path)
 
         if self.save_summary:
@@ -195,14 +182,14 @@ class Model:
 
             run_id += 1
             run_dir = os.path.join(self.tf_summary_dir, 'run' + str(run_id))
-            print('Tensorboard logs dir for this run is %s' % (run_dir))
+            self.logger.info('Tensorboard logs dir for this run is %s' % run_dir)
             self.tf_summary_writer = tf.train.SummaryWriter(run_dir, self.tf_session.graph)
 
     def _run_validation_cost_and_summaries(self, epoch, feed):
 
         """ Run the summaries and error computation on the validation set.
-        :param feed: tensorflow feed_dict
-        :param valid_set: validation data
+        :param epoch: Running epoch
+        :param feed: TensorFlow feed_dict
         :return: self
         """
 
@@ -216,8 +203,7 @@ class Model:
         else:
             cost = self.tf_session.run(self.cost, feed_dict=feed)
 
-        if self.verbose == 1:
-            print("Validation Cost: {}".format(cost))
+        self.logger.info("Validation Cost: {}".format(cost))
 
     def get_model_parameters(self, graph=None):
         pass
