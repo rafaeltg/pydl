@@ -58,7 +58,7 @@ class SupervisedModel(Model):
         self._create_layers(n_input, n_output)
 
         self._create_cost_node(self._target_output)
-        self._create_optmizer_node()
+        self._create_optimizer_node()
 
         print('Done building {} model'.format(self.model_name))
 
@@ -104,7 +104,7 @@ class SupervisedModel(Model):
             self.build_model(train_set.shape[1], num_classes)
 
             with tf.Session() as self.tf_session:
-                self._initialize_tf_utilities_and_ops(restore_previous_model)
+                self._initialize_tf(restore_previous_model)
                 self._train_model(train_set, train_labels, valid_set, valid_labels)
                 self.tf_saver.save(self.tf_session, self.model_path)
 
