@@ -125,7 +125,8 @@ class Autoencoder(UnsupervisedModel):
         self._decode_layer = HiddenLayer(input_layer=self._encode,
                                          hidden_units=n_inputs,
                                          act_func=self.dec_act_func,
-                                         name_scope='decode_layer')
+                                         name_scope='decode_layer',
+                                         w=tf.transpose(self._encode_layer.get_weights()))
 
         self._model_output = self._decode_layer.get_output()
 

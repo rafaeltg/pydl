@@ -106,26 +106,28 @@ class Model:
             self.tf_summary_dir = os.path.join(config.summary_dir, main_dir)
             utils.create_dir(self.tf_summary_dir)
 
-    def _create_cost_node(self, ref_input):
+    def _create_cost_node(self, ref_input, reg_term=None):
 
         """ Create the cost function node.
         :param ref_input: reference input placeholder node
+        :param reg_term: regularization term
         :return: self
         """
 
         with tf.name_scope("cost"):
             if self.cost_func == 'cross_entropy':
-                self.cost = -tf.reduce_mean(tf.mul(ref_input, tf.log(tf.clip_by_value(self._model_output, 1e-10, float('inf')))) +
-                                            tf.mul((1 - ref_input), tf.log(tf.clip_by_value(1 - self._model_output, 1e-10, float('inf')))))
+                cost = -tf.reduce_mean(tf.mul(ref_input, tf.log(tf.clip_by_value(self._model_output, 1e-10, float('inf')))) +
+                                       tf.mul((1 - ref_input), tf.log(tf.clip_by_value(1 - self._model_output, 1e-10, float('inf')))))
 
             elif self.cost_func == 'softmax_cross_entropy':
                 softmax = tf.nn.softmax(self._model_output)
-                self.cost = -tf.reduce_mean(tf.mul(ref_input, tf.log(softmax)) +
-                                            tf.mul((1 - ref_input), tf.log(1 - softmax)))
+                cost = -tf.reduce_mean(tf.mul(ref_input, tf.log(softmax)) +
+                                       tf.mul((1 - ref_input), tf.log(1 - softmax)))
 
             elif self.cost_func == 'rmse':
-                self.cost = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(ref_input, self._model_output))))
+                cost = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(ref_input, self._model_output))))
 
+            self.cost = cost + reg_term if reg_term is not None else cost
             _ = tf.scalar_summary(self.cost_func, self.cost)
 
     def _create_optimizer_node(self):

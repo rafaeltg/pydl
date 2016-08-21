@@ -79,7 +79,6 @@ class StackedAutoencoder(MLP):
                          learning_rate=finetune_learning_rate,
                          momentum=finetune_momentum,
                          dropout=hidden_dropout,
-                         init_layers=False,
                          verbose=verbose,
                          seed=seed,
                          task=task)

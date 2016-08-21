@@ -19,7 +19,8 @@ class HiddenLayer(object):
                  act_func='sigmoid',
                  dropout=1.0,
                  name_scope='nn_layer',
-                 init=True):
+                 w=None,
+                 b=None):
 
         """
         :param input_layer: A tensor of shape (number_examples, n_input)
@@ -27,7 +28,6 @@ class HiddenLayer(object):
         :param act_func: Activation function. ['tanh', 'sigmoid', 'relu', 'none']
         :param dropout: The probability that each element is kept. Default = 1 (keep all)
         :param name_scope:
-        :param init:
         """
 
         assert hidden_units > 0
@@ -37,7 +37,10 @@ class HiddenLayer(object):
         self._input = input_layer
         n_in = np.int_(self._input.get_shape()[1])
 
-        if init:
+        if w is not None:
+            self._w = w
+
+        else:
             # Weights are initialized with values uniformly sampled from sqrt(-6./(n_in+n_hidden))
             # and sqrt(6./(n_in+n_hidden)). Optimal initialization of weights is dependent on the
             # activation function used (among other things). For example, results presented in [Xavier10]
@@ -50,11 +53,11 @@ class HiddenLayer(object):
                                                     dtype=tf.float32),
                                   name='w-'+name_scope)
 
-            self._b = tf.Variable(tf.truncated_normal([hidden_units], stddev=0.01), name='b-'+name_scope)
+        if b is not None:
+            self._b = b
 
         else:
-            self._w = tf.Variable(tf.zeros([n_in, hidden_units], 'float'))
-            self._b = tf.Variable(tf.zeros([hidden_units], 'float'))
+            self._b = tf.Variable(tf.truncated_normal([hidden_units], stddev=0.01), name='b-'+name_scope)
 
         with tf.name_scope(name_scope):
             self._output = utils.activate(act_func, tf.add(tf.matmul(self._input, self._w), self._b))

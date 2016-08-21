@@ -28,11 +28,9 @@ class MLP(SupervisedModel):
                  learning_rate=0.01,
                  momentum=0.5,
                  dropout=1.0,
-                 init_layers=True,
                  verbose=0,
                  seed=-1,
                  task='regression'):
-
 
         """
         :param model_name: Name of the model.
@@ -47,7 +45,6 @@ class MLP(SupervisedModel):
         :param learning_rate: Initial learning rate.
         :param momentum: Initial momentum value.
         :param dropout: The probability that each element is kept at each layer. Default = 1.0 (keep all).
-        :param init_layers: Initialize hidden layers' weights and biases.
         :param verbose: Level of verbosity. 0 - silent, 1 - print everything.
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         :param task: ['regression', 'classification']
@@ -79,7 +76,6 @@ class MLP(SupervisedModel):
         self.enc_act_func = enc_act_func
         self.dec_act_func = dec_act_func
         self.dropout = dropout
-        self.init_layers = init_layers
 
         self._layer_nodes = []
         self._model_predictions = None
@@ -102,8 +98,7 @@ class MLP(SupervisedModel):
                                                   hidden_units=layer,
                                                   act_func=self.enc_act_func,
                                                   dropout=self.dropout,
-                                                  name_scope='mlp_layer_{}'.format(l),
-                                                  init=self.init_layers)
+                                                  name_scope='mlp_layer_{}'.format(l))
 
             layer_inp = layer_node.get_output()
 
