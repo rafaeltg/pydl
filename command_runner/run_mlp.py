@@ -49,7 +49,7 @@ mlp_params = {
 
 if __name__ == '__main__':
 
-     # Create MLP object
+    # Create MLP object
     mlp = MLP(**mlp_params)
 
     run_supervised_model(mlp, global_params)

@@ -7,7 +7,7 @@ import tensorflow as tf
 
 import utils.utilities as utils
 from models.base.supervised_model import SupervisedModel
-from models.nnet_models import hidden_layer
+from models.nnet_models.hidden_layer import HiddenLayer
 
 
 class MLP(SupervisedModel):
@@ -94,11 +94,11 @@ class MLP(SupervisedModel):
         self._layer_nodes = []
 
         for l, layer in enumerate(self.layers):
-            layer_node = hidden_layer.HiddenLayer(input_layer=layer_inp,
-                                                  hidden_units=layer,
-                                                  act_func=self.enc_act_func,
-                                                  dropout=self.dropout,
-                                                  name_scope='mlp_layer_{}'.format(l))
+            layer_node = HiddenLayer(input_layer=layer_inp,
+                                     hidden_units=layer,
+                                     act_func=self.enc_act_func,
+                                     dropout=self.dropout,
+                                     name_scope='mlp_layer_{}'.format(l))
 
             layer_inp = layer_node.get_output()
 
@@ -114,10 +114,10 @@ class MLP(SupervisedModel):
         :return: self
         """
 
-        out_layer = hidden_layer.HiddenLayer(input_layer=input_layer,
-                                             hidden_units=n_output,
-                                             act_func=self.dec_act_func,
-                                             name_scope='mlp_output_layer')
+        out_layer = HiddenLayer(input_layer=input_layer,
+                                hidden_units=n_output,
+                                act_func=self.dec_act_func,
+                                name_scope='mlp_output_layer')
 
         self._layer_nodes.append(out_layer)
 
@@ -159,7 +159,7 @@ class MLP(SupervisedModel):
                                                                self._target_output: y_batch})
 
             if valid_set is not None:
-                self._run_validation_cost_and_summaries(i, {self._input: valid_set, self._target_output: valid_labels})
+                self._run_monitor(i, {self._input: valid_set, self._target_output: valid_labels})
 
         self.logger.info('Done Training {}'.format(self.model_name))
 

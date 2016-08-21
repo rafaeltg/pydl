@@ -187,7 +187,7 @@ class Autoencoder(UnsupervisedModel):
                 self.tf_session.run(self.optimizer, feed_dict={self._input: batch})
 
             if valid_set is not None:
-                self._run_validation_cost_and_summaries(i, {self._input: valid_set})
+                self._run_monitor(i, {self._input: valid_set})
 
         self.logger.info('Done Training {}'.format(self.model_name))
 

@@ -187,7 +187,7 @@ class Model:
             self.logger.info('Tensorboard logs dir for this run is %s' % run_dir)
             self.tf_summary_writer = tf.train.SummaryWriter(run_dir, self.tf_session.graph)
 
-    def _run_validation_cost_and_summaries(self, epoch, feed):
+    def _run_monitor(self, epoch, feed):
 
         """ Run the summaries and error computation on the validation set.
         :param epoch: Running epoch
@@ -197,10 +197,9 @@ class Model:
 
         if self.save_summary:
             result = self.tf_session.run([self.tf_merged_summaries, self.cost], feed_dict=feed)
-            summary_str = result[0]
             cost = result[1]
 
-            self.tf_summary_writer.add_summary(summary_str, epoch)
+            self.tf_summary_writer.add_summary(result[0], epoch)
 
         else:
             cost = self.tf_session.run(self.cost, feed_dict=feed)
