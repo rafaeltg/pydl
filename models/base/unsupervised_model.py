@@ -119,7 +119,7 @@ class UnsupervisedModel(Model):
 
         return rec_data
 
-    def evaluate(self, data):
+    def score(self, data):
 
         """ Compute the total reconstruction loss.
         :param data: Input data
@@ -128,6 +128,10 @@ class UnsupervisedModel(Model):
 
         self.logger.info('Evaluating reconstruction loss...')
 
-        e = self._model.evaluate(x=data, y=data, verbose=self.verbose)
+        loss = self._model.evaluate(x=data, 
+                                    y=data, 
+                                    verbose=self.verbose)
 
-        return e
+        if type(loss) is list:
+            return loss[0]
+        return loss
