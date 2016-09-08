@@ -41,8 +41,8 @@ def run_supervised_model(model, global_params):
     model.fit(train_x, train_y, valid_x, valid_y)
 
     if test_x is not None:
-        test_cost = model.evaluate(test_x, test_y)
-        print('\nTest Cost = {}'.format(test_cost))
+        test_loss = model.score(test_x, test_y)
+        print('\nTest Loss = {}'.format(test_loss))
 
         # Save the predictions of the model
         if global_params['save_predictions']:
@@ -80,8 +80,8 @@ def run_unsupervised_model(model, global_params):
         np.save(global_params['save_encode_valid'], model.transform(valid_x))
 
     if test_x is not None:
-        test_cost = model.evaluate(data=test_x)
-        print('\nTest Cost = {}'.format(test_cost))
+        test_loss = model.score(data=test_x)
+        print('\nTest Loss = {}'.format(test_loss))
 
         if global_params['save_encode_test']:
             np.save(global_params['save_encode_test'], model.transform(test_x))
