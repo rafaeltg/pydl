@@ -104,7 +104,8 @@ class UnsupervisedModel(Model):
 
         self.logger.info('Transforming data...')
 
-        encoded_data = self._encoder.predict(x=data, verbose=0)
+        encoded_data = self._encoder.predict(x=data, 
+                                             verbose=self.verbose)
 
         return encoded_data
 
@@ -115,7 +116,8 @@ class UnsupervisedModel(Model):
         :return:
         """
 
-        rec_data = self._decoder.predict(x=encoded_data, verbose=self.verbose)
+        rec_data = self._decoder.predict(x=encoded_data, 
+                                         verbose=self.verbose)
 
         return rec_data
 
@@ -128,8 +130,9 @@ class UnsupervisedModel(Model):
 
         self.logger.info('Evaluating reconstruction loss...')
 
-        loss = self._model.evaluate(x=data, 
-                                    y=data, 
+        loss = self._model.evaluate(x=data,
+                                    y=data,
+                                    batch_size=self.batch_size,
                                     verbose=self.verbose)
 
         if type(loss) is list:
