@@ -1,43 +1,20 @@
 import os
 
 import numpy as np
-import tensorflow as tf
-
-# Constants
-ONE = tf.constant(1.0)
-
-valid_act_functions               = ['sigmoid', 'tanh', 'relu', 'none']
-valid_supervised_cost_functions   = ['rmse', 'cross_entropy', 'softmax_cross_entropy']
-valid_unsupervised_cost_functions = ['rmse', 'cross_entropy', 'softmax_cross_entropy', 'sparse']
-valid_optimization_functions      = ['gradient_descent', 'ada_grad', 'momentum', 'adam', 'rms_prop']
 
 
-# ################### #
-#   Network helpers   #
-# ################### #
+valid_act_functions = ['softmax', 'softplus', 'sigmoid', 'tanh', 'relu', 'linear']
 
-def activate(act_f, input_layer):
+valid_loss_functions = ['mse',                       # Mean Squared Error
+                        'mae',                       # Mean Absolute Error
+                        'mape',                      # Mean Absolute Percentage Error
+                        'msle',                      # Mean Squared Logarithmic Error
+                        'binary_crossentropy',       # Log loss
+                        'categorical_crossentropy',  # Multiclass Log loss
+                        'kld',                       # Kullback Leibler Divergence (information gain)
+                        'custom']
 
-    """
-    :param act_f:
-    :param input_layer:
-    :return:
-    """
-
-    if act_f == 'sigmoid':
-        return tf.nn.sigmoid(input_layer)
-
-    elif act_f == 'tanh':
-        return tf.nn.tanh(input_layer)
-
-    elif act_f == 'relu':
-        return tf.nn.relu(input_layer)
-
-    if (act_f is None) or (act_f == 'none'):
-        return input_layer
-
-    else:
-        raise Exception("Incorrect activation function")
+valid_optimization_functions = ['sgd', 'rmsprop', 'adagrad', 'adadelta', 'adam']
 
 
 # ################ #

@@ -1,8 +1,9 @@
 import tensorflow as tf
 
+import utils.utilities as utils
 from command_runner.cmd_flags import set_unsupervised_model_flags
 from command_runner.cmd_model_run import run_unsupervised_model
-from models.autoencoder_models.autoencoder import Autoencoder
+from models.autoencoder_models.deep_autoencoder import DeepAutoencoder
 
 # #################### #
 #   Flags definition   #
@@ -12,10 +13,10 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # Global configuration
-set_unsupervised_model_flags('ae', flags)
+set_unsupervised_model_flags('deep_ae', flags)
 
-# Autoencoder specific parameters
-flags.DEFINE_integer('n_hidden', 32, 'Number of hidden units of the Autoencoder.')
+# Deep Autoencoder specific parameters
+flags.DEFINE_string('n_hidden', '256,128,64', 'Number of hidden units of the Deep Autoencoder.')
 
 
 # Global parameters
@@ -29,10 +30,10 @@ global_params = {
 }
 
 # Autoencoder parameters
-ae_params = {
+deep_ae_params = {
     'model_name':    FLAGS.model_name,
     'main_dir':      FLAGS.main_dir,
-    'n_hidden':      FLAGS.n_hidden,
+    'n_hidden':      utils.flag_to_list(FLAGS.n_hidden, 'int'),
     'enc_act_func':  FLAGS.enc_act_func,
     'dec_act_func':  FLAGS.dec_act_func,
     'loss_func':     FLAGS.loss_func,
@@ -48,7 +49,4 @@ ae_params = {
 
 if __name__ == '__main__':
 
-    # Create the Autoencoder object
-    ae = Autoencoder(**ae_params)
-
-    run_unsupervised_model(ae, global_params)
+    run_unsupervised_model(DeepAutoencoder(**deep_ae_params), global_params)

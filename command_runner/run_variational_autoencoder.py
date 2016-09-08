@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from command_runner.cmd_flags import set_unsupervised_model_flags
 from command_runner.cmd_model_run import run_unsupervised_model
-from models.autoencoder_models.autoencoder import Autoencoder
+from models.autoencoder_models.variational_autoencoder import VariationalAutoencoder
 
 # #################### #
 #   Flags definition   #
@@ -12,10 +12,11 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # Global configuration
-set_unsupervised_model_flags('ae', flags)
+set_unsupervised_model_flags('vae', flags)
 
-# Autoencoder specific parameters
-flags.DEFINE_integer('n_hidden', 32, 'Number of hidden units of the Autoencoder.')
+# Variational Autoencoder specific parameters
+flags.DEFINE_integer('n_hidden', 256, 'Number of hidden units of each intermediate layer.')
+flags.DEFINE_integer('n_latent', 5, 'Number of hidden units in the latent layer.')
 
 
 # Global parameters
@@ -28,14 +29,14 @@ global_params = {
     'save_encode_test':  FLAGS.save_encode_test,
 }
 
-# Autoencoder parameters
-ae_params = {
+# Variational Autoencoder parameters
+vae_params = {
     'model_name':    FLAGS.model_name,
     'main_dir':      FLAGS.main_dir,
+    'n_latent':      FLAGS.n_latent,
     'n_hidden':      FLAGS.n_hidden,
     'enc_act_func':  FLAGS.enc_act_func,
     'dec_act_func':  FLAGS.dec_act_func,
-    'loss_func':     FLAGS.loss_func,
     'num_epochs':    FLAGS.num_epochs,
     'batch_size':    FLAGS.batch_size,
     'opt':           FLAGS.opt,
@@ -48,7 +49,4 @@ ae_params = {
 
 if __name__ == '__main__':
 
-    # Create the Autoencoder object
-    ae = Autoencoder(**ae_params)
-
-    run_unsupervised_model(ae, global_params)
+    run_unsupervised_model(VariationalAutoencoder(**vae_params), global_params)
