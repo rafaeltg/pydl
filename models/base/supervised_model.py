@@ -103,7 +103,7 @@ class SupervisedModel(Model):
 
         return preds
 
-    def evaluate(self, x, y):
+    def score(self, x, y):
 
         """ Evaluate the model on (x, y).
         :param x: Input data
@@ -111,9 +111,11 @@ class SupervisedModel(Model):
         :return:
         """
 
-        cost = self._model.evaluate(x=x,
+        loss = self._model.evaluate(x=x,
                                     y=y,
                                     batch_size=self.batch_size,
                                     verbose=self.verbose)
 
-        return cost
+        if type(loss) is list:
+            return loss[0]
+        return loss
