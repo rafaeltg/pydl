@@ -119,3 +119,11 @@ class SupervisedModel(Model):
         if type(loss) is list:
             return loss[0]
         return loss
+
+    def get_model_parameters(self):
+
+        """ Return the model parameters in the form of numpy arrays.
+        :return: model parameters
+        """
+
+        return self._model.get_weights()

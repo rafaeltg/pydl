@@ -88,7 +88,6 @@ class MLP(SupervisedModel):
                 self._model_layers = Dropout(p=self.dropout)(self._model_layers)
 
             self._model_layers = Dense(output_dim=l,
-                                       init='glorot_uniform',
                                        activation=self.enc_act_func)(self._model_layers)
 
         # Output layer
@@ -96,13 +95,6 @@ class MLP(SupervisedModel):
             self._model_layers = Dropout(p=self.dropout)(self._model_layers)
 
         self._model_layers = Dense(output_dim=n_output,
-                                   init='glorot_uniform',
                                    activation=self.dec_act_func)(self._model_layers)
 
-    def get_model_parameters(self):
 
-        """ Return the model parameters in the form of numpy arrays.
-        :return: model parameters
-        """
-
-        return self._model.get_weights()
