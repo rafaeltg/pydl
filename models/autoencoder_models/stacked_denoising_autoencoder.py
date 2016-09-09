@@ -18,16 +18,16 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
                  layers=list([128, 64]),
                  enc_act_func=list(['relu']),
                  dec_act_func=list(['linear']),
-                 loss_func=list(['mean_squared_error']),
+                 loss_func=list(['mse']),
                  num_epochs=list([10]),
                  batch_size=list([100]),
                  opt=list(['adam']),
                  learning_rate=list([0.01]),
                  momentum=list([0.5]),
                  corr_type=list(['gaussian']),
-                 corr_param=list([0.1]),
+                 corr_param=list([0.2]),
                  hidden_dropout=1.0,
-                 finetune_loss_func='mean_squared_error',
+                 finetune_loss_func='mse',
                  finetune_enc_act_func='relu',
                  finetune_dec_act_func='linear',
                  finetune_opt='adam',
@@ -40,21 +40,21 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
 
         """
         :param layers: list containing the hidden units for each layer
-        :param enc_act_func: Activation function for the encoder. ['sigmoid', 'tanh', 'relu', 'linear']
-        :param dec_act_func: Activation function for the decoder. ['sigmoid', 'tanh', 'relu', 'linear']
-        :param loss_func: Loss function. ['cross_entropy', 'mean_squared_error', 'softmax_cross_entropy'].
+        :param enc_act_func: Activation function for the encoder.
+        :param dec_act_func: Activation function for the decoder.
+        :param loss_func: Loss function.
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
-        :param opt: Optimizer to use. string, default 'gradient_descent'. ['sgd', 'ada_grad', 'momentum', 'rms_prop']
+        :param opt: Optimizer to use. string, default 'gradient_descent'.
         :param learning_rate: Initial learning rate.
         :param momentum: 'Momentum parameter.
         :param corr_type: type of input corruption. ["masking", "gaussian"]
         :param corr_param: 'scale' parameter for Aditive Gaussian Corruption ('gaussian') or
                            'keep_prob' parameter for Masking Corruption ('masking')
         :param hidden_dropout: hidden layers dropout parameter.
-        :param finetune_loss_func: Cost function for the fine tunning step. ['cross_entropy', 'rmse', 'softmax_cross_entropy']
-        :param finetune_enc_act_func: finetuning step hidden layers activation function. ['sigmoid', 'tanh', 'relu', 'linear']
-        :param finetune_dec_act_func: finetuning step output layer activation function. ['sigmoid', 'tanh', 'relu', 'linear']
+        :param finetune_loss_func: Cost function for the fine tunning step.
+        :param finetune_enc_act_func: finetuning step hidden layers activation function.
+        :param finetune_dec_act_func: finetuning step output layer activation function.
         :param finetune_opt: optimizer for the finetuning phase
         :param finetune_learning_rate: learning rate for the finetuning.
         :param finetune_momentum: momentum for the finetuning.
