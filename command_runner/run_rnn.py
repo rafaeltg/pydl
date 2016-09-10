@@ -3,7 +3,7 @@ import tensorflow as tf
 import utils.utilities as utils
 from command_runner.cmd_flags import set_supervised_model_flags
 from command_runner.cmd_model_run import run_supervised_model
-from models.nnet_models.mlp import MLP
+from models.nnet_models.rnn import RNN
 
 # #################### #
 #   Flags definition   #
@@ -11,8 +11,9 @@ from models.nnet_models.mlp import MLP
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-set_supervised_model_flags('mlp', flags)
-flags.DEFINE_string('layers', '64,32,16', 'String representing the architecture of the network.')
+set_supervised_model_flags('lstm', flags)
+flags.DEFINE_string('cell_type', 'simple', 'Recurrent layers type. ["lstm", "gru", "simple"]')
+flags.DEFINE_string('layers', '50,50', 'String representing the architecture of the network.')
 
 
 # Global parameters
@@ -28,9 +29,10 @@ global_params = {
 }
 
 # Get parameters
-mlp_params = {
+rnn_params = {
     'model_name':    FLAGS.model_name,
     'main_dir':      FLAGS.main_dir,
+    'cell_type':     FLAGS.cell_type,
     'layers':        utils.flag_to_list(FLAGS.layers, 'int'),
     'enc_act_func':  FLAGS.enc_act_func,
     'dec_act_func':  FLAGS.dec_act_func,
@@ -48,4 +50,4 @@ mlp_params = {
 
 if __name__ == '__main__':
 
-    run_supervised_model(MLP(**mlp_params), global_params)
+    run_supervised_model(RNN(**rnn_params), global_params)

@@ -44,6 +44,9 @@ def run_supervised_model(model, global_params):
         test_loss = model.score(test_x, test_y)
         print('\nTest Loss = {}'.format(test_loss))
 
+        preds = model.predict(test_x)
+        print('\n', preds)
+
         # Save the predictions of the model
         if global_params['save_predictions']:
             np.save(global_params['save_predictions'], model.predict(test_x))

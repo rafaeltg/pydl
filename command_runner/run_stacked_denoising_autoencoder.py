@@ -19,16 +19,14 @@ set_supervised_model_flags('sdae', flags)
 flags.DEFINE_string('layers', '128,64,32,', 'Comma-separated values for the layers in the SDAE.')
 flags.DEFINE_string('dae_enc_act_func', 'sigmoid,', 'Activation function for the encoder. {}'.format(utils.valid_act_functions))
 flags.DEFINE_string('dae_dec_act_func', 'linear', 'Activation function for the decoder. {}'.format(utils.valid_act_functions))
-flags.DEFINE_string('dae_loss_func', 'mean_squared_error', 'Cost function of each layer. {}'.format(utils.valid_loss_functions))
-flags.DEFINE_string('dae_num_epochs', '30,', 'Number of training epochs of each layer.')
-flags.DEFINE_string('dae_batch_size', '200,', 'Size of each training mini-batch of each layer.')
-flags.DEFINE_string('dae_xavier_init', '1,', 'Value for the constant in xavier weights initialization.')
-flags.DEFINE_string('dae_opt', 'adam,', 'Optimizer algorithm. {}'.format(utils.valid_optimization_functions))
-flags.DEFINE_string('dae_learning_rate', '0.01,', 'Initial learning rate.')
+flags.DEFINE_string('dae_loss_func', 'mse', 'Cost function of each layer. {}'.format(utils.valid_loss_functions))
+flags.DEFINE_string('dae_num_epochs', '50,', 'Number of training epochs of each layer.')
+flags.DEFINE_string('dae_batch_size', '500,', 'Size of each training mini-batch of each layer.')
+flags.DEFINE_string('dae_opt', 'rmsprop,', 'Optimizer algorithm. {}'.format(utils.valid_optimization_functions))
+flags.DEFINE_string('dae_learning_rate', '0.001,', 'Initial learning rate.')
 flags.DEFINE_string('dae_momentum', '0.5,', 'Momentum parameter.')
-flags.DEFINE_string('dae_corr_type', 'masking,', 'Input corruption type. ["masking", "gaussian"]')
-flags.DEFINE_string('dae_corr_scale', '0.1,', 'Gaussian corruption scale.')
-flags.DEFINE_string('dae_corr_keep_prob', '0.9,', 'Masking corruption keep probability.')
+flags.DEFINE_string('dae_corr_type', 'gaussian,', 'Type of input corruption. ["masking", "gaussian"]')
+flags.DEFINE_string('dae_corr_param', '0.2,', '')
 
 
 # Global parameters
@@ -57,8 +55,7 @@ sdae_params = {
     'learning_rate':          utils.flag_to_list(FLAGS.dae_learning_rate, 'float'),
     'momentum':               utils.flag_to_list(FLAGS.dae_momentum, 'float'),
     'corr_type':              utils.flag_to_list(FLAGS.dae_corr_type, 'str'),
-    'corr_scale':             utils.flag_to_list(FLAGS.dae_corr_scale, 'float'),
-    'corr_keep_prob':         utils.flag_to_list(FLAGS.dae_corr_keep_prob, 'float'),
+    'corr_param':             utils.flag_to_list(FLAGS.dae_corr_param, 'float'),
     'hidden_dropout':         float(FLAGS.dropout),
     'finetune_loss_func':     FLAGS.loss_func,
     'finetune_enc_act_func':  FLAGS.enc_act_func,

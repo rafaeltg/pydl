@@ -22,8 +22,8 @@ class RNN(SupervisedModel):
                  enc_act_func='tanh',
                  dec_act_func='linear',
                  loss_func='mse',
-                 num_epochs=10,
-                 batch_size=100,
+                 num_epochs=100,
+                 batch_size=1,
                  opt='adam',
                  learning_rate=0.001,
                  momentum=0.5,
@@ -84,10 +84,9 @@ class RNN(SupervisedModel):
 
         self.logger.info('Done {} __init__'.format(__class__.__name__))
 
-    def _create_layers(self, n_input, n_output):
+    def _create_layers(self, n_output):
 
         """ Create the network layers
-        :param n_input:
         :param n_output:
         :return: self
         """
@@ -109,12 +108,12 @@ class RNN(SupervisedModel):
         self._model_layers = Dense(output_dim=n_output,
                                    activation=self.dec_act_func)(self._model_layers)
 
-    def fit(self, x_train, y_train, x_valid, y_valid):
+    def fit(self, x_train, y_train, x_valid=None, y_valid=None):
 
         if len(x_train.shape) != 3:
             x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
 
-        if len(x_valid.shape) != 3:
+        if x_valid and len(x_valid.shape) != 3:
             x_valid = np.reshape(x_valid, (x_valid.shape[0], 1, x_valid.shape[1]))
 
         super().fit(x_train, y_train, x_valid, y_valid)

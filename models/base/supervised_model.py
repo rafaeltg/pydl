@@ -16,7 +16,7 @@ class SupervisedModel(Model):
                  model_name,
                  main_dir,
                  loss_func='mse',
-                 num_epochs=10,
+                 num_epochs=100,
                  batch_size=100,
                  opt='adam',
                  learning_rate=0.001,
@@ -37,20 +37,20 @@ class SupervisedModel(Model):
 
         self._model_layers = None
 
-    def build_model(self, n_input, n_output=1):
+    def build_model(self, input_shape, n_output=1):
 
         """ Creates the computational graph for the Supervised Model.
-        :param n_input: Number of features.
+        :param input_shape:
         :param n_output: number of output values.
         :return: self
         """
 
         self.logger.info('Building {} model'.format(self.model_name))
 
-        self._input = Input(shape=(n_input,), name='x-input')
+        self._input = Input(shape=input_shape[1:], name='x-input')
         self._model_layers = self._input
 
-        self._create_layers(n_input, n_output)
+        self._create_layers(n_output)
         
         self._model = kmodels.Model(input=self._input, output=self._model_layers)
 
@@ -58,10 +58,10 @@ class SupervisedModel(Model):
 
         self.logger.info('Done building {} model'.format(self.model_name))
 
-    def _create_layers(self, n_input, n_output):
+    def _create_layers(self, n_output):
         pass
 
-    def fit(self, x_train, y_train, x_valid, y_valid):
+    def fit(self, x_train, y_train, x_valid=None, y_valid=None):
 
         """ Fit the model to the data.
         :param x_train: Training data. shape(n_samples, n_features)
@@ -79,14 +79,15 @@ class SupervisedModel(Model):
             self.logger.error('Invalid training labels shape')
             raise Exception("Please convert the labels with one-hot encoding.")
 
-        self.build_model(x_train.shape[1], num_out)
+        self.build_model(x_train.shape, num_out)
 
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
                         nb_epoch=self.num_epochs,
                         verbose=self.verbose,
-                        validation_data=(x_valid, y_valid))
+                        shuffle=False,
+                        validation_data=(x_valid, y_valid) if x_valid else None)
 
         self.logger.info('Done {} supervised training...'.format(self.model_name))
 

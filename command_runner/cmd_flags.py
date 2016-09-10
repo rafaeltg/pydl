@@ -16,14 +16,14 @@ def model_flags(model_name, flags):
     flags.DEFINE_string('model_name', model_name, 'Model name.')
     flags.DEFINE_string('main_dir', model_name+'/', 'Directory to store data relative to the algorithm.')
 
-    flags.DEFINE_integer('num_epochs', 50, 'Number of training epochs.')
+    flags.DEFINE_integer('num_epochs', 10, 'Number of training epochs.')
     flags.DEFINE_integer('batch_size', 200, 'Size of each training mini-batch.')
-    flags.DEFINE_string('opt', 'rmsprop', 'Optimization algorithm. {}'.format(utils.valid_optimization_functions))
+    flags.DEFINE_string('opt', 'adam', 'Optimization algorithm. {}'.format(utils.valid_optimization_functions))
     flags.DEFINE_float('learning_rate', 0.001, 'Initial learning rate.')
     flags.DEFINE_float('momentum', 0.5, 'Momentum parameter.')
 
     flags.DEFINE_integer('verbose', 1, 'Level of verbosity. 0 - silent, 1 - print everything.')
-    flags.DEFINE_integer('seed', -1, 'Seed for the random generators (>= 0). Useful for testing hyperparameters.')
+    flags.DEFINE_integer('seed', 42, 'Seed for the random generators (>= 0). Useful for testing hyperparameters.')
 
     flags.DEFINE_string('train_dataset', '', 'Path to train set file (.npy or .csv).')
     flags.DEFINE_string('test_dataset', '', 'Path to test set file (.npy or .csv).')
@@ -63,12 +63,12 @@ def set_supervised_model_flags(model_name, flags):
 
     set_supervised_model_global_flags(model_name, flags)
 
-    flags.DEFINE_string('enc_act_func', 'relu', 'Activation function for the hidden layers. {}'.format(
+    flags.DEFINE_string('enc_act_func', 'tanh', 'Activation function for the hidden layers. {}'.format(
         utils.valid_act_functions))
-    flags.DEFINE_string('dec_act_func', 'relu', 'Activation function for the output layer. {}'.format(
+    flags.DEFINE_string('dec_act_func', 'linear', 'Activation function for the output layer. {}'.format(
         utils.valid_act_functions))
     flags.DEFINE_string('loss_func', 'mse', 'Loss function. {}'.format(utils.valid_loss_functions))
-    flags.DEFINE_float('dropout', 0.4, 'Hidden layers dropout.')
+    flags.DEFINE_float('dropout', 0.2, 'Hidden layers dropout.')
 
 
 ##############################

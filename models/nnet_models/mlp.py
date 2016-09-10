@@ -73,10 +73,9 @@ class MLP(SupervisedModel):
 
         self.logger.info('Done {} __init__'.format(__class__.__name__))
 
-    def _create_layers(self, n_input, n_output):
+    def _create_layers(self, n_output):
 
         """ Create the network layers
-        :param n_input:
         :param n_output:
         :return: self
         """

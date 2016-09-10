@@ -132,10 +132,9 @@ class StackedAutoencoder(SupervisedModel):
 
         self.logger.info('Done creating {} pretrain nodes...'.format(self.model_name))
 
-    def _create_layers(self, n_input, n_output):
+    def _create_layers(self, n_output):
 
         """ Create the finetuning model
-        :param n_input:
         :param n_output:
         :return: self
         """
@@ -163,7 +162,7 @@ class StackedAutoencoder(SupervisedModel):
                                    init='glorot_normal',
                                    activation=self.dec_act_func)(self._model_layers)
 
-    def _pretrain(self, x_train, x_valid):
+    def _pretrain(self, x_train, x_valid=None):
 
         """ Perform unsupervised pretraining of the stack of autoencoders.
         :param x_train: training set
@@ -187,11 +186,13 @@ class StackedAutoencoder(SupervisedModel):
 
             # Encode the data for the next layer.
             next_train = autoenc.transform(data=next_train)
-            next_valid = autoenc.transform(data=next_valid)
+
+            if x_valid:
+                next_valid = autoenc.transform(data=next_valid)
 
         self.logger.info('Done {} unsupervised pretraining...'.format(self.model_name))
 
-    def fit(self, x_train, y_train, x_valid, y_valid):
+    def fit(self, x_train, y_train, x_valid=None, y_valid=None):
 
         """
         :param x_train:

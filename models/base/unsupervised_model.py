@@ -89,8 +89,8 @@ class UnsupervisedModel(Model):
                         y=x_train,
                         nb_epoch=self.num_epochs,
                         batch_size=self.batch_size,
-                        shuffle=True,
-                        validation_data=(x_valid, x_valid),
+                        shuffle=False,
+                        validation_data=(x_valid, x_valid) if x_valid else None,
                         verbose=self.verbose)
 
         self.logger.info('Done {} unsupervised training...'.format(self.model_name))
