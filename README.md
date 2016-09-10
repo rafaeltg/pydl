@@ -10,11 +10,10 @@ Deep Learning algorithms implemented using Keras library and Python.
 * Stacked Autoencoder
 * Stacked Denoising Autoencoder
 * MultiLayer Perceptron
+* Recurrent Neural Network (Simple, GRU and LSTM)
 
-
-### Models TODO list:
-* Recurrent Neural Network (GRU, LSTM and Simple)
-
+### BUG list:
+* RNN predict/evaluate is returning None
 
 ### General TODO list:
 * Improve docstrings
