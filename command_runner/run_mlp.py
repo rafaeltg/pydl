@@ -12,7 +12,7 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 set_supervised_model_flags('mlp', flags)
-flags.DEFINE_string('layers', '64,32,16', 'String representing the architecture of the network.')
+flags.DEFINE_string('layers', '64,32', 'String representing the architecture of the network.')
 
 
 # Global parameters

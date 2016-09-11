@@ -3,8 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from keras.layers import Dense, Dropout, LSTM, GRU, SimpleRNN
-
+from keras.layers import Dense, Dropout, LSTM, GRU, SimpleRNN, Input
+import keras.backend as K
 import utils.utilities as utils
 from models.base.supervised_model import SupervisedModel
 
@@ -19,6 +19,7 @@ class RNN(SupervisedModel):
                  main_dir='rnn/',
                  cell_type='lstm',
                  layers=list([50, 50]),
+                 stateful=True,
                  enc_act_func='tanh',
                  dec_act_func='linear',
                  loss_func='mse',
@@ -36,6 +37,9 @@ class RNN(SupervisedModel):
         :param main_dir: Directory to save the model data.
         :param cell_type: Recurrent layers type. ["lstm", "gru", "simple"]
         :param layers: Number of hidden units in each layer.
+        :param stateful: Whether the recurrent network is stateful or not.It means that the states
+            computed for the samples in one batch will be reused as initial states for the samples
+            in the next batch.
         :param enc_act_func: Activation function for the hidden layers.
         :param dec_act_func: Activation function for the output layer.
         :param loss_func: Cost function.
@@ -77,6 +81,7 @@ class RNN(SupervisedModel):
         else:
             self.cell = SimpleRNN
 
+        self.stateful = stateful
         self.layers = layers
         self.enc_act_func = enc_act_func
         self.dec_act_func = dec_act_func
@@ -91,6 +96,10 @@ class RNN(SupervisedModel):
         :return: self
         """
 
+        if self.stateful:
+            self._input = Input(batch_shape=(self.batch_size, 1, K.int_shape(self._input)[2]))
+            self._model_layers = self._input
+
         # Hidden layers
         for n, l in enumerate(self.layers):
 
@@ -99,6 +108,7 @@ class RNN(SupervisedModel):
 
             self._model_layers = self.cell(output_dim=l,
                                            activation=self.enc_act_func,
+                                           stateful=self.stateful,
                                            return_sequences=True if n < (len(self.layers)-1) else False)(self._model_layers)
 
         # Output layer
@@ -110,24 +120,48 @@ class RNN(SupervisedModel):
 
     def fit(self, x_train, y_train, x_valid=None, y_valid=None):
 
-        if len(x_train.shape) != 3:
-            x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
+        x_train = self._check_shape(x_train)
 
-        if x_valid and len(x_valid.shape) != 3:
-            x_valid = np.reshape(x_valid, (x_valid.shape[0], 1, x_valid.shape[1]))
+        if x_valid:
+            x_valid = self._check_shape(x_valid)
 
         super().fit(x_train, y_train, x_valid, y_valid)
 
+    def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
+
+        if self.stateful:
+
+            for i in range(self.num_epochs):
+                if self.verbose > 0:
+                    print('>> Epoch', i, '/', self.num_epochs)
+
+                self._model.fit(x=x_train,
+                                y=y_train,
+                                batch_size=self.batch_size,
+                                verbose=self.verbose,
+                                nb_epoch=1,
+                                shuffle=False,
+                                validation_data=(x_valid, y_valid) if x_valid and y_valid else None)
+                self._model.reset_states()
+        else:
+
+            super()._train_step(x_train, y_train, x_valid, y_valid)
+
     def predict(self, data):
+
+        data = self._check_shape(data)
+
+        return super().predict(data)
+
+    def score(self, x, y):
+
+        x = self._check_shape(x)
+
+        return super().score(x, y)
+
+    def _check_shape(self, data):
 
         if len(data.shape) != 3:
             data = np.reshape(data, (data.shape[0], 1, data.shape[1]))
 
-        super().predict(data)
-
-    def score(self, x, y):
-
-        if len(x.shape) != 3:
-            x = np.reshape(x, (x.shape[0], 1, x.shape[1]))
-
-        super().score(x, y)
+        return data

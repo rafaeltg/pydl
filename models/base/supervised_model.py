@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 from keras.layers import Input
 import keras.models as kmodels
 from models.base.model import Model
@@ -81,15 +82,19 @@ class SupervisedModel(Model):
 
         self.build_model(x_train.shape, num_out)
 
+        self._train_step(x_train, y_train, x_valid, y_valid)
+
+        self.logger.info('Done {} supervised training...'.format(self.model_name))
+
+    def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
+
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
                         nb_epoch=self.num_epochs,
                         verbose=self.verbose,
                         shuffle=False,
-                        validation_data=(x_valid, y_valid) if x_valid else None)
-
-        self.logger.info('Done {} supervised training...'.format(self.model_name))
+                        validation_data=(x_valid, y_valid) if x_valid and y_valid else None)
 
     def predict(self, data):
 

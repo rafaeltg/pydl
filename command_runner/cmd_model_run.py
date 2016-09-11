@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 from models.base.supervised_model import SupervisedModel
 from models.base.unsupervised_model import UnsupervisedModel
 from utils import datasets
@@ -41,15 +41,27 @@ def run_supervised_model(model, global_params):
     model.fit(train_x, train_y, valid_x, valid_y)
 
     if test_x is not None:
-        test_loss = model.score(test_x, test_y)
-        print('\nTest Loss = {}'.format(test_loss))
+        test_score = model.score(test_x, test_y)
+        print('\nTest Loss = {}'.format(test_score))
 
         preds = model.predict(test_x)
-        print('\n', preds)
+        plot_predictions(test_y, preds)
 
         # Save the predictions of the model
         if global_params['save_predictions']:
-            np.save(global_params['save_predictions'], model.predict(test_x))
+            np.save(global_params['save_predictions'], preds)
+
+
+def plot_predictions(y, y_pred, p=0.1):
+
+    ax = plt.subplot(111)
+    ax.plot(y[1:int((len(y)*p))], label='Actual')
+    ax.plot(y_pred[1:int((len(y_pred)*p))], label='Predicted')
+
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 11})
+    plt.show()
 
 
 def run_unsupervised_model(model, global_params):

@@ -16,12 +16,12 @@ FLAGS = flags.FLAGS
 set_supervised_model_flags('sdae', flags)
 
 # Denoising Autoencoder layers specific parameters
-flags.DEFINE_string('layers', '128,64,32,', 'Comma-separated values for the layers in the SDAE.')
+flags.DEFINE_string('layers', '64,32,', 'Comma-separated values for the layers in the SDAE.')
 flags.DEFINE_string('dae_enc_act_func', 'sigmoid,', 'Activation function for the encoder. {}'.format(utils.valid_act_functions))
 flags.DEFINE_string('dae_dec_act_func', 'linear', 'Activation function for the decoder. {}'.format(utils.valid_act_functions))
 flags.DEFINE_string('dae_loss_func', 'mse', 'Cost function of each layer. {}'.format(utils.valid_loss_functions))
-flags.DEFINE_string('dae_num_epochs', '50,', 'Number of training epochs of each layer.')
-flags.DEFINE_string('dae_batch_size', '500,', 'Size of each training mini-batch of each layer.')
+flags.DEFINE_string('dae_num_epochs', '100,', 'Number of training epochs of each layer.')
+flags.DEFINE_string('dae_batch_size', '200,', 'Size of each training mini-batch of each layer.')
 flags.DEFINE_string('dae_opt', 'rmsprop,', 'Optimizer algorithm. {}'.format(utils.valid_optimization_functions))
 flags.DEFINE_string('dae_learning_rate', '0.001,', 'Initial learning rate.')
 flags.DEFINE_string('dae_momentum', '0.5,', 'Momentum parameter.')
