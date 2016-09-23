@@ -1,9 +1,9 @@
 import tensorflow as tf
 
-import utils.utilities as utils
+import pydl.utils.utilities as utils
 from command_runner.cmd_flags import set_supervised_model_flags
 from command_runner.cmd_model_run import run_supervised_model
-from models.nnet_models.rnn import RNN
+from pydl.models.nnet_models.rnn import RNN
 
 # #################### #
 #   Flags definition   #
@@ -13,7 +13,7 @@ FLAGS = flags.FLAGS
 
 set_supervised_model_flags('lstm', flags)
 flags.DEFINE_string('cell_type', 'simple', 'Recurrent layers type. ["lstm", "gru", "simple"]')
-flags.DEFINE_string('layers', '64,64', 'String representing the architecture of the network.')
+flags.DEFINE_string('layers', '50,50', 'String representing the architecture of the network.')
 flags.DEFINE_boolean('stateful', True, 'Whether the recurrent network is stateful or not.')
 
 

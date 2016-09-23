@@ -3,7 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 from keras.models import Sequential
-from models.base.model import Model
+
+from pydl.models.base.model import Model
 
 
 class SupervisedModel(Model):
