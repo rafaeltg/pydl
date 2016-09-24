@@ -19,6 +19,8 @@ class DenoisingAutoencoder(Autoencoder):
                  n_hidden=32,
                  enc_act_func='relu',
                  dec_act_func='linear',
+                 l1_reg=0.0,
+                 l2_reg=0.0,
                  loss_func='mse',
                  num_epochs=10,
                  batch_size=100,
@@ -34,6 +36,8 @@ class DenoisingAutoencoder(Autoencoder):
         :param n_hidden: number of hidden units
         :param enc_act_func: Activation function for the encoder.
         :param dec_act_func: Activation function for the decoder.
+        :param l1_reg: L1 weight regularization penalty, also known as LASSO.
+        :param l2_reg: L2 weight regularization penalty, also known as weight decay, or Ridge.
         :param loss_func: Loss function.
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
@@ -52,6 +56,8 @@ class DenoisingAutoencoder(Autoencoder):
                          n_hidden=n_hidden,
                          enc_act_func=enc_act_func,
                          dec_act_func=dec_act_func,
+                         l1_reg=l1_reg,
+                         l2_reg=l2_reg,
                          loss_func=loss_func,
                          num_epochs=num_epochs,
                          batch_size=batch_size,
@@ -80,15 +86,9 @@ class DenoisingAutoencoder(Autoencoder):
         :return:
         """
 
-        self.logger.info('Creating {} layers'.format(self.model_name))
-
         self._corrupt_input()
 
-        self._encode_layer = Dense(output_dim=self.n_hidden,
-                                   activation=self.enc_act_func)(self._encode_layer)
-
-        self._decode_layer = Dense(output_dim=n_inputs,
-                                   activation=self.dec_act_func)(self._encode_layer)
+        super()._create_layers(n_inputs)
 
     def _corrupt_input(self):
 
@@ -96,7 +96,7 @@ class DenoisingAutoencoder(Autoencoder):
         :return:
         """
 
-        self.logger.info('Corrupting Input Data - {}'.format(self.corr_type))
+        self.logger.info('Corrupting Input - {}'.format(self.corr_type))
 
         if self.corr_type == 'masking':
             self._encode_layer = GaussianDropout(p=self.corr_param)(self._input)

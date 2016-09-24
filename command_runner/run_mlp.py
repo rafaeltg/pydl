@@ -34,6 +34,8 @@ mlp_params = {
     'layers':        utils.flag_to_list(FLAGS.layers, 'int'),
     'enc_act_func':  FLAGS.enc_act_func,
     'dec_act_func':  FLAGS.dec_act_func,
+    'l1_reg':        FLAGS.l1_reg,
+    'l2_reg':        FLAGS.l2_reg,
     'loss_func':     FLAGS.loss_func,
     'num_epochs':    FLAGS.num_epochs,
     'batch_size':    FLAGS.batch_size,

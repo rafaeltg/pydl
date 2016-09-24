@@ -34,11 +34,11 @@ class VariationalAutoencoder(UnsupervisedModel):
         """
         :param n_latent: number of units in the latent layer
         :param n_hidden: number of hidden units
-        :param enc_act_func: Activation function for the encoder. ['tanh', 'sigmoid', 'relu', 'linear']
-        :param dec_act_func: Activation function for the decoder. ['tanh', 'sigmoid', 'relu', 'linear']
+        :param enc_act_func: Activation function for the encoder.
+        :param dec_act_func: Activation function for the decoder.
         :param num_epochs: Number of epochs for training
         :param batch_size: Size of each mini-batch
-        :param opt: Which optimizer to use. ['sgd', 'momentum', 'ada_grad', 'adam', 'rmsprop']
+        :param opt: Which optimizer to use.
         :param learning_rate: Initial learning rate
         :param momentum: Momentum parameter
         :param verbose: Level of verbosity. 0 - silent, 1 - print accuracy.

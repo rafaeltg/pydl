@@ -19,6 +19,8 @@ set_supervised_model_flags('sae', flags)
 flags.DEFINE_string('layers', '128,64,32,', 'Comma-separated values for the layers in the SAE.')
 flags.DEFINE_string('ae_enc_act_func', 'relu,', 'Activation function for the encoder. {}'.format(utils.valid_act_functions))
 flags.DEFINE_string('ae_dec_act_func', 'linear', 'Activation function for the decoder. {}'.format(utils.valid_act_functions))
+flags.DEFINE_string('ae_l1_reg', '0.0,', 'L1 weight regularization penalty of each autoencoder.')
+flags.DEFINE_string('ae_l2_reg', '0.0,', 'L2 weight regularization penalty of each autoencoder.')
 flags.DEFINE_string('ae_loss_func', 'mse', 'Loss function of each layer. {}'.format(utils.valid_loss_functions))
 flags.DEFINE_string('ae_num_epochs', '30,', 'Number of training epochs of each layer.')
 flags.DEFINE_string('ae_batch_size', '200,', 'Size of each training mini-batch of each layer.')
@@ -46,6 +48,8 @@ sae_params = {
     'layers':                 utils.flag_to_list(FLAGS.layers, 'int'),
     'enc_act_func':           utils.flag_to_list(FLAGS.ae_enc_act_func, 'str'),
     'dec_act_func':           utils.flag_to_list(FLAGS.ae_dec_act_func, 'str'),
+    'l1_reg':                 utils.flag_to_list(FLAGS.ae_l1_reg, 'float'),
+    'l2_reg':                 utils.flag_to_list(FLAGS.ae_l2_reg, 'float'),
     'loss_func':              utils.flag_to_list(FLAGS.ae_loss_func, 'str'),
     'num_epochs':             utils.flag_to_list(FLAGS.ae_num_epochs, 'int'),
     'batch_size':             utils.flag_to_list(FLAGS.ae_batch_size, 'int'),

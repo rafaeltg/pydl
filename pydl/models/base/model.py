@@ -19,6 +19,8 @@ class Model:
                  model_name,
                  main_dir,
                  loss_func='mse',
+                 l1_reg=0.0,
+                 l2_reg=0.0,
                  num_epochs=10,
                  batch_size=100,
                  opt='adam',
@@ -31,6 +33,8 @@ class Model:
         :param model_name: Name of the model, used as filename.
         :param main_dir: Main directory to put the stored_models, data and summary directories.
         :param loss_func:
+        :param l1_reg: L1 weight regularization penalty, also known as LASSO.
+        :param l2_reg: L2 weight regularization penalty, also known as weight decay, or Ridge.
         :param num_epochs:
         :param batch_size:
         :param opt:
@@ -46,6 +50,8 @@ class Model:
         assert num_epochs > 0
         assert batch_size > 0
         assert loss_func in utils.valid_loss_functions
+        assert l1_reg >= 0
+        assert l2_reg >= 0
         assert opt in utils.valid_optimization_functions
         assert learning_rate > 0
         assert momentum > 0 if opt == 'sgd' else True
@@ -54,7 +60,11 @@ class Model:
         self.main_dir = main_dir
 
         self._model = None
+
+        # Loss function
         self.loss_func = loss_func
+        self.l1_reg = l1_reg
+        self.l2_reg = l2_reg
 
         # Training parameters
         self.num_epochs = num_epochs

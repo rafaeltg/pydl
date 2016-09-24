@@ -16,6 +16,10 @@ def model_flags(model_name, flags):
     flags.DEFINE_string('model_name', model_name, 'Model name.')
     flags.DEFINE_string('main_dir', model_name+'/', 'Directory to store data relative to the algorithm.')
 
+    flags.DEFINE_string('loss_func', 'mse', 'Loss function. {}'.format(utils.valid_loss_functions))
+    flags.DEFINE_float('l1_reg', 0.0, 'L1 weight regularization penalty, also known as LASSO.')
+    flags.DEFINE_float('l2_reg', 0.0, 'L2 weight regularization penalty, also known as weight decay, or Ridge.')
+
     flags.DEFINE_integer('num_epochs', 200, 'Number of training epochs.')
     flags.DEFINE_integer('batch_size', 1, 'Size of each training mini-batch.')
     flags.DEFINE_string('opt', 'rmsprop', 'Optimization algorithm. {}'.format(utils.valid_optimization_functions))
@@ -67,8 +71,7 @@ def set_supervised_model_flags(model_name, flags):
         utils.valid_act_functions))
     flags.DEFINE_string('dec_act_func', 'linear', 'Activation function for the output layer. {}'.format(
         utils.valid_act_functions))
-    flags.DEFINE_string('loss_func', 'mse', 'Loss function. {}'.format(utils.valid_loss_functions))
-    flags.DEFINE_float('dropout', 0.15, 'Hidden layers dropout.')
+    flags.DEFINE_float('dropout', 0.1, 'Hidden layers dropout.')
 
 
 ##############################
@@ -104,4 +107,3 @@ def set_unsupervised_model_flags(model_name, flags):
         utils.valid_act_functions))
     flags.DEFINE_string('dec_act_func', 'relu', 'Activation function for the decode layer. {}'.format(
         utils.valid_act_functions))
-    flags.DEFINE_string('loss_func', 'mse', 'Loss function. {}'.format(utils.valid_loss_functions))

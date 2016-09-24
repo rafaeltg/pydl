@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import keras.models as kmodels
 from keras.layers import Input, Dense
+from keras.regularizers import l1l2
 
 import pydl.utils.utilities as utils
 from pydl.models.base.unsupervised_model import UnsupervisedModel
@@ -20,6 +21,8 @@ class Autoencoder(UnsupervisedModel):
                  n_hidden=32,
                  enc_act_func='relu',
                  dec_act_func='linear',
+                 l1_reg=0.0,
+                 l2_reg=0.0,
                  loss_func='mse',
                  num_epochs=10,
                  batch_size=100,
@@ -33,6 +36,8 @@ class Autoencoder(UnsupervisedModel):
         :param n_hidden: number of hidden units
         :param enc_act_func: Activation function for the encoder.
         :param dec_act_func: Activation function for the decoder.
+        :param l1_reg: L1 weight regularization penalty, also known as LASSO.
+        :param l2_reg: L2 weight regularization penalty, also known as weight decay, or Ridge.
         :param loss_func: Loss function.
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
@@ -46,6 +51,8 @@ class Autoencoder(UnsupervisedModel):
         super().__init__(model_name=model_name,
                          main_dir=main_dir,
                          loss_func=loss_func,
+                         l1_reg=l1_reg,
+                         l2_reg=l2_reg,
                          num_epochs=num_epochs,
                          batch_size=batch_size,
                          opt=opt,
@@ -77,7 +84,9 @@ class Autoencoder(UnsupervisedModel):
         self.logger.info('Creating {} layers'.format(self.model_name))
 
         self._encode_layer = Dense(output_dim=self.n_hidden,
-                                   activation=self.enc_act_func)(self._input)
+                                   activation=self.enc_act_func,
+                                   W_regularizer=l1l2(self.l1_reg, self.l2_reg),
+                                   b_regularizer=l1l2(self.l1_reg, self.l2_reg))(self._input)
 
         self._decode_layer = Dense(output_dim=n_inputs,
                                    activation=self.dec_act_func)(self._encode_layer)

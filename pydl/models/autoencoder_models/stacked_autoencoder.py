@@ -20,6 +20,8 @@ class StackedAutoencoder(SupervisedModel):
                  layers=list([128, 64, 32]),
                  enc_act_func=list(['relu']),
                  dec_act_func=list(['linear']),
+                 l1_reg=list([0.0]),
+                 l2_reg=list([0.0]),
                  loss_func=list(['mse']),
                  num_epochs=list([10]),
                  batch_size=list([100]),
@@ -42,13 +44,15 @@ class StackedAutoencoder(SupervisedModel):
         :param layers: List containing the hidden units for each layer.
         :param enc_act_func: Activation function of each autoencoder.
         :param dec_act_func: Activation function of each autoencoder.
+        :param l1_reg: L1 weight regularization penalty of each autoencoder.
+        :param l2_reg: L2 weight regularization penalty of each autoencoder.
         :param loss_func: Loss function of each autoencoder.
         :param num_epochs: Number of epochs for training of each autoencoder.
         :param batch_size: Size of mini-batch of each autoencoder.
         :param opt: Optimization function of each autoencoder.
         :param learning_rate: Initial learning rate of each autoencoder.
         :param momentum: Momentum parameter of each autoencoder.
-        :param hidden_dropout: Hidden layers dropout parameter for the finetuning step.
+        :param hidden_dropout: Fraction of the finetuning hidden layers units to drop.
         :param finetune_loss_func: loss function for the finetuning step.
         :param finetune_enc_act_func: Finetuning step  hidden layers activation function.
         :param finetune_dec_act_func: Finetuning step output layer activation function.
@@ -86,6 +90,8 @@ class StackedAutoencoder(SupervisedModel):
             'layers':        layers,
             'enc_act_func':  enc_act_func,
             'dec_act_func':  dec_act_func,
+            'l1_reg':        l1_reg,
+            'l2_reg':        l2_reg,
             'loss_func':     loss_func,
             'num_epochs':    num_epochs,
             'batch_size':    batch_size,
@@ -169,6 +175,8 @@ class StackedAutoencoder(SupervisedModel):
                            n_hidden=self.ae_args['layers'][n],
                            enc_act_func=self.ae_args['enc_act_func'][n],
                            dec_act_func=self.ae_args['dec_act_func'][n],
+                           l1_reg=self.ae_args['l1_reg'][n],
+                           l2_reg=self.ae_args['l2_reg'][n],
                            loss_func=self.ae_args['loss_func'][n],
                            num_epochs=self.ae_args['num_epochs'][n],
                            batch_size=self.ae_args['batch_size'][n],

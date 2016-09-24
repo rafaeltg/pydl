@@ -18,6 +18,8 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
                  layers=list([128, 64]),
                  enc_act_func=list(['relu']),
                  dec_act_func=list(['linear']),
+                 l1_reg=list([0.0]),
+                 l2_reg=list([0.0]),
                  loss_func=list(['mse']),
                  num_epochs=list([10]),
                  batch_size=list([100]),
@@ -42,6 +44,8 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
         :param layers: list containing the hidden units for each layer
         :param enc_act_func: Activation function for the encoder.
         :param dec_act_func: Activation function for the decoder.
+        :param l1_reg: L1 weight regularization penalty of each denoising autoencoder.
+        :param l2_reg: L2 weight regularization penalty of each denoising autoencoder.
         :param loss_func: Loss function.
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
@@ -68,6 +72,8 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
                          layers=layers,
                          enc_act_func=enc_act_func,
                          dec_act_func=dec_act_func,
+                         l1_reg=l1_reg,
+                         l2_reg=l2_reg,
                          loss_func=loss_func,
                          num_epochs=num_epochs,
                          batch_size=batch_size,
@@ -89,8 +95,8 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
         self.logger.info('{} __init__'.format(__class__.__name__))
 
         # Denoising Autoencoder parameters
-        self.ae_args['corr_type']      = corr_type
-        self.ae_args['corr_param']     = corr_param
+        self.ae_args['corr_type'] = corr_type
+        self.ae_args['corr_param'] = corr_param
 
         self.ae_args = utils.expand_args(self.ae_args)
 
@@ -103,6 +109,8 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
                                     n_hidden=self.ae_args['layers'][n],
                                     enc_act_func=self.ae_args['enc_act_func'][n],
                                     dec_act_func=self.ae_args['dec_act_func'][n],
+                                    l1_reg=self.ae_args['l1_reg'][n],
+                                    l2_reg=self.ae_args['l2_reg'][n],
                                     loss_func=self.ae_args['loss_func'][n],
                                     num_epochs=self.ae_args['num_epochs'][n],
                                     batch_size=self.ae_args['batch_size'][n],

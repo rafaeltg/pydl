@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import keras.models as kmodels
 from keras.layers import Input, Dense
+from keras.regularizers import l1l2
 
 import pydl.utils.utilities as utils
 from pydl.models.base.unsupervised_model import UnsupervisedModel
@@ -20,6 +21,8 @@ class DeepAutoencoder(UnsupervisedModel):
                  n_hidden=list([64, 32, 16]),
                  enc_act_func='relu',
                  dec_act_func='linear',
+                 l1_reg=0.0,
+                 l2_reg=0.0,
                  loss_func='mse',
                  num_epochs=10,
                  batch_size=100,
@@ -33,6 +36,8 @@ class DeepAutoencoder(UnsupervisedModel):
         :param n_hidden: Number of hidden units of each layer
         :param enc_act_func: Activation function for the encoder.
         :param dec_act_func: Activation function for the decoder.
+        :param l1_reg: L1 weight regularization penalty, also known as LASSO.
+        :param l2_reg: L2 weight regularization penalty, also known as weight decay, or Ridge.
         :param loss_func: Loss function.
         :param num_epochs: Number of epochs for training.
         :param batch_size: Size of each mini-batch.
@@ -46,6 +51,8 @@ class DeepAutoencoder(UnsupervisedModel):
         super().__init__(model_name=model_name,
                          main_dir=main_dir,
                          loss_func=loss_func,
+                         l1_reg=l1_reg,
+                         l2_reg=l2_reg,
                          num_epochs=num_epochs,
                          batch_size=batch_size,
                          opt=opt,
@@ -80,7 +87,9 @@ class DeepAutoencoder(UnsupervisedModel):
         self._encode_layer = self._input
         for l in self.n_hidden:
             self._encode_layer = Dense(output_dim=l,
-                                       activation=self.enc_act_func)(self._encode_layer)
+                                       activation=self.enc_act_func,
+                                       W_regularizer=l1l2(self.l1_reg, self.l2_reg),
+                                       b_regularizer=l1l2(self.l1_reg, self.l2_reg))(self._encode_layer)
 
         self._decode_layer = self._encode_layer
         for l in self.n_hidden[1::-1] + [n_inputs]:
