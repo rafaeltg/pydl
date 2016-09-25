@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 from keras.models import Sequential
-
 from pydl.models.base.model import Model
 
 

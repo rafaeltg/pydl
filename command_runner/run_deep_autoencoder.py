@@ -1,6 +1,5 @@
-import tensorflow as tf
-
 import pydl.utils.utilities as utils
+import tensorflow as tf
 from command_runner.cmd_flags import set_unsupervised_model_flags
 from command_runner.cmd_model_run import run_unsupervised_model
 from pydl.models.autoencoder_models.deep_autoencoder import DeepAutoencoder

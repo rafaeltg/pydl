@@ -1,6 +1,5 @@
-import tensorflow as tf
-
 import pydl.utils.utilities as utils
+import tensorflow as tf
 from command_runner.cmd_flags import set_supervised_model_flags
 from command_runner.cmd_model_run import run_supervised_model
 from pydl.models.nnet_models.rnn import RNN

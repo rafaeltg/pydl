@@ -4,7 +4,6 @@ from __future__ import print_function
 
 import keras.models as kmodels
 from keras.layers import Input
-
 from pydl.models.base.model import Model
 
 

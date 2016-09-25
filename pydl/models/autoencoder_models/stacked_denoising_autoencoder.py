@@ -15,7 +15,7 @@ class StackedDenoisingAutoencoder(StackedAutoencoder):
     def __init__(self,
                  model_name='sdae',
                  main_dir='sdae/',
-                 layers=list([128, 64]),
+                 layers=list([64, 32]),
                  enc_act_func=list(['relu']),
                  dec_act_func=list(['linear']),
                  l1_reg=list([0.0]),

@@ -1,9 +1,11 @@
 import numpy as np
 import tensorflow as tf
-
-from pydl.utils.utilities import flag_to_list
+from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
+from pydl.models.autoencoder_models.stacked_denoising_autoencoder import StackedDenoisingAutoencoder
 from pydl.models.nnet_models.mlp import MLP
+from pydl.models.nnet_models.rnn import RNN
 from pydl.utils import datasets
+from pydl.utils.utilities import flag_to_list
 from validator.model_validator import ModelValidator
 
 # #################### #
@@ -13,6 +15,7 @@ from validator.model_validator import ModelValidator
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
+flags.DEFINE_string('model', 'mlp', 'Model to validate (use default parameters).')
 flags.DEFINE_string('method', 'split', 'Validation method.')
 flags.DEFINE_integer('n_folds', 10, 'Number of cv folds.')
 flags.DEFINE_float('test_size', 0.3, 'Percentage of data used for validation.')
@@ -20,6 +23,7 @@ flags.DEFINE_string('dataset_x', '', 'Path to the dataset file (.npy or .csv).')
 flags.DEFINE_string('dataset_y', '', 'Path to the dataset outputs file (.npy or .csv).')
 flags.DEFINE_string('metrics', 'mse,mae,rmse', '')
 
+model_name = FLAGS.model
 
 params = {
   'method':    FLAGS.method,
@@ -45,16 +49,30 @@ def run_validation(model, **kwargs):
                     y=dataset.target,
                     metrics=kwargs.get('metrics'))
 
-    print('----------------------------------')
-    print('        VALIDATION RESULTS        ')
-    print('> Test score = %f (std dev = %f)' % (np.mean(res['scores']), np.std(res['scores'])))
+    print('\n::::::::::::::::::::::::::::::::::::::::::::')
+    print('::           VALIDATION RESULTS           ::')
+    print('::::::::::::::::::::::::::::::::::::::::::::\n')
+    print('> Test score = %.4f (std dev = %.4f)' % (np.mean(res['scores']), np.std(res['scores'])))
 
-    for m, v in enumerate(res['metrics']):
-        print('> %s = %f (std dev = %f)' % (m, np.mean(v), np.std(v)))
+    for m, v in res['metrics'].items():
+        print('> %s = %.4f (std dev = %.4f)' % (m, np.mean(v), np.std(v)))
 
 
 if __name__ == '__main__':
 
-    mlp = MLP()  # default parameters
+    if model_name == 'mlp':
+        m = MLP()
+    elif model_name == 'rnn':
+        m = RNN(cell_type='simple')
+    elif model_name == 'lstm':
+        m = RNN(cell_type='lstm')
+    elif model_name == 'gru':
+        m = RNN(cell_type='gru')
+    elif model_name == 'sae':
+        m = StackedAutoencoder()
+    elif model_name == 'sdae':
+        m = StackedDenoisingAutoencoder()
+    else:
+        raise Exception('Invalid model!')
 
-    run_validation(mlp, **params)
+    run_validation(m, **params)

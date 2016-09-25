@@ -2,9 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from keras.layers import Dense, Dropout
-
 import pydl.utils.utilities as utils
+from keras.layers import Dense, Dropout
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
 from pydl.models.base.supervised_model import SupervisedModel
 
@@ -17,7 +16,7 @@ class StackedAutoencoder(SupervisedModel):
     def __init__(self,
                  model_name='sae',
                  main_dir='sae/',
-                 layers=list([128, 64, 32]),
+                 layers=list([64, 32]),
                  enc_act_func=list(['relu']),
                  dec_act_func=list(['linear']),
                  l1_reg=list([0.0]),

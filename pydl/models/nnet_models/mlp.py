@@ -2,10 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pydl.utils.utilities as utils
 from keras.layers import Dense, Dropout
 from keras.regularizers import l1l2
-
-import pydl.utils.utilities as utils
 from pydl.models.base.supervised_model import SupervisedModel
 
 

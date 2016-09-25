@@ -2,9 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from keras.layers.core import Dense
 from keras.layers.noise import GaussianDropout, GaussianNoise
-
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
 
 

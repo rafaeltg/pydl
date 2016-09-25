@@ -4,9 +4,8 @@ from __future__ import print_function
 
 import keras.optimizers as KOpt
 import numpy as np
-import tensorflow as tf
-
 import pydl.utils.utilities as utils
+import tensorflow as tf
 from pydl.utils.logger import Logger
 
 

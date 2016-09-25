@@ -2,9 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pydl.models.base.supervised_model import SupervisedModel
-
 import validator.validation_method as valid
+from pydl.models.base.supervised_model import SupervisedModel
 from validator.validation_metrics import available_metrics
 
 
@@ -42,24 +41,22 @@ class ModelValidator(object):
         :return:
         """
 
-        if not isinstance(model, SupervisedModel):
-            raise Exception('Invalid model!')
-
+        assert isinstance(model, SupervisedModel), 'Invalid model.'
         assert all([m in available_metrics.keys() for m in metrics])
-        assert x and y
-
-        folds = self.method.get_cv_folds(y)
+        assert x is not None, 'Missing dataset x.'
+        assert y is not None, 'Missing dataset y.'
 
         scores = []
         cv_metrics = None
 
         if len(metrics) > 0:
             cv_metrics = {}
-            for k in metrics:
-                cv_metrics[k] = []
+            for m in metrics:
+                cv_metrics[m] = []
 
-        for i, (train_idxs, test_idxs) in enumerate(folds):
-            print('CV - {}/{}'.format(i, len(folds)))
+        i = 0
+        for train_idxs, test_idxs in self.method.get_cv_folds(y):
+            print('\nCV - %d' % i)
 
             x_train, y_train = x[train_idxs], y[train_idxs]
             x_test, y_test = x[test_idxs], y[test_idxs]
@@ -76,9 +73,11 @@ class ModelValidator(object):
                 for m in metrics:
                     v = available_metrics[m](y_test, preds)
                     print('> %s = %f' % (m, v))
-                    cv_metrics[m] = cv_metrics[m].append(v)
+                    cv_metrics[m].append(v)
+
+            i += 1
 
         return {
             'scores': scores,
-            'metrics': metrics
+            'metrics': cv_metrics
         }
