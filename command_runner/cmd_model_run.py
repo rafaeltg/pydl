@@ -50,7 +50,10 @@ def run_supervised_model(model, global_params):
 
         # Save the predictions of the model
         if global_params['save_predictions']:
-            np.save(global_params['save_predictions'], preds)
+            if global_params['save_predictions'].endswith('.csv'):
+                np.savetxt(global_params['save_predictions'], preds, delimiter=',')
+            else:
+                np.save(global_params['save_predictions'], preds)
 
 
 def plot_predictions(y, y_pred, p=1):
