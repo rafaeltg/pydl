@@ -1,0 +1,35 @@
+{
+  "model": {
+    "class": "mlp"
+  },
+
+  "params": {
+    "layers": [
+      {"type": "int", "min_value": 10, "max_value": 100},
+      {"type": "int", "min_value": 10, "max_value": 100}
+    ],
+    "enc_act_func": {"type": "list", "values": ["relu", "tanh"]}
+  },
+
+  "opt": {
+    "method": "cmaes",
+    "params": {
+      "pop_size": 5,
+      "max_iter": 3
+    }
+  },
+
+  "cv": {
+    "method": "split",
+    "params": {
+      "test_size": 0.3
+    },
+    "metric": "rmse"
+  },
+
+  "data_set": {
+    "data_x": "/home/rafael/Documents/master/project/databases/bike/bike_train_x.csv",
+    "data_y": "/home/rafael/Documents/master/project/databases/bike/bike_train_y.csv",
+    "has_header": true
+  }
+}

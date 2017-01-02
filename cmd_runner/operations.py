@@ -1,8 +1,9 @@
 import json
 import os
-
 import numpy as np
 
+from optimizer.optimizer import CMAESOptimizer
+from optimizer.parameter_dictionary import ParameterDictionary
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
 from pydl.models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
 from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
@@ -12,8 +13,9 @@ from pydl.models.base.unsupervised_model import UnsupervisedModel
 from pydl.models.nnet_models.mlp import MLP
 from pydl.models.nnet_models.rnn import RNN
 from pydl.utils import datasets
-from validator.cv_metrics import available_metrics
+from validator.cv_methods import get_cv_method
 from validator.model_validator import ModelValidator
+from validator.cv_metrics import available_metrics
 
 
 def fit(config):
@@ -30,7 +32,6 @@ def fit(config):
     if isinstance(m, SupervisedModel):
         y = load_data(data_set, 'train_y')
         m.fit(x_train=x, y_train=y)
-
     else:
         m.fit(x_train=x)
 
@@ -139,13 +140,7 @@ def validate(config):
     y = load_data(data_set, 'data_y')
 
     # Get validation method
-    assert 'cv' in config, 'Missing cross-validation configurations!'
-    cv_config = config['cv']
-    assert 'method' in cv_config, 'Missing cross-validation method!'
-    method = cv_config['method']
-    params = cv_config['params'] if 'params' in cv_config else {}
-    metrics = cv_config['metrics'] if 'metrics' in cv_config else []
-
+    method, params, metrics = get_cv_config(config)
     cv = ModelValidator(method=method, **params)
     results = cv.run(model=m, x=x, y=y, metrics=metrics)
 
@@ -154,7 +149,47 @@ def validate(config):
 
 
 def optimize(config):
+    """
+    :param config:
+    :return:
+    """
     print('optimize', config)
+
+    m = load_model(config)
+
+    data_set = get_input_data(config)
+    x = load_data(data_set, 'data_x')
+    y = load_data(data_set, 'data_y') if isinstance(m, SupervisedModel) else None
+
+    assert 'params' in config, "Missing List of parameters to optimize"
+    params = ParameterDictionary()
+    params.from_json(config['params'])
+
+    method, params, _ = get_cv_config(config)
+    cv_method = get_cv_method(method=method, **params)
+
+    fit_fn = available_metrics[config['cv']['metric']]
+
+    opt = get_optimizer(config, cv_method, fit_fn)
+
+    result = opt.run(model=m,
+                     params_dict=params,
+                     x=x,
+                     y=y,
+                     max_thread=4)
+
+    best_params = params.get(result[0])
+    print('best params =', best_params)
+
+    # fit the model with the best parameters using all data
+    m.set_params(**best_params)
+    if isinstance(m, SupervisedModel):
+        m.fit(x_train=x, y_train=y)
+    else:
+        m.fit(x_train=x)
+
+    # Save model
+    m.save_model(config['output'])
 
 
 #
@@ -170,8 +205,6 @@ def load_model(config):
         m.set_params(**model_config['params'])
     elif 'path' in model_config:
         m.load_model(model_config['path'])
-    else:
-        raise Exception('Missing model configurations!')
 
     return m
 
@@ -199,6 +232,29 @@ def get_model_by_class(model_config):
 def get_input_data(config):
     assert 'data_set' in config, 'Missing data set path!'
     return config['data_set']
+
+
+def get_cv_config(config):
+    assert 'cv' in config, 'Missing cross-validation configurations!'
+    cv_config = config['cv']
+    assert 'method' in cv_config, 'Missing cross-validation method!'
+    method = cv_config['method']
+    params = cv_config['params'] if 'params' in cv_config else {}
+    metrics = config['cv']['metrics'] if 'metrics' in config['cv'] else []
+    return method, params, metrics
+
+
+def get_optimizer(config, cv, fit_fn):
+    assert 'opt' in config, 'Missing optimizer parameters!'
+    opt_config = config['opt']
+    assert 'method' in opt_config, 'Missing optimization method'
+    method = opt_config['method']
+    params = opt_config['params'] if 'params' in opt_config else {}
+
+    if method == 'cmaes':
+        return CMAESOptimizer(cv=cv, fit_fn=fit_fn, **params)
+    else:
+        raise AttributeError('Invalid optimizer method')
 
 
 def load_data(data_set, set_name):
