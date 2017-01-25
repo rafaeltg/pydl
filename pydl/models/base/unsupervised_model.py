@@ -71,7 +71,7 @@ class UnsupervisedModel(Model):
 
         self.logger.info('Done building {} model'.format(self.name))
 
-    def _create_layers(self, n_input):
+    def _create_layers(self, input_layer):
         pass
 
     def _create_encoder_model(self):

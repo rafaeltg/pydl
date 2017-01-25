@@ -28,7 +28,7 @@ class StackedAutoencoder(SupervisedModel):
                  opt=list(['adam']),
                  learning_rate=list([0.001]),
                  momentum=list([0.5]),
-                 hidden_dropout=1.0,
+                 hidden_dropout=0.1,
                  finetune_loss_func='mse',
                  finetune_enc_act_func='linear',
                  finetune_dec_act_func='linear',
@@ -37,7 +37,7 @@ class StackedAutoencoder(SupervisedModel):
                  finetune_opt='adam',
                  finetune_learning_rate=0.001,
                  finetune_momentum=0.5,
-                 finetune_num_epochs=10,
+                 finetune_num_epochs=100,
                  finetune_batch_size=100,
                  seed=42,
                  verbose=0):
@@ -112,8 +112,7 @@ class StackedAutoencoder(SupervisedModel):
         """
 
         # Hidden layers
-        for n, l in enumerate(self.ae_args['layers']):
-
+        for n, l in enumerate(self.layers):
             self._model.add(Dropout(p=self.dropout,
                                     input_shape=[input_shape[1] if n == 0 else None]))
 
@@ -127,6 +126,8 @@ class StackedAutoencoder(SupervisedModel):
         self._model.add(Dropout(p=self.dropout))
         self._model.add(Dense(output_dim=n_output,
                               activation=self.dec_act_func))
+
+        print("DONE")
 
     def _pretrain(self, x_train, x_valid=None):
 

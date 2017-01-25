@@ -3,7 +3,7 @@ import json
 import os
 import os.path
 
-import cmd_runner.operations as op
+import cli.operations as op
 
 parser = argparse.ArgumentParser(prog='pydl_cli')
 

@@ -1,13 +1,13 @@
 import os
 import numpy as np
 
-from pydl.models.autoencoder_models.autoencoder import Autoencoder
+from pydl.models.autoencoder_models.deep_autoencoder import DeepAutoencoder
 
 
-def run_ae():
+def run_dae():
 
     """
-        Autoencoder example
+        Deep Autoencoder example
     """
 
     # Create fake dataset
@@ -17,60 +17,60 @@ def run_ae():
     x_train = np.random.normal(loc=0, scale=1, size=(train_size, input_dim))
     x_test = np.random.normal(loc=0, scale=1, size=(test_size, input_dim))
 
-    print('Creating Autoencoder')
+    print('Creating Deep Autoencoder')
     hidden_size = 15
-    ae = Autoencoder(
-        n_hidden=hidden_size,
-        num_epochs=100
+    deep_ae = DeepAutoencoder(
+        n_hidden=[30, 20, hidden_size],
+        num_epochs=400
     )
 
     print('Training')
-    ae.fit(x_train=x_train)
+    deep_ae.fit(x_train=x_train)
 
-    train_score = ae.score(data=x_train)
+    train_score = deep_ae.score(data=x_train)
     print('Reconstruction loss for training dataset = {}'.format(train_score))
 
-    test_score = ae.score(data=x_test)
+    test_score = deep_ae.score(data=x_test)
     print('Reconstruction loss for test dataset = {}'.format(test_score))
 
     print('Transforming data')
-    x_test_tr = ae.transform(data=x_test)
+    x_test_tr = deep_ae.transform(data=x_test)
     print('Transformed data shape = {}'.format(x_test_tr.shape))
     assert x_test_tr.shape == (test_size, hidden_size)
 
     print('Reconstructing data')
-    x_test_rec = ae.reconstruct(x_test_tr)
+    x_test_rec = deep_ae.reconstruct(x_test_tr)
     print('Reconstructed data shape = {}'.format(x_test_rec.shape))
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    ae.save_model('/home/rafael/models/ae.h5')
-    assert os.path.exists('/home/rafael/models/ae.h5')
+    deep_ae.save_model('/home/rafael/models/dae.h5')
+    assert os.path.exists('/home/rafael/models/dae.h5')
 
     print('Loading model')
-    ae_new = Autoencoder(
-        n_hidden=hidden_size,
-        num_epochs=100
+    deep_ae_new = DeepAutoencoder(
+        n_hidden=[30, 20, hidden_size],
+        num_epochs=400
     )
 
-    ae_new.load_model('/home/rafael/models/ae.h5')
+    deep_ae_new.load_model('/home/rafael/models/dae.h5')
 
     print('Transforming data')
-    x_test_tr_new = ae_new.transform(data=x_test)
+    x_test_tr_new = deep_ae_new.transform(data=x_test)
     assert np.array_equal(x_test_tr, x_test_tr_new)
 
     print('Reconstructing data')
-    x_test_rec_new = ae_new.reconstruct(x_test_tr_new)
+    x_test_rec_new = deep_ae_new.reconstruct(x_test_tr_new)
     assert np.array_equal(x_test_rec, x_test_rec_new)
 
     print('Calculating training set score')
-    train_score_new = ae_new.score(data=x_train)
+    train_score_new = deep_ae_new.score(data=x_train)
     assert train_score == train_score_new
 
     print('Calculating testing set score')
-    test_score_new = ae_new.score(data=x_test)
+    test_score_new = deep_ae_new.score(data=x_test)
     assert test_score == test_score_new
 
 
 if __name__ == '__main__':
-    run_ae()
+    run_dae()

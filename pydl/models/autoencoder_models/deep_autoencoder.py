@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import keras.backend as K
 import keras.models as kmodels
 from keras.layers import Input, Dense
 from keras.regularizers import l1l2
@@ -25,7 +26,7 @@ class DeepAutoencoder(UnsupervisedModel):
                  loss_func='mse',
                  num_epochs=10,
                  batch_size=100,
-                 opt='adam',
+                 opt='rmsprop',
                  learning_rate=0.01,
                  momentum=0.5,
                  verbose=0,
@@ -73,24 +74,24 @@ class DeepAutoencoder(UnsupervisedModel):
 
         self.logger.info('Done {} __init__'.format(__class__.__name__))
 
-    def _create_layers(self, n_inputs):
+    def _create_layers(self, input_layer):
 
         """ Create the encoding and the decoding layers of the deep autoencoder.
-        :param n_inputs: Input size.
+        :param input_layer: Input size.
         :return: self
         """
 
         self.logger.info('Creating {} layers'.format(self.name))
 
-        self._encode_layer = self._input
+        encode_layer = input_layer
         for l in self.n_hidden:
-            self._encode_layer = Dense(output_dim=l,
-                                       activation=self.enc_act_func,
-                                       W_regularizer=l1l2(self.l1_reg, self.l2_reg),
-                                       b_regularizer=l1l2(self.l1_reg, self.l2_reg))(self._encode_layer)
+            encode_layer = Dense(output_dim=l,
+                                 activation=self.enc_act_func,
+                                 W_regularizer=l1l2(self.l1_reg, self.l2_reg),
+                                 b_regularizer=l1l2(self.l1_reg, self.l2_reg))(encode_layer)
 
-        self._decode_layer = self._encode_layer
-        for l in self.n_hidden[1::-1] + [n_inputs]:
+        self._decode_layer = encode_layer
+        for l in self.n_hidden[-2:-(len(self.n_hidden)+1):-1] + [K.int_shape(input_layer)[1]]:
             self._decode_layer = Dense(output_dim=l,
                                        activation=self.dec_act_func)(self._decode_layer)
 
@@ -103,7 +104,7 @@ class DeepAutoencoder(UnsupervisedModel):
         self.logger.info('Creating {} encoder model'.format(self.name))
 
         self._encoder = kmodels.Model(input=self._model.layers[0].inbound_nodes[0].output_tensors,
-                                      output=self._encode_layer)
+                                      output=self._model.layers[-(len(self.n_hidden)+1)].inbound_nodes[0].output_tensors)
 
         self.logger.info('Done creating {} encoder model'.format(self.name))
 

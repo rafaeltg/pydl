@@ -71,5 +71,6 @@ def run_dae():
     test_score_new = dae_new.score(data=x_test)
     assert test_score == test_score_new
 
+
 if __name__ == '__main__':
     run_dae()
