@@ -4,7 +4,7 @@ import numpy as np
 from pydl.models.autoencoder_models.deep_autoencoder import DeepAutoencoder
 
 
-def run_dae():
+def run_deep_ae():
 
     """
         Deep Autoencoder example
@@ -73,4 +73,4 @@ def run_dae():
 
 
 if __name__ == '__main__':
-    run_dae()
+    run_deep_ae()

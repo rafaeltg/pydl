@@ -5,7 +5,7 @@ from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencode
 from validator.cv_metrics import mape
 
 
-def run_dae():
+def run_sae():
 
     """
         Stacked Autoencoder example
@@ -70,4 +70,4 @@ def run_dae():
 
 
 if __name__ == '__main__':
-    run_dae()
+    run_sae()

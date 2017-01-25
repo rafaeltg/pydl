@@ -127,8 +127,6 @@ class StackedAutoencoder(SupervisedModel):
         self._model.add(Dense(output_dim=n_output,
                               activation=self.dec_act_func))
 
-        print("DONE")
-
     def _pretrain(self, x_train, x_valid=None):
 
         """ Perform unsupervised pretraining of the stack of autoencoders.
