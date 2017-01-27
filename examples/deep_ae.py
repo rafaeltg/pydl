@@ -1,4 +1,5 @@
 import os
+
 import numpy as np
 
 from pydl.models.autoencoder_models.deep_autoencoder import DeepAutoencoder

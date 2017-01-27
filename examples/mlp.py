@@ -2,16 +2,16 @@ import os
 
 import numpy as np
 
-from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
+from pydl.models.nnet_models.mlp import MLP
 from pydl.validator.cv_metrics import mape
 from examples.synthetic import mackey_glass, create_dataset
 from sklearn.preprocessing import MinMaxScaler
 
 
-def run_sae():
+def run_mlp():
 
     """
-        Stacked Autoencoder example
+        MLP example
     """
 
     # Create time series data
@@ -28,23 +28,23 @@ def run_sae():
     x_train, y_train = create_dataset(train, look_back)
     x_test, y_test = create_dataset(test, look_back)
 
-    print('Creating Stacked Autoencoder')
-    sae = StackedAutoencoder(
+    print('Creating MLP')
+    mlp = MLP(
         layers=[32, 16],
-        num_epochs=[200],
+        num_epochs=200,
     )
 
     print('Training')
-    sae.fit(x_train=x_train, y_train=y_train)
+    mlp.fit(x_train=x_train, y_train=y_train)
 
-    train_score = sae.score(x=x_train, y=y_train)
+    train_score = mlp.score(x=x_train, y=y_train)
     print('Train score = {}'.format(train_score))
 
-    test_score = sae.score(x=x_test, y=y_test)
+    test_score = mlp.score(x=x_test, y=y_test)
     print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = sae.predict(data=x_test)
+    y_test_pred = mlp.predict(data=x_test)
     print('Predicted y_test shape = {}'.format(y_test_pred.shape))
     assert y_test_pred.shape == y_test.shape
 
@@ -52,25 +52,25 @@ def run_sae():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    sae.save_model('/home/rafael/models/sae.h5')
+    mlp.save_model('/home/rafael/models/sae.h5')
     assert os.path.exists('/home/rafael/models/sae.h5')
 
     print('Loading model')
-    sae_new = StackedAutoencoder(
+    mlp_new = MLP(
         layers=[32, 16],
-        num_epochs=[200],
+        num_epochs=200,
     )
 
-    sae_new.load_model('/home/rafael/models/sae.h5')
+    mlp_new.load_model('/home/rafael/models/sae.h5')
 
     print('Calculating train score')
-    assert train_score == sae_new.score(x=x_train, y=y_train)
+    assert train_score == mlp_new.score(x=x_train, y=y_train)
 
     print('Calculating test score')
-    assert test_score == sae_new.score(x=x_test, y=y_test)
+    assert test_score == mlp_new.score(x=x_test, y=y_test)
 
     print('Predicting test data')
-    y_test_pred_new = sae_new.predict(data=x_test)
+    y_test_pred_new = mlp_new.predict(data=x_test)
     assert np.array_equal(y_test_pred, y_test_pred_new)
 
     print('Calculating MAPE')
@@ -78,4 +78,4 @@ def run_sae():
 
 
 if __name__ == '__main__':
-    run_sae()
+    run_mlp()

@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 import multiprocessing as mp
 
+import numpy as np
 import validator.cv_methods as valid
+
 from pydl.models.base.supervised_model import SupervisedModel
-from validator.cv_metrics import available_metrics
+from pydl.validator.cv_metrics import available_metrics
 
 
 class ModelValidator(object):

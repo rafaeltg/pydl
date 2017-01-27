@@ -1,9 +1,8 @@
 import json
 import os
+
 import numpy as np
 
-from optimizer.optimizer import CMAESOptimizer
-from optimizer.parameter_dictionary import ParameterDictionary
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
 from pydl.models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
 from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
@@ -12,10 +11,12 @@ from pydl.models.base.supervised_model import SupervisedModel
 from pydl.models.base.unsupervised_model import UnsupervisedModel
 from pydl.models.nnet_models.mlp import MLP
 from pydl.models.nnet_models.rnn import RNN
+from pydl.optimizer.optimizer import CMAESOptimizer
+from pydl.optimizer.parameter_dictionary import ParameterDictionary
 from pydl.utils import datasets
-from validator.cv_methods import get_cv_method
-from validator.model_validator import ModelValidator
-from validator.cv_metrics import available_metrics
+from pydl.validator.cv_methods import get_cv_method
+from pydl.validator.cv_metrics import available_metrics
+from pydl.validator.model_validator import ModelValidator
 
 
 def fit(config):

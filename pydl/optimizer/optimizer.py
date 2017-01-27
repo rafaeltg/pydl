@@ -1,6 +1,8 @@
+import multiprocessing as mp
+
 import cma
 import numpy as np
-import multiprocessing as mp
+
 from pydl.models.base.supervised_model import SupervisedModel
 
 

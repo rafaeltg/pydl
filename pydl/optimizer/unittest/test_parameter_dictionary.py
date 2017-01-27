@@ -1,6 +1,6 @@
 import unittest
 
-from optimizer.parameter_dictionary import IntegerParameter, RealParameter, ListParameter, ParameterDictionary
+from pydl.optimizer.parameter_dictionary import IntegerParameter, RealParameter, ListParameter, ParameterDictionary
 
 
 class ParameterDictionaryTestCase(unittest.TestCase):

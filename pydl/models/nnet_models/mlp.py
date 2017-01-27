@@ -20,7 +20,7 @@ class MLP(SupervisedModel):
                  dec_act_func='linear',
                  l1_reg=0.0,
                  l2_reg=0.0,
-                 dropout=0.4,
+                 dropout=0.1,
                  loss_func='mse',
                  num_epochs=10,
                  batch_size=100,
