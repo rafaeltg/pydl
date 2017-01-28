@@ -45,8 +45,8 @@ def run_deep_ae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    deep_ae.save_model('/home/rafael/models/dae.h5')
-    assert os.path.exists('/home/rafael/models/dae.h5')
+    deep_ae.save_model('/home/rafael/models/deep_ae.h5')
+    assert os.path.exists('/home/rafael/models/deep_ae.h5')
 
     print('Loading model')
     deep_ae_new = DeepAutoencoder(
@@ -54,7 +54,7 @@ def run_deep_ae():
         num_epochs=400
     )
 
-    deep_ae_new.load_model('/home/rafael/models/dae.h5')
+    deep_ae_new.load_model('/home/rafael/models/deep_ae.h5')
 
     print('Transforming data')
     x_test_tr_new = deep_ae_new.transform(data=x_test)

@@ -2,16 +2,16 @@ import os
 
 import numpy as np
 
-from pydl.models.nnet_models.mlp import MLP
+from pydl.models.nnet_models.rnn import RNN
 from pydl.validator.cv_metrics import mape
 from examples.synthetic import mackey_glass, create_dataset
 from sklearn.preprocessing import MinMaxScaler
 
 
-def run_mlp():
+def run_lstm_stateful():
 
     """
-        MLP example
+        Stateful LSTM example
     """
 
     # Create time series data
@@ -28,49 +28,61 @@ def run_mlp():
     x_train, y_train = create_dataset(train, look_back)
     x_test, y_test = create_dataset(test, look_back)
 
-    print('Creating MLP')
-    mlp = MLP(
-        layers=[32, 16],
-        num_epochs=200,
+    # reshape input to be [n_samples, time_steps, n_features]
+    x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
+    x_test = np.reshape(x_test, (x_test.shape[0], 1, x_test.shape[1]))
+
+    print('Creating a stateful LSTM')
+    lstm = RNN(
+        layers=[32, 32],
+        cell_type='lstm',
+        stateful=True,
+        time_steps=1,
+        num_epochs=30,
+        batch_size=1
     )
 
     print('Training')
-    mlp.fit(x_train=x_train, y_train=y_train)
+    lstm.fit(x_train=x_train, y_train=y_train)
 
-    train_score = mlp.score(x=x_train, y=y_train)
+    train_score = lstm.score(x=x_train, y=y_train)
     print('Train score = {}'.format(train_score))
 
-    test_score = mlp.score(x=x_test, y=y_test)
+    test_score = lstm.score(x=x_test, y=y_test)
     print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = mlp.predict(data=x_test)
-    print('Predicted y_test shape = {}'.format(y_test_pred.shape))
+    y_test_pred = lstm.predict(data=x_test)
+
     assert y_test_pred.shape == y_test.shape
 
     y_test_mape = mape(y_test, y_test_pred)
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    mlp.save_model('/home/rafael/models/mlp.h5')
-    assert os.path.exists('/home/rafael/models/mlp.h5')
+    lstm.save_model('/home/rafael/models/lstm_stateful.h5')
+    assert os.path.exists('/home/rafael/models/lstm_stateful.h5')
 
     print('Loading model')
-    mlp_new = MLP(
-        layers=[32, 16],
-        num_epochs=200,
+    lstm_new = RNN(
+        layers=[32, 32],
+        cell_type='lstm',
+        stateful=True,
+        time_steps=1,
+        num_epochs=30,
+        batch_size=1
     )
 
-    mlp_new.load_model('/home/rafael/models/mlp.h5')
+    lstm_new.load_model('/home/rafael/models/lstm_stateful.h5')
 
     print('Calculating train score')
-    assert train_score == mlp_new.score(x=x_train, y=y_train)
+    assert train_score == lstm_new.score(x=x_train, y=y_train)
 
     print('Calculating test score')
-    assert test_score == mlp_new.score(x=x_test, y=y_test)
+    assert test_score == lstm_new.score(x=x_test, y=y_test)
 
     print('Predicting test data')
-    y_test_pred_new = mlp_new.predict(data=x_test)
+    y_test_pred_new = lstm_new.predict(data=x_test)
     assert np.array_equal(y_test_pred, y_test_pred_new)
 
     print('Calculating MAPE')
@@ -78,4 +90,4 @@ def run_mlp():
 
 
 if __name__ == '__main__':
-    run_mlp()
+    run_lstm_stateful()

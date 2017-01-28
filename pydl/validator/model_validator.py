@@ -5,7 +5,7 @@ from __future__ import print_function
 import multiprocessing as mp
 
 import numpy as np
-import validator.cv_methods as valid
+import pydl.validator.cv_methods as valid
 
 from pydl.models.base.supervised_model import SupervisedModel
 from pydl.validator.cv_metrics import available_metrics
@@ -35,10 +35,10 @@ class ModelValidator(object):
         assert model is not None, 'Missing model!'
         assert x is not None, 'Missing x!'
 
-        metrics_fm = {}
+        metrics_fn = {}
         for m in metrics:
             assert m in available_metrics.keys(), 'Invalid metric - %s' % m
-            metrics_fm[m] = available_metrics[m]
+            metrics_fn[m] = available_metrics[m]
 
         args = []
         if isinstance(model, SupervisedModel):
@@ -51,14 +51,14 @@ class ModelValidator(object):
                              y[train],
                              x[test],
                              y[test],
-                             metrics_fm))
+                             metrics_fn))
         else:
             cv_fn = self._unsupervised_cv
             for train, test in self.cv.split(x):
                 args.append((model,
                              x[train],
                              x[test],
-                             metrics_fm))
+                             metrics_fn))
 
         with mp.Pool(max_thread) as pool:
             cv_results = pool.starmap(func=cv_fn,
@@ -70,7 +70,7 @@ class ModelValidator(object):
     def _supervised_cv(model, x_train, y_train, x_test, y_test, metrics_fn):
         model.fit(x_train=x_train, y_train=y_train)
 
-        cv_result = {'scores': model.score(x_test, y_test)}
+        cv_result = {'score': model.score(x_test, y_test)}
 
         if len(metrics_fn) > 0:
             y_pred = model.predict(x_test)
@@ -84,7 +84,7 @@ class ModelValidator(object):
     def _unsupervised_cv(model, x_train, x_test, metrics_fn):
         model.fit(x_train=x_train)
 
-        cv_result = {'scores': model.score(x_test)}
+        cv_result = {'score': model.score(x_test)}
 
         if len(metrics_fn) > 0:
             x_rec = model.reconstruct(model.transform(x_test))

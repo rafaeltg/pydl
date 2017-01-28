@@ -74,12 +74,19 @@ class MLP(SupervisedModel):
         :return: self
         """
 
-        for i, l in enumerate(self.layers + [n_output]):
-
-            self._model.add(Dropout(p=self.dropout,
-                                    input_shape=[input_shape[1] if i == 0 else None]))
-
+        # Hidden layers
+        for i, l in enumerate(self.layers):
             self._model.add(Dense(output_dim=l,
-                                  activation=self.enc_act_func if i < len(self.layers) else self.dec_act_func,
+                                  input_shape=[input_shape[1] if i == 0 else None],
+                                  activation=self.enc_act_func,
                                   W_regularizer=l1l2(self.l1_reg, self.l2_reg),
                                   b_regularizer=l1l2(self.l1_reg, self.l2_reg)))
+
+            if self.dropout > 0:
+                self._model.add(Dropout(p=self.dropout))
+
+        # Output layer
+        self._model.add(Dense(output_dim=n_output,
+                              activation=self.dec_act_func,
+                              W_regularizer=l1l2(self.l1_reg, self.l2_reg),
+                              b_regularizer=l1l2(self.l1_reg, self.l2_reg)))

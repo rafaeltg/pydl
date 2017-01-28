@@ -1,8 +1,7 @@
 import unittest
 
 import numpy as np
-
-from pydl.validator import TrainTestSplitCV, TimeSeriesCV
+from pydl.validator.cv_methods import TrainTestSplitCV, TimeSeriesCV
 
 
 class CVMethodsTestCase(unittest.TestCase):
@@ -48,11 +47,11 @@ class CVMethodsTestCase(unittest.TestCase):
         """
         by = 2
         1) train = [0 1 2 3 4] test = [5 6]
-        4) train = [3 4 5 6 7] test = [8 9]
+        3) train = [2 3 4 5 6] test = [7 8]
         """
 
         cv = TimeSeriesCV(window, horizon, True, 2)
-        self.validate_cv(cv, x, [expected_trains[0], expected_trains[3]], [expected_tests[0], expected_tests[3]])
+        self.validate_cv(cv, x, [expected_trains[0], expected_trains[2]], [expected_tests[0], expected_tests[2]])
 
     def test_time_series_cv_not_fixed(self):
 
@@ -85,11 +84,11 @@ class CVMethodsTestCase(unittest.TestCase):
         """
         by = 2
         1) train = [0 1 2 3 4] test = [5 6]
-        4) train = [0 1 2 3 4 5 6 7] test = [8 9]
+        3) train = [0 1 2 3 4 5 6] test = [7 8]
         """
 
         cv = TimeSeriesCV(window, horizon, False, 2)
-        self.validate_cv(cv, x, [expected_trains[0], expected_trains[3]], [expected_tests[0], expected_tests[3]])
+        self.validate_cv(cv, x, [expected_trains[0], expected_trains[2]], [expected_tests[0], expected_tests[2]])
 
     def validate_cv(self, cv, x, expected_trains, expected_tests):
         actual_trains = []

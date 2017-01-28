@@ -22,17 +22,17 @@ class TrainTestSplitCV:
 
 class TimeSeriesCV:
 
-    def __init__(self, window, horizon, fixed=True, by=0):
+    def __init__(self, window, horizon, fixed=True, by=1):
         self.window = window
         self.horizon = horizon
         self.fixed = fixed
-        self.by = by + 1
+        self.by = by
 
     def split(self, X, y=None):
-        assert len(X) > 0, 'X cannot be empty!'
-        assert len(X) >= (self.window+self.horizon), 'window size plus horizon size cannot be greater than X length!'
+        assert (X is not None) and (len(X) > 0), 'X cannot be empty!'
+        assert len(X) >= (self.window+self.horizon), 'window size plus horizon size cannot be greater than input size!'
 
-        starts_test = range(self.window, len(X)-self.horizon+1, self.by)
+        starts_test = list(range(self.window, len(X)-self.horizon+1, self.by))
 
         if self.fixed:
             trains = [range(test_start-self.window, test_start) for test_start in starts_test]
