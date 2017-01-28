@@ -34,21 +34,6 @@ def gen_batches(data, batch_size):
         yield data[i:i+batch_size]
 
 
-def normalize(data):
-
-    """ Normalize the data to be in the [0, 1] range.
-    :param data:
-    :return: normalized data
-    """
-
-    out_data = data.copy()
-
-    for i, sample in enumerate(out_data):
-        out_data[i] /= sum(out_data[i])
-
-    return out_data
-
-
 # ############# #
 #   Utilities   #
 # ############# #

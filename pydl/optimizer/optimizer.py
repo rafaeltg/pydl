@@ -100,10 +100,9 @@ class CMAESOptimizer(Optimizer):
             with mp.Pool(max_thread) as pool:
                 while not es.stop():
                     X = es.ask()
+                    # use chunksize parameter as es.popsize/max_thread?
                     f_values = pool.starmap(func=obj_f,
                                             iterable=[(_x, *args) for _x in X])
-                                            #chunksize=es.popsize/max_thread)
-                    # use chunksize parameter as es.popsize/len(pool)?
                     es.tell(X, f_values)
                     es.disp()
                     es.logger.add()
