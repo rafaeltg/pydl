@@ -22,7 +22,7 @@ class MLP(SupervisedModel):
                  l2_reg=0.0,
                  dropout=0.1,
                  loss_func='mse',
-                 num_epochs=10,
+                 num_epochs=100,
                  batch_size=100,
                  opt='adam',
                  learning_rate=0.001,

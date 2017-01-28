@@ -46,9 +46,11 @@ class ParameterDictionaryTestCase(unittest.TestCase):
 
         p = {'test': RealParameter(0, 1)}
         d.add(p)
+        self.assertEqual(d.size, 1)
 
         p_list = {'test_list': [RealParameter(0, 1)]}
         d.add(p_list)
+        self.assertEqual(d.size, 2)
 
     def test_get_parameter(self):
         d = ParameterDictionary()
