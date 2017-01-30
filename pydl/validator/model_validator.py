@@ -5,8 +5,8 @@ from __future__ import print_function
 import multiprocessing as mp
 
 import numpy as np
-import pydl.validator.cv_methods as valid
 
+import pydl.validator.cv_methods as valid
 from pydl.models.base.supervised_model import SupervisedModel
 from pydl.validator.cv_metrics import available_metrics
 

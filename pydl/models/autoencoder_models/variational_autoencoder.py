@@ -2,11 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from keras.models import load_model
 import keras.models as kmodels
 from keras import backend as K
 from keras import objectives
 from keras.layers import Input, Dense, Lambda
+from keras.models import load_model
 
 import pydl.utils.utilities as utils
 from pydl.models.base.unsupervised_model import UnsupervisedModel

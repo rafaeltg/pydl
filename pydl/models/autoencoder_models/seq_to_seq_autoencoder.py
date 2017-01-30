@@ -4,10 +4,8 @@ from __future__ import print_function
 
 import keras.backend as K
 import keras.models as kmodels
-from keras.layers import Input, Dense, LSTM, RepeatVector
-from keras.regularizers import l1l2
+from keras.layers import Input, LSTM, RepeatVector
 
-import pydl.utils.utilities as utils
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
 
 
@@ -85,7 +83,7 @@ class SeqToSeqAutoencoder(Autoencoder):
 
         self._input = Input(shape=(self.timesteps, n_inputs))
 
-        encode_layer = LSTM(name='encoder', 
+        encode_layer = LSTM(name='encoder',
                             output_dim=self.n_hidden,
                             activation=self.enc_act_func)(self._input)
 

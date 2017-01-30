@@ -1,9 +1,10 @@
 import json
 
-from pydl.validator.model_validator import ModelValidator
-from pydl.models.nnet_models.mlp import MLP
-from examples.synthetic import mackey_glass, create_dataset
 from sklearn.preprocessing import MinMaxScaler
+
+from examples.synthetic import mackey_glass, create_dataset
+from pydl.models.nnet_models.mlp import MLP
+from pydl.validator.model_validator import ModelValidator
 
 
 def run_cv():

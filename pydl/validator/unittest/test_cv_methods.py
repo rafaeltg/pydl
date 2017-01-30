@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+
 from pydl.validator.cv_methods import TrainTestSplitCV, TimeSeriesCV
 
 

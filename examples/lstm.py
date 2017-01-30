@@ -1,11 +1,11 @@
 import os
 
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 
+from examples.synthetic import mackey_glass, create_dataset
 from pydl.models.nnet_models.rnn import RNN
 from pydl.validator.cv_metrics import mape
-from examples.synthetic import mackey_glass, create_dataset
-from sklearn.preprocessing import MinMaxScaler
 
 
 def run_lstm():

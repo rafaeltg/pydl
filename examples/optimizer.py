@@ -1,12 +1,13 @@
 import json
 
+from sklearn.preprocessing import MinMaxScaler
+
+from examples.synthetic import mackey_glass, create_dataset
+from pydl.models.nnet_models.mlp import MLP
 from pydl.optimizer.optimizer import CMAESOptimizer
 from pydl.optimizer.parameter_dictionary import *
 from pydl.validator.cv_methods import TrainTestSplitCV
 from pydl.validator.cv_metrics import rmse
-from pydl.models.nnet_models.mlp import MLP
-from examples.synthetic import mackey_glass, create_dataset
-from sklearn.preprocessing import MinMaxScaler
 
 
 def run_optimizer():
