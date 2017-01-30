@@ -80,7 +80,7 @@ class Model:
         assert self.name is not '', 'Invalid model name'
         assert self.num_epochs > 0, 'Invalid number of training epochs'
         assert self.batch_size > 0, 'Invalid batch size'
-        assert self.loss_func in utils.valid_loss_functions, 'Invalid loss function'
+        assert self.loss_func in utils.valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
         assert self.l1_reg >= 0
         assert self.l2_reg >= 0
         assert self.opt_func in utils.valid_optimization_functions, 'Invalid optimizer'
@@ -121,12 +121,11 @@ class Model:
         if os.path.isdir(model_path):
             file_path = os.path.join(model_path, self.name+'.h5')
 
-        self._model = self.model_from_config(file_path)
+        assert os.path.isfile(file_path), 'Missing file - %s' % file_path
+        self._load_model(file_path)
 
-    @staticmethod
-    def model_from_config(config_file):
-        assert os.path.isfile(config_file), 'Missing file - %s' % config_file
-        return load_model(filepath=config_file)
+    def _load_model(self, config_file):
+        self._model = load_model(filepath=config_file)
 
     @staticmethod
     def get_optimizer(opt_func, learning_rate, momentum):
