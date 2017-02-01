@@ -13,7 +13,7 @@ from pydl.models.base.unsupervised_model import UnsupervisedModel
 
 class Autoencoder(UnsupervisedModel):
 
-    """ Implementation of a Autoencoder.
+    """ Implementation of an Autoencoder.
     """
 
     def __init__(self,
