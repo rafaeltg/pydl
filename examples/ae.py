@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 from pydl.models.autoencoder_models.autoencoder import Autoencoder
+from pydl.utils.utilities import load_model
 
 
 def run_ae():
@@ -45,16 +46,12 @@ def run_ae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    ae.save_model('/home/rafael/models/ae.h5')
+    ae.save_model('/home/rafael/models/', 'ae')
+    assert os.path.exists('/home/rafael/models/ae.json')
     assert os.path.exists('/home/rafael/models/ae.h5')
 
     print('Loading model')
-    ae_new = Autoencoder(
-        n_hidden=hidden_size,
-        num_epochs=100
-    )
-
-    ae_new.load_model('/home/rafael/models/ae.h5')
+    ae_new = load_model('/home/rafael/models/ae.json')
 
     print('Transforming data')
     x_test_tr_new = ae_new.transform(data=x_test)
@@ -71,7 +68,6 @@ def run_ae():
     print('Calculating testing set score')
     test_score_new = ae_new.score(data=x_test)
     assert test_score == test_score_new
-
 
 if __name__ == '__main__':
     run_ae()

@@ -4,15 +4,15 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 from examples.synthetic import mackey_glass, create_dataset
-from pydl.models.nnet_models.rnn import RNN
+from pydl.models.autoencoder_models.stacked_denoising_autoencoder import StackedDenoisingAutoencoder
 from pydl.validator.cv_metrics import mape
 from pydl.utils.utilities import load_model
 
 
-def run_lstm():
+def run_sdae():
 
     """
-        LSTM example
+        Stacked Denoising Autoencoder example
     """
 
     # Create time series data
@@ -29,53 +29,46 @@ def run_lstm():
     x_train, y_train = create_dataset(train, look_back)
     x_test, y_test = create_dataset(test, look_back)
 
-    # reshape input to be [n_samples, time_steps, n_features]
-    x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
-    x_test = np.reshape(x_test, (x_test.shape[0], 1, x_test.shape[1]))
-
-    print('Creating a stateless LSTM')
-    lstm = RNN(
-        layers=[32, 32],
-        cell_type='lstm',
-        stateful=False,
-        time_steps=1,
-        num_epochs=300,
-        batch_size=100
+    print('Creating Stacked Denoising Autoencoder')
+    sdae = StackedDenoisingAutoencoder(
+        layers=[32, 16],
+        ae_num_epochs=[200],
+        ae_corr_type=['masking']
     )
 
     print('Training')
-    lstm.fit(x_train=x_train, y_train=y_train)
+    sdae.fit(x_train=x_train, y_train=y_train)
 
-    train_score = lstm.score(x=x_train, y=y_train)
+    train_score = sdae.score(x=x_train, y=y_train)
     print('Train score = {}'.format(train_score))
 
-    test_score = lstm.score(x=x_test, y=y_test)
+    test_score = sdae.score(x=x_test, y=y_test)
     print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = lstm.predict(data=x_test)
-
+    y_test_pred = sdae.predict(data=x_test)
+    print('Predicted y_test shape = {}'.format(y_test_pred.shape))
     assert y_test_pred.shape == y_test.shape
 
     y_test_mape = mape(y_test, y_test_pred)
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    lstm.save_model('/home/rafael/models/', 'lstm')
-    assert os.path.exists('/home/rafael/models/lstm.json')
-    assert os.path.exists('/home/rafael/models/lstm.h5')
+    sdae.save_model('/home/rafael/models/', 'sdae')
+    assert os.path.exists('/home/rafael/models/sdae.json')
+    assert os.path.exists('/home/rafael/models/sdae.h5')
 
     print('Loading model')
-    lstm_new = load_model('/home/rafael/models/lstm.json')
+    sdae_new = load_model('/home/rafael/models/sdae.json')
 
     print('Calculating train score')
-    assert train_score == lstm_new.score(x=x_train, y=y_train)
+    assert train_score == sdae_new.score(x=x_train, y=y_train)
 
     print('Calculating test score')
-    assert test_score == lstm_new.score(x=x_test, y=y_test)
+    assert test_score == sdae_new.score(x=x_test, y=y_test)
 
     print('Predicting test data')
-    y_test_pred_new = lstm_new.predict(data=x_test)
+    y_test_pred_new = sdae_new.predict(data=x_test)
     assert np.array_equal(y_test_pred, y_test_pred_new)
 
     print('Calculating MAPE')
@@ -83,4 +76,4 @@ def run_lstm():
 
 
 if __name__ == '__main__':
-    run_lstm()
+    run_sdae()

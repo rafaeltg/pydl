@@ -1,9 +1,9 @@
 import argparse
-import json
 import os
 import os.path
 
 import cli.operations as op
+from pydl.utils.utilities import load_json
 
 parser = argparse.ArgumentParser(prog='pydl_cli')
 
@@ -29,17 +29,8 @@ args = parser.parse_args()
 
 
 def run():
-    configs = get_config(args.config)
-    configs['output'] = args.output if args.output != '' else os.getcwd()
-    args.func(configs)
-
-
-def get_config(file):
-    assert os.path.isfile(file), 'Config file (%s) does not exists' % file
-    with open(file) as data_file:
-        data = json.load(data_file)
-
-    return data
+    output = args.output if args.output != '' else os.getcwd()
+    args.func(load_json(args.config), output)
 
 
 if __name__ == "__main__":

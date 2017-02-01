@@ -1,6 +1,9 @@
 {
   "model": {
-    "class": "mlp"
+    "class": "MLP",
+    "params": {
+      "name": "mlp_opt"
+    }
   },
 
   "params": {
@@ -8,7 +11,7 @@
       {"type": "int", "min_value": 10, "max_value": 100},
       {"type": "int", "min_value": 10, "max_value": 100}
     ],
-    "enc_act_func": {"type": "list", "values": ["relu", "tanh"]}
+    "dropout": {"type": "real", "min_value": 0, "max_value": 0.3}
   },
 
   "opt": {

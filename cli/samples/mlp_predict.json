@@ -1,10 +1,5 @@
 {
-  "model": {
-    "class": "mlp",
-    "params": {
-      "layers": [50, 50, 25]
-    }
-  },
+  "model": "/home/rafael/models/mlp_test.json",
   "data_set": {
     "train_x": "/home/rafael/Documents/master/project/databases/bike/bike_train_x.csv",
     "train_y": "/home/rafael/Documents/master/project/databases/bike/bike_train_y.csv",

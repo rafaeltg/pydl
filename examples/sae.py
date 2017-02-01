@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from examples.synthetic import mackey_glass, create_dataset
 from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
 from pydl.validator.cv_metrics import mape
+from pydl.utils.utilities import load_model
 
 
 def run_sae():
@@ -31,7 +32,7 @@ def run_sae():
     print('Creating Stacked Autoencoder')
     sae = StackedAutoencoder(
         layers=[32, 16],
-        num_epochs=[200],
+        ae_num_epochs=[200],
     )
 
     print('Training')
@@ -52,16 +53,12 @@ def run_sae():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    sae.save_model('/home/rafael/models/sae.h5')
+    sae.save_model('/home/rafael/models/', 'sae')
+    assert os.path.exists('/home/rafael/models/sae.json')
     assert os.path.exists('/home/rafael/models/sae.h5')
 
     print('Loading model')
-    sae_new = StackedAutoencoder(
-        layers=[32, 16],
-        num_epochs=[200],
-    )
-
-    sae_new.load_model('/home/rafael/models/sae.h5')
+    sae_new = load_model('/home/rafael/models/sae.json')
 
     print('Calculating train score')
     assert train_score == sae_new.score(x=x_train, y=y_train)

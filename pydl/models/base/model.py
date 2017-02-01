@@ -16,7 +16,8 @@ from pydl.utils.logger import Logger
 
 class Model:
 
-    """ Class representing an abstract Model.
+    """
+    Class representing an abstract Model.
     """
 
     def __init__(self,
@@ -52,9 +53,10 @@ class Model:
         self.l2_reg = l2_reg
         self.num_epochs = num_epochs
         self.batch_size = batch_size
-        self.opt_func = opt
+        self.opt = opt
         self.learning_rate = learning_rate
         self.momentum = momentum
+        self.seed = seed
         self.verbose = verbose
 
         self.validate_params()
@@ -83,9 +85,9 @@ class Model:
         assert self.loss_func in utils.valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
         assert self.l1_reg >= 0
         assert self.l2_reg >= 0
-        assert self.opt_func in utils.valid_optimization_functions, 'Invalid optimizer'
+        assert self.opt in utils.valid_optimization_functions, 'Invalid optimizer'
         assert self.learning_rate > 0, 'Invalid learning rate'
-        assert self.momentum > 0 if self.opt_func == 'sgd' else True, 'Invalid momentum rate'
+        assert self.momentum > 0 if self.opt == 'sgd' else True, 'Invalid momentum rate'
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -101,22 +103,29 @@ class Model:
     def get_model_parameters(self):
         pass
 
-    def save_model(self, file_path):
-        out_file = file_path
+    def save_model(self, path=None, file_name=None):
+        assert path is not None, 'Missing output path!'
 
-        if not os.path.exists(os.path.dirname(file_path)):
-            os.makedirs(os.path.dirname(file_path))
+        if not os.path.exists(path):
+            os.makedirs(path)
 
-        file_name = os.path.basename(file_path)
-        if file_name != '':
-            assert file_name.split('.')[1] == 'h5' if '.' in file_name else True, 'Invalid file extension (must be .h5)'
-        else:
-            print('dir')
-            out_file = os.path.join(file_path, self.name+'.h5')
+        if file_name is None:
+            file_name = self.name
 
-        save_model(model=self._model, filepath=out_file)
+        w_file = os.path.join(path, file_name + '.h5')
+        configs = {'model': {
+            'class': self.__class__.__name__,
+            'params': self._dump_params(),
+            'weights': w_file
+        }}
+        utils.save_json(configs, os.path.join(path, file_name + '.json'))
+        save_model(model=self._model, filepath=w_file)
 
-    def load_model(self, model_path):
+    def _dump_params(self):
+        p = self.__getstate__()
+        return {k: p[k] for k in self.get_func_params(self.__init__).keys()}
+
+    def load_weights(self, model_path):
         file_path = model_path
         if os.path.isdir(model_path):
             file_path = os.path.join(model_path, self.name+'.h5')
@@ -126,6 +135,9 @@ class Model:
 
     def _load_model(self, config_file):
         self._model = load_model(filepath=config_file)
+
+    def get_loss_func(self):
+        return self.loss_func if isinstance(self.loss_func, str) else self.loss_func.__name__
 
     @staticmethod
     def get_optimizer(opt_func, learning_rate, momentum):

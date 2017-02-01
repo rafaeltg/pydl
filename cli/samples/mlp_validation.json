@@ -1,7 +1,9 @@
 {
   "model": {
-    "class": "mlp",
-    "params": {}
+    "class": "MLP",
+    "params": {
+      "layers": [32, 16]
+    }
   },
   "cv": {
     "method": "time_series",

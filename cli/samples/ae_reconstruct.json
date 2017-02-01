@@ -1,0 +1,7 @@
+{
+  "model": "/home/rafael/models/ae_test.json",
+  "data_set": {
+    "data_x": "/home/rafael/models/bike_test_x_encoded.npy",
+    "has_header": true
+  }
+}

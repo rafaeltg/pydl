@@ -7,6 +7,7 @@ Deep Learning algorithms implemented using Keras library and Python.
 * Denoising Autoencoder
 * Deep Autoencoder
 * Variational Autoencoder
+* Sequence-To-Sequence Autoencoder
 * Stacked Autoencoder
 * Stacked Denoising Autoencoder
 * MultiLayer Perceptron

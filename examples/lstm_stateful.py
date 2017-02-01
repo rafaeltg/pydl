@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from examples.synthetic import mackey_glass, create_dataset
 from pydl.models.nnet_models.rnn import RNN
 from pydl.validator.cv_metrics import mape
+from pydl.utils.utilities import load_model
 
 
 def run_lstm_stateful():
@@ -38,7 +39,7 @@ def run_lstm_stateful():
         cell_type='lstm',
         stateful=True,
         time_steps=1,
-        num_epochs=30,
+        num_epochs=10,
         batch_size=1
     )
 
@@ -60,20 +61,12 @@ def run_lstm_stateful():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    lstm.save_model('/home/rafael/models/lstm_stateful.h5')
+    lstm.save_model('/home/rafael/models/', 'lstm_stateful')
+    assert os.path.exists('/home/rafael/models/lstm_stateful.json')
     assert os.path.exists('/home/rafael/models/lstm_stateful.h5')
 
     print('Loading model')
-    lstm_new = RNN(
-        layers=[32, 32],
-        cell_type='lstm',
-        stateful=True,
-        time_steps=1,
-        num_epochs=30,
-        batch_size=1
-    )
-
-    lstm_new.load_model('/home/rafael/models/lstm_stateful.h5')
+    lstm_new = load_model('/home/rafael/models/lstm_stateful.json')
 
     print('Calculating train score')
     assert train_score == lstm_new.score(x=x_train, y=y_train)

@@ -53,7 +53,8 @@ class SupervisedModel(Model):
         assert all([l > 0 for l in self.layers]), 'Invalid hidden layer size'
         assert self.enc_act_func in utils.valid_act_functions, 'Invalid hidden layer activation function'
         assert self.dec_act_func in utils.valid_act_functions, 'Invalid decoder layer activation function'
-        assert 0 <= self.dropout < 1.0, 'Invalid dropout rate'
+        dropout = self.dropout if isinstance(self.dropout, list) else [self.dropout]
+        assert all([0 <= d < 1 for d in dropout]), 'Invalid dropout rate'
 
     def build_model(self, input_shape, n_output=1):
 
@@ -69,7 +70,7 @@ class SupervisedModel(Model):
 
         self._create_layers(input_shape, n_output)
 
-        opt = self.get_optimizer(opt_func=self.opt_func,
+        opt = self.get_optimizer(opt_func=self.opt,
                                  learning_rate=self.learning_rate,
                                  momentum=self.momentum)
 

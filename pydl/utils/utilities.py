@@ -1,5 +1,5 @@
 import os
-
+import json
 import numpy as np
 
 
@@ -37,6 +37,62 @@ def gen_batches(data, batch_size):
 # ############# #
 #   Utilities   #
 # ############# #
+
+def load_model(config=None):
+    assert config is not None, 'Missing input configuration'
+
+    configs = config
+    if isinstance(config, str):
+        configs = load_json(config)
+
+    assert len(configs) > 0, 'No configuration specified!'
+    assert 'model' in configs, 'Missing model definition!'
+    configs = configs['model']
+
+    assert 'class' in configs, 'Missing model class!'
+    params = configs['params'] if 'params' in configs else {}
+
+    m = build_model(configs['class'], params)
+
+    if 'weights' in configs:
+
+        m.load_weights(configs['weights'])
+
+    return m
+
+
+def build_model(m, params):
+    import importlib
+    import pkgutil
+
+    for model_module in ['autoencoder_models', 'nnet_models']:
+        mod = '.models.' + model_module
+        module = importlib.import_module(mod, 'pydl')
+        pkgpath = os.path.dirname(module.__file__)
+        for _, name, _ in pkgutil.iter_modules([pkgpath]):
+            class_mod = mod + '.' + name
+            class_module = importlib.import_module(class_mod, 'pydl')
+            if hasattr(class_module, m):
+                c = getattr(class_module, m)
+                return c(**params)
+
+    raise Exception('Invalid model!')
+
+
+def load_json(inp):
+    if os.path.isfile(inp):
+        with open(inp) as file:
+            data = json.load(file)
+    else:
+        data = json.loads(inp)
+
+    return data
+
+
+def save_json(data, file_path):
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile, sort_keys=False, indent=4, ensure_ascii=False)
+
 
 def create_dir(dir_path):
 
@@ -89,5 +145,3 @@ def flag_to_list(flag_val, dtype):
 
     else:
         raise Exception("Incorrect data type")
-
-

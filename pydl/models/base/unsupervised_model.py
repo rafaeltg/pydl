@@ -63,7 +63,7 @@ class UnsupervisedModel(Model):
         self._create_encoder_model()
         self._create_decoder_model()
 
-        opt = self.get_optimizer(opt_func=self.opt_func,
+        opt = self.get_optimizer(opt_func=self.opt,
                                  learning_rate=self.learning_rate,
                                  momentum=self.momentum)
 
@@ -146,7 +146,7 @@ class UnsupervisedModel(Model):
             return loss[0]
         return loss
 
-    def load_model(self, model_path):
-        super().load_model(model_path)
+    def load_weights(self, model_path):
+        super().load_weights(model_path)
         self._create_encoder_model()
         self._create_decoder_model()

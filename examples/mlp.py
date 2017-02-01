@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from examples.synthetic import mackey_glass, create_dataset
 from pydl.models.nnet_models.mlp import MLP
 from pydl.validator.cv_metrics import mape
+from pydl.utils.utilities import load_model
 
 
 def run_mlp():
@@ -52,16 +53,12 @@ def run_mlp():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    mlp.save_model('/home/rafael/models/mlp.h5')
+    mlp.save_model('/home/rafael/models/', 'mlp')
+    assert os.path.exists('/home/rafael/models/mlp.json')
     assert os.path.exists('/home/rafael/models/mlp.h5')
 
     print('Loading model')
-    mlp_new = MLP(
-        layers=[32, 16],
-        num_epochs=200,
-    )
-
-    mlp_new.load_model('/home/rafael/models/mlp.h5')
+    mlp_new = load_model('/home/rafael/models/mlp.json')
 
     print('Calculating train score')
     assert train_score == mlp_new.score(x=x_train, y=y_train)

@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 from pydl.models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
+from pydl.utils.utilities import load_model
 
 
 def run_dae():
@@ -22,6 +23,7 @@ def run_dae():
     hidden_size = 15
     dae = DenoisingAutoencoder(
         n_hidden=hidden_size,
+        corr_type='gaussian',
         num_epochs=100
     )
 
@@ -45,16 +47,12 @@ def run_dae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    dae.save_model('/home/rafael/models/dae.h5')
+    dae.save_model('/home/rafael/models/', 'dae')
+    assert os.path.exists('/home/rafael/models/dae.json')
     assert os.path.exists('/home/rafael/models/dae.h5')
 
     print('Loading model')
-    dae_new = DenoisingAutoencoder(
-        n_hidden=hidden_size,
-        num_epochs=100
-    )
-
-    dae_new.load_model('/home/rafael/models/dae.h5')
+    dae_new = load_model('/home/rafael/models/dae.json')
 
     print('Transforming data')
     x_test_tr_new = dae_new.transform(data=x_test)
