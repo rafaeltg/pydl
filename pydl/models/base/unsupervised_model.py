@@ -46,16 +46,14 @@ class UnsupervisedModel(Model):
         self._encoder = None
         self._decoder = None
 
-    def build_model(self, n_input):
+    def build_model(self, input_shape):
 
         """ Creates the computational graph for the Unsupervised Model.
-        :param n_input: Number of features.
-        :return: self
         """
 
         self.logger.info('Building {} model'.format(self.name))
 
-        self._input = Input(shape=(n_input,), name='x-input')
+        self._input = Input(shape=input_shape[1:], name='x-input')
 
         self._create_layers(self._input)
         self._model = kmodels.Model(input=self._input, output=self._decode_layer)
@@ -90,7 +88,7 @@ class UnsupervisedModel(Model):
 
         self.logger.info('Starting {} unsupervised training...'.format(self.name))
 
-        self.build_model(x_train.shape[1])
+        self.build_model(x_train.shape)
 
         self._model.fit(x=x_train,
                         y=x_train,

@@ -86,7 +86,7 @@ class Autoencoder(UnsupervisedModel):
                              W_regularizer=l1l2(self.l1_reg, self.l2_reg),
                              b_regularizer=l1l2(self.l1_reg, self.l2_reg))(input_layer)
 
-        n_inputs = K.int_shape(input_layer)[1]
+        n_inputs = K.int_shape(input_layer)[-1]
         self._decode_layer = Dense(name='decoder',
                                    output_dim=n_inputs,
                                    activation=self.dec_act_func)(encode_layer)
