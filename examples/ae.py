@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from pydl.models.autoencoder_models.autoencoder import Autoencoder
+from pydl.models import Autoencoder
 from pydl.utils.utilities import load_model
 
 
@@ -46,12 +46,12 @@ def run_ae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    ae.save_model('/home/rafael/models/', 'ae')
-    assert os.path.exists('/home/rafael/models/ae.json')
-    assert os.path.exists('/home/rafael/models/ae.h5')
+    ae.save_model('models/', 'ae')
+    assert os.path.exists('models/ae.json')
+    assert os.path.exists('models/ae.h5')
 
     print('Loading model')
-    ae_new = load_model('/home/rafael/models/ae.json')
+    ae_new = load_model('models/ae.json')
 
     print('Transforming data')
     x_test_tr_new = ae_new.transform(data=x_test)

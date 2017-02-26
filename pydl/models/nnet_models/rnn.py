@@ -1,10 +1,5 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+from ..base import SupervisedModel
 from keras.layers import Dense, Dropout, LSTM, GRU, SimpleRNN
-
-from pydl.models.base.supervised_model import SupervisedModel
 
 
 class RNN(SupervisedModel):
@@ -14,67 +9,40 @@ class RNN(SupervisedModel):
 
     def __init__(self,
                  name='rnn',
-                 layers=list([50, 50]),
-                 cell_type='lstm',
+                 layers=None,
                  stateful=True,
                  time_steps=1,
-                 enc_act_func='tanh',
-                 dec_act_func='linear',
-                 loss_func='mse',
-                 num_epochs=100,
-                 batch_size=1,
-                 opt='adam',
-                 learning_rate=0.001,
-                 momentum=0.5,
-                 dropout=0.1,
-                 verbose=0,
-                 seed=42):
+                 cell_type='lstm',
+                 activation='tanh',
+                 out_activation='linear',
+                 **kwargs):
 
         """
         :param name: Name of the model.
         :param layers: Number of hidden units in each layer.
-        :param cell_type: Recurrent layers type. ["lstm", "gru", "simple"]
         :param stateful: Whether the recurrent network is stateful or not.It means that the states
             computed for the samples in one batch will be reused as initial states for the samples
             in the next batch.
         :param time_steps:
-        :param enc_act_func: Activation function for the hidden layers.
-        :param dec_act_func: Activation function for the output layer.
-        :param loss_func: Cost function.
-        :param num_epochs: Number of training epochs.
-        :param batch_size: Size of each training mini-batch.
-        :param opt: Optimizer function.
-        :param learning_rate: Initial learning rate.
-        :param momentum: Initial momentum value.
-        :param dropout: The probability that each element is kept at each layer. Default = 1.0 (keep all).
-        :param verbose: Level of verbosity. 0 - silent, 1 - print.
-        :param seed: positive integer for seeding random generators. Ignored if < 0.
+        :param cell_type: Recurrent layers type. ["lstm", "gru", "simple"]
         """
 
-        self.cell_type = cell_type
         self.stateful = stateful
         self.time_steps = time_steps
+        self.cell_type = cell_type
 
         super().__init__(name=name,
                          layers=layers,
-                         enc_act_func=enc_act_func,
-                         dec_act_func=dec_act_func,
-                         loss_func=loss_func,
-                         dropout=dropout,
-                         num_epochs=num_epochs,
-                         batch_size=batch_size,
-                         opt=opt,
-                         learning_rate=learning_rate,
-                         momentum=momentum,
-                         seed=seed,
-                         verbose=verbose)
+                         activation=activation,
+                         out_activation=out_activation,
+                         **kwargs)
 
         self.logger.info('Done {} __init__'.format(__class__.__name__))
 
     def validate_params(self):
         super().validate_params()
-        assert self.cell_type in ["lstm", "gru", "simple"], 'Invalid cell type!'
         assert self.time_steps > 0, "time_steps must be grater than zero!"
+        assert self.cell_type in ["lstm", "gru", "simple"], 'Invalid cell type!'
 
     def _create_layers(self, input_shape, n_output):
 
@@ -97,16 +65,15 @@ class RNN(SupervisedModel):
 
             self._model.add(cell(output_dim=l,
                                  batch_input_shape=(b_size, input_shape[1], input_shape[2]),
-                                 activation=self.enc_act_func,
+                                 activation=self.activation[i],
                                  stateful=self.stateful,
                                  return_sequences=True if i < (len(self.layers)-1) else False))
 
-            if self.dropout > 0:
-                self._model.add(Dropout(p=self.dropout))
+            if self.dropout[i] > 0:
+                self._model.add(Dropout(p=self.dropout[i]))
 
         # Output layer
-        self._model.add(Dense(output_dim=n_output,
-                              activation=self.dec_act_func))
+        self._model.add(Dense(output_dim=n_output, activation=self.out_activation))
 
     def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
 

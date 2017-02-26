@@ -1,39 +1,31 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import multiprocessing as mp
-
 import numpy as np
 
-import pydl.validator.cv_methods as valid
-from pydl.models.base.supervised_model import SupervisedModel
-from pydl.validator.cv_metrics import available_metrics
+from ..models.base import SupervisedModel
+from .methods import *
+from .metrics import available_metrics
 
 
-class ModelValidator(object):
-
-    """
+class CV(object):
 
     """
+        Cross-Validation
+    """
 
-    def __init__(self, method=None, **kwargs):
-        assert method is not None, 'Missing method name!'
-        self.cv = valid.get_cv_method(method, **kwargs)
+    def __init__(self, method, **kwargs):
+        self.cv = get_cv_method(method, **kwargs)
 
-    def run(self, model, x=None, y=None, metrics=list([]), max_thread=2):
+    def run(self, model, x, y=None, metrics=list([]), pp=None, max_thread=1):
 
         """
         :param model:
         :param x:
         :param y:
         :param metrics:
+        :param pp: Preprocessing object (sklearn.preprocessing)
         :param max_thread:
         :return:
         """
-
-        assert model is not None, 'Missing model!'
-        assert x is not None, 'Missing x!'
 
         metrics_fn = {}
         for m in metrics:
@@ -46,11 +38,12 @@ class ModelValidator(object):
 
             cv_fn = self._supervised_cv
             for train, test in self.cv.split(x, y):
-                args.append((model,
+                args.append((model.copy(),
                              x[train],
                              y[train],
                              x[test],
                              y[test],
+                             pp,
                              metrics_fn))
         else:
             cv_fn = self._unsupervised_cv
@@ -60,31 +53,46 @@ class ModelValidator(object):
                              x[test],
                              metrics_fn))
 
-        with mp.Pool(max_thread) as pool:
-            cv_results = pool.starmap(func=cv_fn,
-                                      iterable=args)
+        cv_results = []
+        if max_thread == 1:
+            for fn_args in args:
+                cv_results.append(cv_fn(*fn_args))
+
+        else:
+            with mp.Pool(max_thread) as pool:
+                cv_results = pool.starmap(func=cv_fn, iterable=args)
 
         return self._consolidate_cv_metrics(cv_results)
 
     @staticmethod
-    def _supervised_cv(model, x_train, y_train, x_test, y_test, metrics_fn):
+    def _supervised_cv(model, x_train, y_train, x_test, y_test, pp, metrics_fn):
+
+        # Data preprocessing
+        if pp:
+            x_train = pp.fit_transform(x_train)
+            x_test = pp.transform(x_test)
+
         model.fit(x_train=x_train, y_train=y_train)
 
-        cv_result = {'score': model.score(x_test, y_test)}
+        cv_result = {model.get_loss_func(): model.score(x_test, y_test)}
 
         if len(metrics_fn) > 0:
             y_pred = model.predict(x_test)
 
             for k, fn in metrics_fn.items():
-                cv_result[k] = fn(y_test, y_pred)
+                if k == 'log_loss':
+                    res = fn(y_test, model.predict(x_test, predic_probs=True))
+                else:
+                    res = fn(y_test, y_pred)
+                cv_result[k] = res
 
         return cv_result
 
     @staticmethod
-    def _unsupervised_cv(model, x_train, x_test, metrics_fn):
+    def _unsupervised_cv(model, x_train, x_test, pp, metrics_fn):
         model.fit(x_train=x_train)
 
-        cv_result = {'score': model.score(x_test)}
+        cv_result = {model.get_loss_func(): model.score(x_test)}
 
         if len(metrics_fn) > 0:
             x_rec = model.reconstruct(model.transform(x_test))

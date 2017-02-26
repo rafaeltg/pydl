@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from pydl.models.autoencoder_models.denoising_autoencoder import DenoisingAutoencoder
+from pydl.models import DenoisingAutoencoder
 from pydl.utils.utilities import load_model
 
 
@@ -47,12 +47,12 @@ def run_dae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    dae.save_model('/home/rafael/models/', 'dae')
-    assert os.path.exists('/home/rafael/models/dae.json')
-    assert os.path.exists('/home/rafael/models/dae.h5')
+    dae.save_model('models/', 'dae')
+    assert os.path.exists('models/dae.json')
+    assert os.path.exists('models/dae.h5')
 
     print('Loading model')
-    dae_new = load_model('/home/rafael/models/dae.json')
+    dae_new = load_model('models/dae.json')
 
     print('Transforming data')
     x_test_tr_new = dae_new.transform(data=x_test)

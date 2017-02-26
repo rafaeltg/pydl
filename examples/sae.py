@@ -4,8 +4,8 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 from examples.synthetic import mackey_glass, create_dataset
-from pydl.models.autoencoder_models.stacked_autoencoder import StackedAutoencoder
-from pydl.validator.cv_metrics import mape
+from pydl.models import StackedAutoencoder, Autoencoder
+from pydl.model_selection.metrics import mape
 from pydl.utils.utilities import load_model
 
 
@@ -31,8 +31,9 @@ def run_sae():
 
     print('Creating Stacked Autoencoder')
     sae = StackedAutoencoder(
-        layers=[32, 16],
-        ae_num_epochs=[200],
+        layers=[Autoencoder(n_hidden=32, enc_act_func='relu'),
+                Autoencoder(n_hidden=16, enc_act_func='relu')],
+        num_epochs=100
     )
 
     print('Training')
@@ -45,7 +46,7 @@ def run_sae():
     print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = sae.predict(data=x_test)
+    y_test_pred = sae.predict(x_test)
     print('Predicted y_test shape = {}'.format(y_test_pred.shape))
     assert y_test_pred.shape == y_test.shape
 
@@ -53,12 +54,12 @@ def run_sae():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    sae.save_model('/home/rafael/models/', 'sae')
-    assert os.path.exists('/home/rafael/models/sae.json')
-    assert os.path.exists('/home/rafael/models/sae.h5')
+    sae.save_model('models/', 'sae')
+    assert os.path.exists('models/sae.json')
+    assert os.path.exists('models/sae.h5')
 
     print('Loading model')
-    sae_new = load_model('/home/rafael/models/sae.json')
+    sae_new = load_model('models/sae.json')
 
     print('Calculating train score')
     assert train_score == sae_new.score(x=x_train, y=y_train)
@@ -67,7 +68,7 @@ def run_sae():
     assert test_score == sae_new.score(x=x_test, y=y_test)
 
     print('Predicting test data')
-    y_test_pred_new = sae_new.predict(data=x_test)
+    y_test_pred_new = sae_new.predict(x_test)
     assert np.array_equal(y_test_pred, y_test_pred_new)
 
     print('Calculating MAPE')

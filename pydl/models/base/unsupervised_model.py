@@ -2,10 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from .model import Model
 import keras.models as kmodels
 from keras.layers import Input
-
-from pydl.models.base.model import Model
 
 
 class UnsupervisedModel(Model):
@@ -14,35 +13,23 @@ class UnsupervisedModel(Model):
     """
 
     def __init__(self,
-                 name,
-                 loss_func='mse',
+                 n_hidden=None,
+                 enc_activation='relu',
+                 dec_activation='linear',
                  l1_reg=0.0,
                  l2_reg=0.0,
-                 num_epochs=10,
-                 batch_size=100,
-                 opt='adam',
-                 learning_rate=0.001,
-                 momentum=0.5,
-                 seed=42,
-                 verbose=0):
+                 **kwargs):
 
-        super().__init__(name=name,
-                         loss_func=loss_func,
-                         l1_reg=l1_reg,
-                         l2_reg=l2_reg,
-                         num_epochs=num_epochs,
-                         batch_size=batch_size,
-                         opt=opt,
-                         learning_rate=learning_rate,
-                         momentum=momentum,
-                         seed=seed,
-                         verbose=verbose)
+        self.n_hidden = n_hidden
+        self.enc_activation = enc_activation
+        self.dec_activation = dec_activation
+        self.l1_reg = l1_reg
+        self.l2_reg = l2_reg
 
-        # Model input data
+        super().__init__(**kwargs)
+
         self._input = None
-
         self._decode_layer = None
-
         self._encoder = None
         self._decoder = None
 
@@ -61,11 +48,7 @@ class UnsupervisedModel(Model):
         self._create_encoder_model()
         self._create_decoder_model()
 
-        opt = self.get_optimizer(opt_func=self.opt,
-                                 learning_rate=self.learning_rate,
-                                 momentum=self.momentum)
-
-        self._model.compile(optimizer=opt, loss=self.loss_func)
+        self._model.compile(optimizer=self.get_optimizer(), loss=self.loss_func)
 
         self.logger.info('Done building {} model'.format(self.name))
 
@@ -108,11 +91,7 @@ class UnsupervisedModel(Model):
         """
 
         self.logger.info('Transforming data...')
-
-        encoded_data = self._encoder.predict(x=data, 
-                                             verbose=self.verbose)
-
-        return encoded_data
+        return self._encoder.predict(x=data, verbose=self.verbose)
 
     def reconstruct(self, encoded_data):
 
@@ -121,10 +100,8 @@ class UnsupervisedModel(Model):
         :return:
         """
 
-        rec_data = self._decoder.predict(x=encoded_data, 
-                                         verbose=self.verbose)
-
-        return rec_data
+        self.logger.info('Reconstructing data...')
+        return self._decoder.predict(x=encoded_data, verbose=self.verbose)
 
     def score(self, data):
 
@@ -144,7 +121,7 @@ class UnsupervisedModel(Model):
             return loss[0]
         return loss
 
-    def load_weights(self, model_path):
-        super().load_weights(model_path)
+    def load_model(self, model_path, custom_objs=None):
+        super().load_model(model_path, custom_objs)
         self._create_encoder_model()
         self._create_decoder_model()

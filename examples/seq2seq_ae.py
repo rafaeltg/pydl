@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from pydl.models.autoencoder_models.seq_to_seq_autoencoder import SeqToSeqAutoencoder
+from pydl.models import SeqToSeqAutoencoder
 from pydl.utils.utilities import load_model
 
 
@@ -23,11 +23,9 @@ def run_seq2seq_ae():
 
     print('Creating Seq2Seq Autoencoder')
     hidden_size = 15
-    s2s_ae = SeqToSeqAutoencoder(
-        n_hidden=hidden_size,
-        time_steps=time_steps,
-        num_epochs=100
-    )
+    s2s_ae = SeqToSeqAutoencoder(n_hidden=hidden_size,
+                                 time_steps=time_steps,
+                                 num_epochs=100)
 
     print('Training')
     s2s_ae.fit(x_train=x_train)
@@ -49,12 +47,12 @@ def run_seq2seq_ae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    s2s_ae.save_model('/home/rafael/models/', 's2s_ae')
-    assert os.path.exists('/home/rafael/models/s2s_ae.json')
-    assert os.path.exists('/home/rafael/models/s2s_ae.h5')
+    s2s_ae.save_model('models/', 's2s_ae')
+    assert os.path.exists('models/s2s_ae.json')
+    assert os.path.exists('models/s2s_ae.h5')
 
     print('Loading model')
-    s2s_ae_new = load_model('/home/rafael/models/s2s_ae.json')
+    s2s_ae_new = load_model('models/s2s_ae.json')
 
     print('Transforming data')
     x_test_tr_new = s2s_ae_new.transform(data=x_test)

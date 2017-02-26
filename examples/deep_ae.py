@@ -2,8 +2,9 @@ import os
 
 import numpy as np
 
-from pydl.models.autoencoder_models.deep_autoencoder import DeepAutoencoder
+from pydl.models import DeepAutoencoder
 from pydl.utils.utilities import load_model
+from keras.layers import Dense
 
 
 def run_deep_ae():
@@ -20,10 +21,10 @@ def run_deep_ae():
     x_test = np.random.normal(loc=0, scale=1, size=(test_size, input_dim))
 
     print('Creating Deep Autoencoder')
-    hidden_size = 15
+    hidden_size = 5
     deep_ae = DeepAutoencoder(
-        n_hidden=[30, 20, hidden_size],
-        num_epochs=400
+        n_hidden=[15, 10, hidden_size],
+        num_epochs=100
     )
 
     print('Training')
@@ -46,12 +47,12 @@ def run_deep_ae():
     assert x_test_rec.shape == x_test.shape
 
     print('Saving model')
-    deep_ae.save_model('/home/rafael/models/', 'deep_ae')
-    assert os.path.exists('/home/rafael/models/deep_ae.json')
-    assert os.path.exists('/home/rafael/models/deep_ae.h5')
+    deep_ae.save_model('models/', 'deep_ae')
+    assert os.path.exists('models/deep_ae.json')
+    assert os.path.exists('models/deep_ae.h5')
 
     print('Loading model')
-    deep_ae_new = load_model('/home/rafael/models/deep_ae.json')
+    deep_ae_new = load_model('models/deep_ae.json')
 
     print('Transforming data')
     x_test_tr_new = deep_ae_new.transform(data=x_test)
@@ -68,7 +69,6 @@ def run_deep_ae():
     print('Calculating testing set score')
     test_score_new = deep_ae_new.score(data=x_test)
     assert test_score == test_score_new
-
 
 if __name__ == '__main__':
     run_deep_ae()

@@ -4,9 +4,10 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 from examples.synthetic import mackey_glass, create_dataset
-from pydl.models.autoencoder_models.stacked_denoising_autoencoder import StackedDenoisingAutoencoder
-from pydl.validator.cv_metrics import mape
+from pydl.models import StackedAutoencoder, DenoisingAutoencoder
+from pydl.model_selection.metrics import mape
 from pydl.utils.utilities import load_model
+from keras.layers import Dense
 
 
 def run_sdae():
@@ -30,10 +31,17 @@ def run_sdae():
     x_test, y_test = create_dataset(test, look_back)
 
     print('Creating Stacked Denoising Autoencoder')
-    sdae = StackedDenoisingAutoencoder(
-        layers=[32, 16],
-        ae_num_epochs=[200],
-        ae_corr_type=['masking']
+    sdae = StackedAutoencoder(
+        layers=[DenoisingAutoencoder(n_hidden=32,
+                                     enc_act_func='relu',
+                                     corr_type='masking',
+                                     corr_param=0.1),
+                DenoisingAutoencoder(n_hidden=16,
+                                     enc_act_func='relu',
+                                     corr_type='masking',
+                                     corr_param=0.1)
+        ],
+        num_epochs=100
     )
 
     print('Training')
@@ -46,7 +54,7 @@ def run_sdae():
     print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = sdae.predict(data=x_test)
+    y_test_pred = sdae.predict(x_test)
     print('Predicted y_test shape = {}'.format(y_test_pred.shape))
     assert y_test_pred.shape == y_test.shape
 
@@ -54,12 +62,12 @@ def run_sdae():
     print('MAPE for y_test forecasting = {}'.format(y_test_mape))
 
     print('Saving model')
-    sdae.save_model('/home/rafael/models/', 'sdae')
-    assert os.path.exists('/home/rafael/models/sdae.json')
-    assert os.path.exists('/home/rafael/models/sdae.h5')
+    sdae.save_model('models/', 'sdae')
+    assert os.path.exists('models/sdae.json')
+    assert os.path.exists('models/sdae.h5')
 
     print('Loading model')
-    sdae_new = load_model('/home/rafael/models/sdae.json')
+    sdae_new = load_model('models/sdae.json')
 
     print('Calculating train score')
     assert train_score == sdae_new.score(x=x_train, y=y_train)
@@ -68,7 +76,7 @@ def run_sdae():
     assert test_score == sdae_new.score(x=x_test, y=y_test)
 
     print('Predicting test data')
-    y_test_pred_new = sdae_new.predict(data=x_test)
+    y_test_pred_new = sdae_new.predict(x_test)
     assert np.array_equal(y_test_pred, y_test_pred_new)
 
     print('Calculating MAPE')

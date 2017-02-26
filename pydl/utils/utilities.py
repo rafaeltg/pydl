@@ -1,6 +1,10 @@
 import os
 import json
+import importlib
 import numpy as np
+from keras.utils.layer_utils import layer_from_config
+import sys
+import inspect
 
 
 valid_act_functions = ['softmax', 'softplus', 'sigmoid', 'tanh', 'relu', 'linear']
@@ -11,8 +15,8 @@ valid_loss_functions = ['mse',                       # Mean Squared Error
                         'msle',                      # Mean Squared Logarithmic Error
                         'binary_crossentropy',       # Log loss
                         'categorical_crossentropy',  # Multiclass Log loss
-                        'kld',                       # Kullback Leibler Divergence (information gain)
-                        'custom']
+                        'kld'                        # Kullback Leibler Divergence (information gain)
+                        ]
 
 valid_optimization_functions = ['sgd', 'rmsprop', 'adagrad', 'adadelta', 'adam']
 
@@ -47,36 +51,25 @@ def load_model(config=None):
 
     assert len(configs) > 0, 'No configuration specified!'
     assert 'model' in configs, 'Missing model definition!'
-    configs = configs['model']
 
-    assert 'class' in configs, 'Missing model class!'
-    params = configs['params'] if 'params' in configs else {}
-
-    m = build_model(configs['class'], params)
+    m = model_from_config(configs['model'])
+    if m is None:
+        raise Exception('Invalid model!')
 
     if 'weights' in configs:
-
-        m.load_weights(configs['weights'])
+        m.load_model(configs['weights'])
 
     return m
 
 
-def build_model(m, params):
-    import importlib
-    import pkgutil
+def model_from_config(config):
+    assert 'class_name' in config, 'Missing model class!'
+    return layer_from_config(config, get_available_models())
 
-    for model_module in ['autoencoder_models', 'nnet_models']:
-        mod = '.models.' + model_module
-        module = importlib.import_module(mod, 'pydl')
-        pkgpath = os.path.dirname(module.__file__)
-        for _, name, _ in pkgutil.iter_modules([pkgpath]):
-            class_mod = mod + '.' + name
-            class_module = importlib.import_module(class_mod, 'pydl')
-            if hasattr(class_module, m):
-                c = getattr(class_module, m)
-                return c(**params)
 
-    raise Exception('Invalid model!')
+def get_available_models():
+    models = inspect.getmembers(sys.modules['pydl.models'], inspect.isclass)
+    return {m[0]: m[1] for m in models}
 
 
 def load_json(inp):
@@ -94,36 +87,30 @@ def save_json(data, file_path):
         json.dump(data, outfile, sort_keys=False, indent=4, ensure_ascii=False)
 
 
-def create_dir(dir_path):
+def expand_arg(layers, arg_to_expand):
 
-    """
-    :param dir_path: directory to be created
-    """
-
-    try:
-        if not os.path.exists(dir_path):
-            print('Creating %s directory.' % dir_path)
-            os.makedirs(dir_path)
-    except OSError as e:
-        raise e
-
-
-def expand_args(layers, args_to_expand):
-
-    """Expands all the lists in args_to_expand into the length of layers.
+    """Expands the arg_to_expand into the length of layers.
     This is used as a convenience so that the user does not need to specify the
     complete list of parameters for model initialization.
     IE: the user can just specify one parameter and this function will expand it
     :param layers:
-    :param args_to_expand:
+    :param arg_to_expand:
     :return:
     """
 
-    for key, val in args_to_expand.items():
-        if isinstance(val, list) and (len(val) != len(layers)):
-            args_to_expand[key] = [val[0] for _ in layers]
+    if not isinstance(arg_to_expand, list):
+        arg_to_expand = [arg_to_expand]
 
-    return args_to_expand
+    if len(arg_to_expand) == len(layers):
+        return arg_to_expand
+
+    if len(arg_to_expand) > len(layers):
+        return arg_to_expand[0:len(layers)]
+
+    missing_values = len(layers) - len(arg_to_expand)
+    result = arg_to_expand + [arg_to_expand[-1] for _ in range(missing_values)]
+
+    return result
 
 
 def flag_to_list(flag_val, dtype):
