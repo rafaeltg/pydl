@@ -42,7 +42,10 @@ class HyperOptModel(object):
     def fit(self, x, y=None, retrain=False, max_threads=4):
 
         args = (self._hp_space, x, y) + self._fit_fn.args
-        res = self._opt.optimize(x0=[0]*self.hp_space.size, obj_func=self._fit_fn.obj_fn, args=args, max_thread=max_threads)
+        res = self._opt.optimize(x0=[0]*self.hp_space.size,
+                                 obj_func=self._fit_fn.obj_fn,
+                                 args=args,
+                                 max_thread=max_threads)
         best_config = self._hp_space.get_value(res[0])
         self._best_model = load_model(best_config)
 

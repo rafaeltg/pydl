@@ -7,7 +7,7 @@ from math import floor
 from sklearn.model_selection import LeaveOneOut, KFold, StratifiedKFold, ShuffleSplit, StratifiedShuffleSplit
 
 
-class TrainTestSplitCV:
+class TrainTestSplit:
 
     def __init__(self, test_size=0.3):
         self.test_size = test_size
@@ -20,7 +20,7 @@ class TrainTestSplitCV:
         yield range(0, train_size, 1), range(train_size, n, 1)
 
 
-class TimeSeriesCV:
+class TimeSeriesSplit:
 
     def __init__(self, window, horizon, fixed=True, by=1):
         self.window = window
@@ -56,10 +56,10 @@ def get_cv_method(method, **kwargs):
     elif method == 'shuffle_split':
         return ShuffleSplit(**kwargs)
     elif method == 'split':
-        return TrainTestSplitCV(**kwargs)
+        return TrainTestSplit(**kwargs)
     elif method == 's_shuffle_split':
         return StratifiedShuffleSplit(**kwargs)
     elif method == 'time_series':
-        return TimeSeriesCV(**kwargs)
+        return TimeSeriesSplit(**kwargs)
     else:
         raise AttributeError('Invalid method - %s!' % method)

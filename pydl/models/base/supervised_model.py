@@ -70,6 +70,8 @@ class SupervisedModel(Model):
 
         self.logger.info('Starting {} supervised training...'.format(self.name))
 
+        x_train = self._check_x_shape(x_train)
+        x_valid = self._check_x_shape(x_valid) if x_valid else None
         y_train = self._check_y_shape(y_train)
         y_valid = self._check_y_shape(y_valid) if y_valid else None
 
@@ -97,6 +99,8 @@ class SupervisedModel(Model):
         :return: labels
         """
 
+        x = self._check_x_shape(x)
+
         if self.loss_func == 'binary_crossentropy' or self.loss_func == 'categorical_crossentropy':
             if not class_probs:
                 return self._model.predict_classes(x, batch_size=self.batch_size, verbose=self.verbose)
@@ -120,6 +124,7 @@ class SupervisedModel(Model):
         :return:
         """
 
+        x = self._check_x_shape(x)
         y = self._check_y_shape(y)
 
         loss = self._model.evaluate(x=x, y=y, batch_size=self.batch_size, verbose=self.verbose)
@@ -160,6 +165,9 @@ class SupervisedModel(Model):
                 layers.append(l)
         config['layers'] = layers
         return cls(**config)
+
+    def _check_x_shape(self, x):
+        return x
 
     def _check_y_shape(self, y):
         y = np.array(y)

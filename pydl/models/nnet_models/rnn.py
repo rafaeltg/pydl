@@ -1,3 +1,4 @@
+import numpy as np
 from ..base import SupervisedModel
 from keras.layers import Dense, Dropout, LSTM, GRU, SimpleRNN
 
@@ -74,6 +75,11 @@ class RNN(SupervisedModel):
 
         # Output layer
         self._model.add(Dense(output_dim=n_output, activation=self.out_activation))
+
+    def _check_x_shape(self, x):
+        if len(x.shape) == 2:
+            x = np.reshape(x, (x.shape[0], self.time_steps, x.shape[1]))
+        return x
 
     def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
 

@@ -5,7 +5,8 @@ from sklearn.preprocessing import MinMaxScaler
 from pydl.models import MLP
 from pydl.model_selection.metrics import mape
 from pydl.utils.utilities import load_model
-from examples.synthetic import mackey_glass, create_dataset
+from pydl.utils.datasets import create_dataset
+from examples.synthetic import mackey_glass
 
 
 def run_mlp():

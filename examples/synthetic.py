@@ -3,22 +3,6 @@ import collections
 import numpy as np
 
 
-def create_dataset(dataset, look_back=1, time_ahead=1):
-    """
-
-    :param dataset:
-    :param look_back:
-    :param time_ahead:
-    :return:
-    """
-
-    data_x, data_y = [], []
-    for i in range(len(dataset)-look_back-1):
-        data_x.append(dataset[i:(i+look_back), 0])
-        data_y.append(np.reshape(dataset[i + look_back, 0], time_ahead))
-    return np.array(data_x), np.array(data_y)
-
-
 def mackey_glass(sample_len=1000, tau=17, delta_t=10, seed=None):
     """
     Generate the Mackey-Glass time-series.
