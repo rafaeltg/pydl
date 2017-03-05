@@ -3,7 +3,7 @@ import numpy as np
 
 from .methods import *
 from .metrics import available_metrics
-from ..utils.datasets import create_dataset
+from ..datasets import create_dataset
 
 
 class CV(object):

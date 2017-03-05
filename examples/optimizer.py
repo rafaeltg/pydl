@@ -2,7 +2,7 @@ import json
 
 from sklearn.preprocessing import MinMaxScaler
 
-from examples.synthetic import mackey_glass, create_dataset
+from pydl.datasets import mackey_glass, create_dataset
 from pydl.hyperopt import *
 
 

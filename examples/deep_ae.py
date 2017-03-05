@@ -4,7 +4,6 @@ import numpy as np
 
 from pydl.models import DeepAutoencoder
 from pydl.utils.utilities import load_model
-from keras.layers import Dense
 
 
 def run_deep_ae():

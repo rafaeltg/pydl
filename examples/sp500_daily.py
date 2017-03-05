@@ -1,32 +1,41 @@
 import json
 from sklearn.preprocessing import StandardScaler
 
-from pydl.utils.datasets import *
+from pydl.datasets.time_series import *
 from pydl.models import RNN
-from pydl.model_selection import mse, TimeSeriesCV, RegressionCV
+from pydl.model_selection import rmse, TimeSeriesCV, RegressionCV
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 
 np.random.seed(42)
 
-sp500 = get_stock_historical_data('^GSPC', '2000-01-01', '2017-03-01', True, ['Close'])
-look_back = 20
+sp500 = get_stock_historical_data('^GSPC', '2015-01-01', '2017-03-05', True, ['Close'])
+look_back = 10
 look_ahead = 1
 time_steps = 1
 
 
-def run_forecast1():
+def run_forecast_log_return():
 
     sp500_log_ret = get_log_return(sp500)
+    #sp500_log_ret_mean = smooth(sp500_log_ret)
+    sp500_log_ret = smooth(sp500_log_ret, method='ewma')
+
+    #plt.figure(1)
+    #plt.plot(sp500_log_ret, label='Orig')
+    #plt.plot(sp500_log_ret_mean, label='Mean')
+    #plt.plot(sp500_log_ret_ewma, label='EWMA')
+    #plt.legend(loc='best')
+    #plt.show()
+
+    test_stationarity(sp500_log_ret['Close'])
 
     # split into train and test sets
-    train_size = int(len(sp500_log_ret) * 0.9)
-    train, test = sp500_log_ret[0:train_size], sp500_log_ret[train_size:len(sp500)]
-    print(len(train))
-    print(len(test))
+    train = sp500_log_ret['2015-01-01':'2016-03-04']
+    test = sp500_log_ret['2016-03-05':'2017-03-05']
 
-    pp = StandardScaler()
-    train = pp.fit_transform(train)
-    test = pp.transform(test)
+    print('\n#Train: %d' % len(train))
+    print('#Test: %d' % len(test))
 
     # reshape into X=[t-look_back, t] and Y=[t+1, t+look_ahead]
     x_train, y_train = create_dataset(train, look_back, look_ahead)
@@ -35,28 +44,23 @@ def run_forecast1():
     x_train = np.reshape(x_train, (x_train.shape[0], time_steps, look_back))
     x_test = np.reshape(x_test, (x_test.shape[0], time_steps, look_back))
 
-    print('train = ', len(x_train))
-    print('test = ', len(x_test))
+    print('#x_train: %d' % len(x_train))
+    print('#x_test: %d' % len(x_test))
 
     lstm = RNN(cell_type='lstm',
                layers=[50, 50],
                stateful=False,
                time_steps=time_steps,
-               num_epochs=300,
+               num_epochs=400,
                batch_size=200,
                opt='adam')
 
-    print('Training LSTM')
+    print('\nTraining LSTM')
     lstm.fit(x_train, y_train)
 
     y_test_pred = lstm.predict(x_test)
 
-    y_test = pp.inverse_transform(y_test)
-    y_test_pred = pp.inverse_transform(y_test_pred)
-
-    print(y_test.shape)
-    print(y_test_pred.shape)
-    print('Test MSE = %.4f' % mse(y_test, y_test_pred))
+    print('Test RMSE = %.4f' % rmse(y_test[:, 0], y_test_pred[:, 0]))
     print('Test corr = %.4f' % np.corrcoef(y_test[:, 0], y_test_pred[:, 0])[0, 1])
 
     errs = y_test[:, 0] - y_test_pred[:, 0]
@@ -65,14 +69,36 @@ def run_forecast1():
     print('Test ME = %.4f' % mean_err)
     print('Test SdE = %.4f' % sd_err)
 
+    # Actual x predicted
     plt.figure(1)
-    #plt.plot(range(len(errs)), errs, label='Errors')
-    #plt.axhline(y=mean_err, color='red', linestyle='-')
-    #plt.axhline(y=mean_err+sd_err, color='green', linestyle='-')
-    #plt.axhline(y=mean_err-sd_err, color='green', linestyle='-')
-    plt.plot(range(len(y_test[:, 0])), y_test[:, 0], label='Actual')
-    plt.plot(range(len(y_test_pred[:, 0])), y_test_pred[:, 0], label='Pred')
+    plt.subplot(211)
+    plt.plot(y_test[:, 0], label='Actual')
+    plt.plot(y_test_pred[:, 0], label='Pred')
     plt.legend(loc='best')
+
+    # Residuals
+    plt.subplot(212)
+    plt.plot(errs)
+    plt.axhline(y=mean_err, color='red', linestyle='-', label='Mean')
+    plt.axhline(y=mean_err+sd_err, color='green', linestyle='-', label='Mean +- std')
+    plt.axhline(y=mean_err-sd_err, color='green', linestyle='-')
+    plt.legend(loc='best')
+    plt.title('Residuals')
+
+    # Residuals ACF
+    plt.figure(2)
+    plt.subplot(121)
+    coefs = acf(errs)
+    plt.plot(coefs)
+    plt.axhline(y=-1.96/np.sqrt(len(errs)),linestyle='--',color='gray')
+    plt.axhline(y=1.96/np.sqrt(len(errs)),linestyle='--',color='gray')
+    plt.title('Residuals Autocorrelation')
+
+    # Residuals histogram
+    plt.subplot(122)
+    plt.hist(errs, 25, normed=1, facecolor='green', alpha=0.75)
+    plt.title('Residuals distribution')
+
     plt.show()
 
 
@@ -215,8 +241,8 @@ def test():
 
 
 if __name__ == '__main__':
+    run_forecast_log_return()
     #test()
     #run_cv()
     #run_cv1()
-    run_forecast1()
     #run_forecast2()

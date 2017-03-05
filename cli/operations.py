@@ -1,11 +1,7 @@
-import os
-
-import numpy as np
-
 from pydl.models.base.supervised_model import SupervisedModel
 from pydl.models.base.unsupervised_model import UnsupervisedModel
 from pydl.hyperopt import HyperOptModel, hp_space_from_json, opt_from_config, CVObjectiveFunction
-from pydl.utils import datasets
+from pydl.datasets.utils import *
 from pydl.utils.utilities import load_model, save_json
 from pydl.model_selection.metrics import available_metrics
 from pydl.model_selection.cv import CV
@@ -188,7 +184,7 @@ def load_data(data_set, set_name):
     data_path = data_set.get(set_name, None)
     assert data_path is not None and data_path != '', 'Missing %s file!' % set_name
     has_header = data_set.get('has_header', False)
-    return datasets.load_data_file(data_path, has_header=has_header)
+    return load_data_file(data_path, has_header=has_header)
 
 
 def get_cv_config(config):
