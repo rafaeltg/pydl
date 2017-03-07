@@ -126,15 +126,15 @@ def pacf(ts, nlags=20, method='ols', alpha=None, plot=False):
         plt.plot(lag_pacf)
         plt.axhline(y=0,linestyle='--',color='gray')
         if alpha is not None:
-            plt.plot(coefs[:, 0], linestyle='--', color='red')
-            plt.plot(coefs[:, 1], linestyle='--', color='red')
+            plt.plot(confint[:, 0], linestyle='--', color='red')
+            plt.plot(confint[:, 1], linestyle='--', color='red')
         plt.axhline(y=-1.96/np.sqrt(len(ts)),linestyle='--',color='gray')
         plt.axhline(y=1.96/np.sqrt(len(ts)),linestyle='--',color='gray')
         plt.title('Partial Autocorrelation Function')
         plt.show(block=True)
 
     if alpha:
-        return lag_pacf, coefs
+        return lag_pacf, confint
     else:
         return lag_pacf
 
@@ -143,6 +143,9 @@ def test_stationarity(ts):
     """
     Perform Dickey-Fuller test
     """
+
+    if isinstance(ts, np.ndarray):
+        ts = ts.flatten()
 
     print('Results of Dickey-Fuller Test:')
     dftest = adfuller(ts, autolag='AIC')

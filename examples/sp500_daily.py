@@ -1,39 +1,52 @@
 import json
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 from pydl.datasets.time_series import *
+from pydl.datasets.synthetic import mackey_glass
 from pydl.models import RNN
 from pydl.model_selection import rmse, TimeSeriesCV, RegressionCV
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
+from matplotlib.gridspec import GridSpec
 
 np.random.seed(42)
 
-sp500 = get_stock_historical_data('^GSPC', '2015-01-01', '2017-03-05', True, ['Close'])
 look_back = 10
 look_ahead = 1
 time_steps = 1
 
 
-def run_forecast_log_return():
+def run_sp500():
+    sp500 = get_stock_historical_data('^GSPC', '2000-01-01', '2017-03-05', True, ['Close'])
+    ts = get_log_return(sp500)
+    ts = smooth(ts, method='ewma', window=5)
 
-    sp500_log_ret = get_log_return(sp500)
-    #sp500_log_ret_mean = smooth(sp500_log_ret)
-    sp500_log_ret = smooth(sp500_log_ret, method='ewma')
-
-    #plt.figure(1)
-    #plt.plot(sp500_log_ret, label='Orig')
-    #plt.plot(sp500_log_ret_mean, label='Mean')
-    #plt.plot(sp500_log_ret_ewma, label='EWMA')
-    #plt.legend(loc='best')
-    #plt.show()
-
-    test_stationarity(sp500_log_ret['Close'])
+    test_stationarity(ts['Close'])
 
     # split into train and test sets
-    train = sp500_log_ret['2015-01-01':'2016-03-04']
-    test = sp500_log_ret['2016-03-05':'2017-03-05']
+    train = ts['2000-01-01':'2016-03-04']
+    test = ts['2016-03-05':'2017-03-05']
 
+    # Let's do it!
+    run_lstm(train, test)
+
+
+def run_mackey_glass():
+    ts = mackey_glass(sample_len=5000, seed=42)
+
+    # Normalize the dataset
+    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
+
+    test_stationarity(ts)
+
+    # split into train and test sets
+    train_size = int(len(ts) * 0.9)
+    train, test = ts[0:train_size], ts[train_size:len(ts)]
+
+    # Let's do it!
+    run_lstm(train, test)
+
+
+def run_lstm(train, test):
     print('\n#Train: %d' % len(train))
     print('#Test: %d' % len(test))
 
@@ -69,35 +82,35 @@ def run_forecast_log_return():
     print('Test ME = %.4f' % mean_err)
     print('Test SdE = %.4f' % sd_err)
 
+    gs = GridSpec(3, 2)
+
     # Actual x predicted
-    plt.figure(1)
-    plt.subplot(211)
-    plt.plot(y_test[:, 0], label='Actual')
-    plt.plot(y_test_pred[:, 0], label='Pred')
-    plt.legend(loc='best')
+    ax1 = plt.subplot(gs[0, :])
+    ax1.plot(y_test[:, 0], label='Actual')
+    ax1.plot(y_test_pred[:, 0], label='Pred')
+    ax1.legend(loc='best')
+    ax1.set_title('Test set predictions')
 
     # Residuals
-    plt.subplot(212)
-    plt.plot(errs)
-    plt.axhline(y=mean_err, color='red', linestyle='-', label='Mean')
-    plt.axhline(y=mean_err+sd_err, color='green', linestyle='-', label='Mean +- std')
-    plt.axhline(y=mean_err-sd_err, color='green', linestyle='-')
-    plt.legend(loc='best')
-    plt.title('Residuals')
+    ax2 = plt.subplot(gs[1, :])
+    ax2.plot(errs)
+    ax2.axhline(y=mean_err, color='red', linestyle='-', label='Mean')
+    ax2.axhline(y=mean_err+sd_err, color='green', linestyle='-', label='Mean +- std')
+    ax2.axhline(y=mean_err-sd_err, color='green', linestyle='-')
+    ax2.legend(loc='best')
+    ax2.set_title('Residuals')
 
     # Residuals ACF
-    plt.figure(2)
-    plt.subplot(121)
-    coefs = acf(errs)
-    plt.plot(coefs)
-    plt.axhline(y=-1.96/np.sqrt(len(errs)),linestyle='--',color='gray')
-    plt.axhline(y=1.96/np.sqrt(len(errs)),linestyle='--',color='gray')
-    plt.title('Residuals Autocorrelation')
+    ax3 = plt.subplot(gs[2, 0])
+    ax3.plot(acf(errs))
+    ax3.axhline(y=-1.96/np.sqrt(len(errs)), linestyle='--', color='gray')
+    ax3.axhline(y=1.96/np.sqrt(len(errs)), linestyle='--', color='gray')
+    ax3.set_title('Residuals Autocorrelation')
 
     # Residuals histogram
-    plt.subplot(122)
-    plt.hist(errs, 25, normed=1, facecolor='green', alpha=0.75)
-    plt.title('Residuals distribution')
+    ax4 = plt.subplot(gs[2, 1])
+    ax4.hist(errs, 25, normed=1, facecolor='green', alpha=0.75)
+    ax4.set_title('Residuals distribution')
 
     plt.show()
 
@@ -216,7 +229,7 @@ def run_cv1():
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))
 
-
+"""
 def test():
 
     sp500_log_ret = get_log_return(sp500)
@@ -238,10 +251,10 @@ def test():
 
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))
-
+"""
 
 if __name__ == '__main__':
-    run_forecast_log_return()
+    run_sp500()
     #test()
     #run_cv()
     #run_cv1()
