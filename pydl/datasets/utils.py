@@ -8,8 +8,12 @@ Dataset = collections.namedtuple('Dataset', ['x', 'y'])
 Datasets = collections.namedtuple('Datasets', ['train', 'test', 'validation'])
 
 
-def load_csv(filename, dtype=np.float64, has_header=True, usecols=None):
-    return pandas.read_csv(filename, skiprows=0 if has_header else None, usecols=usecols).values.astype(dtype)
+def load_csv(filename, dtype=None, has_header=True, usecols=None, index_col=0):
+    return pandas.read_csv(filename,
+                           skiprows=0 if has_header else None,
+                           index_col=index_col,
+                           usecols=usecols,
+                           dtype=dtype)
 
 
 def load_npy(filename):

@@ -11,7 +11,7 @@ class RNN(SupervisedModel):
     def __init__(self,
                  name='rnn',
                  layers=None,
-                 stateful=True,
+                 stateful=False,
                  time_steps=1,
                  cell_type='lstm',
                  activation='tanh',

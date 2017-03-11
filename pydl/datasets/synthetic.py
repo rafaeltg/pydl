@@ -1,6 +1,6 @@
 import collections
-
 import numpy as np
+import pandas as pd
 
 
 def mackey_glass(sample_len=1000, tau=17, delta_t=10, seed=None):
@@ -31,9 +31,9 @@ def mackey_glass(sample_len=1000, tau=17, delta_t=10, seed=None):
             timeseries = history[-1] + (0.2 * xtau / (1.0 + xtau ** 10) - 0.1 * history[-1]) / delta_t
         inp[timestep] = timeseries
 
-    # Squash timeseries through tanh
+    # Squash time series through tanh
     inp = np.tanh(inp - 1)
-    return inp
+    return pd.DataFrame({'Value': np.squeeze(inp)})
 
 
 def mso(sample_len=1000):

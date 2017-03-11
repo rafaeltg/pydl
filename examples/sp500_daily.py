@@ -1,10 +1,6 @@
-import json
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-
-from pydl.datasets.time_series import *
-from pydl.datasets.synthetic import mackey_glass
-from pydl.models import RNN
-from pydl.model_selection import rmse, TimeSeriesCV, RegressionCV
+from pydl.datasets import *
+from pydl.model_selection import rmse, RegressionCV
+from pydl.hyperopt import *
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
@@ -15,40 +11,13 @@ look_ahead = 1
 time_steps = 1
 
 
-def run_sp500():
-    sp500 = get_stock_historical_data('^GSPC', '2000-01-01', '2017-03-05', True, ['Close'])
-    ts = get_log_return(sp500)
-    ts = smooth(ts, method='ewma', window=5)
-
-    test_stationarity(ts['Close'])
+def get_time_series():
+    # S&P 500 daily log returns
+    ts = load_csv('sp500_log_ret.csv', dtype={'Close': np.float64})
 
     # split into train and test sets
-    train = ts['2000-01-01':'2016-03-04']
-    test = ts['2016-03-05':'2017-03-05']
-
-    # Let's do it!
-    run_lstm(train, test)
-
-
-def run_mackey_glass():
-    ts = mackey_glass(sample_len=5000, seed=42)
-
-    # Normalize the dataset
-    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
-
-    test_stationarity(ts)
-
-    # split into train and test sets
-    train_size = int(len(ts) * 0.9)
-    train, test = ts[0:train_size], ts[train_size:len(ts)]
-
-    # Let's do it!
-    run_lstm(train, test)
-
-
-def run_lstm(train, test):
-    print('\n#Train: %d' % len(train))
-    print('#Test: %d' % len(test))
+    train = ts['2000-01-01':'2016-03-09']
+    test = ts['2016-03-10':'2017-03-10']
 
     # reshape into X=[t-look_back, t] and Y=[t+1, t+look_ahead]
     x_train, y_train = create_dataset(train, look_back, look_ahead)
@@ -57,22 +26,67 @@ def run_lstm(train, test):
     x_train = np.reshape(x_train, (x_train.shape[0], time_steps, look_back))
     x_test = np.reshape(x_test, (x_test.shape[0], time_steps, look_back))
 
-    print('#x_train: %d' % len(x_train))
-    print('#x_test: %d' % len(x_test))
+    return x_train, y_train, x_test, y_test
 
-    lstm = RNN(cell_type='lstm',
-               layers=[50, 50],
-               stateful=False,
-               time_steps=time_steps,
-               num_epochs=400,
-               batch_size=200,
-               opt='adam')
 
-    print('\nTraining LSTM')
-    lstm.fit(x_train, y_train)
+def run_opt(space, x, y):
 
-    y_test_pred = lstm.predict(x_test)
+    print('Creating Fitness Function')
+    # Rolling window cv (10 years training, 1 year validation)
+    fit_fn = CVObjectiveFunction(cv=RegressionCV('time_series', window=2772,  horizon=252, fixed=False, by=252))
 
+    print('Creating CMAES optimizer')
+    opt = CMAESOptimizer(pop_size=10, max_iter=10)
+
+    print('Creating HyperOptModel...')
+    m = HyperOptModel(hp_space=space, fit_fn=fit_fn, opt=opt)
+
+    print('Optimizing!')
+    res = m.fit(x, y, retrain=True, max_threads=4)
+
+    return res
+
+
+def run_sp500_lstm():
+
+    print('Creating LSTM Hyperparameter Space')
+    lstm_space = hp_space({
+        'model': {
+            'class_name': 'RNN',
+            'config': hp_choice([
+                {
+                    'layers': [hp_int(10, 100)],
+                    'cell_type': 'lstm',
+                    'dropout': hp_float(0, 0.5),
+                    'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
+                    'num_epochs': hp_int(100, 400),
+                    'batch_size': hp_int(20, 300),
+                    'opt': hp_choice(['rmsprop', 'adagrad', 'adam']),
+                    'learning_rate': hp_float(0.00001, 0.001)
+                },
+                {
+                    'layers': [hp_int(10, 100), hp_int(10, 100)],
+                    'cell_type': 'lstm',
+                    'dropout': [hp_float(0, 0.5), hp_float(0, 0.5)],
+                    'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
+                    'num_epochs': hp_int(100, 400),
+                    'batch_size': hp_int(20, 300),
+                    'opt': hp_choice(['rmsprop', 'adagrad', 'adam']),
+                    'learning_rate': hp_float(0.00001, 0.001)
+                }
+            ])
+        }
+    })
+
+    x_train, y_train, x_test, y_test = get_time_series()
+
+    # Let's do it!
+    res = run_opt(lstm_space, x_train, y_train)
+
+    print(res)
+
+
+def plot_result(y_test, y_test_pred):
     print('Test RMSE = %.4f' % rmse(y_test[:, 0], y_test_pred[:, 0]))
     print('Test corr = %.4f' % np.corrcoef(y_test[:, 0], y_test_pred[:, 0])[0, 1])
 
@@ -115,147 +129,5 @@ def run_lstm(train, test):
     plt.show()
 
 
-def run_forecast2():
-    x, y = create_dataset(sp500, look_back, look_ahead)
-
-    # split into train and test sets
-    train_size = int(len(x) * 0.85)
-    x_train, y_train = x[0:train_size], y[0:train_size]
-    x_test, y_test = x[train_size:len(x)], y[train_size:len(y)]
-
-    pp_x = StandardScaler()
-    x_train = pp_x.fit_transform(x_train)
-    x_test = pp_x.transform(x_test)
-
-    pp_y = StandardScaler()
-    y_train = pp_y.fit_transform(y_train)
-    y_test = pp_y.transform(y_test)
-
-    # reshape into X=[t-look_back, t] and Y=[t+1, t+look_ahead]
-    x_train = np.reshape(x_train, (x_train.shape[0], time_steps, look_back))
-    x_test = np.reshape(x_test, (x_test.shape[0], time_steps, look_back))
-
-    print('train = ', len(x_train))
-    print('test = ', len(x_test))
-
-    lstm = RNN(cell_type='lstm',
-               layers=[50, 50],
-               stateful=False,
-               time_steps=time_steps,
-               num_epochs=300,
-               batch_size=200,
-               opt='adam')
-
-    print('Training LSTM')
-    lstm.fit(x_train, y_train)
-    y_test_pred = lstm.predict(x_test)
-
-    y_test_pred = pp_y.inverse_transform(y_test_pred)
-    y_test = pp_y.inverse_transform(y_test)
-
-    test_pred = y_test_pred[range(0, len(y_test_pred), look_ahead)]
-    test_pred = np.reshape(test_pred, (y_test.shape[0], 1))
-
-    print(y_test.shape)
-    print(test_pred.shape)
-    print('Test MSE = %.3f' % mse(y_test.flatten(), test_pred.flatten()))
-    print('Test corr = %.3f' % np.corrcoef(y_test.flatten(), test_pred.flatten())[0, 1])
-
-    errs = y_test - test_pred
-    mean_err = np.average(errs)
-    sd_err = np.std(errs)
-    print('Test ME = %.3f' % mean_err)
-    print('Test SdE = %.3f' % sd_err)
-
-    '''
-    plt.figure(1)
-    plt.plot(range(len(errs)), errs, label='Errors')
-    plt.axhline(y=mean_err, color='red', linestyle='-')
-    plt.axhline(y=mean_err+sd_err, color='green', linestyle='-')
-    plt.axhline(y=mean_err-sd_err, color='green', linestyle='-')
-    #plt.plot(range(len(test_pred)), test_pred, label='Pred')
-    #plt.plot(range(len(test)), test, label='Actual')
-    plt.legend(loc='best')
-    plt.show()
-    '''
-
-
-def run_cv():
-
-    print(len(sp500))
-
-    lstm = RNN(cell_type='lstm',
-               layers=[50, 50],
-               stateful=False,
-               time_steps=time_steps,
-               num_epochs=300,
-               batch_size=200,
-               opt='adam')
-
-    cv = TimeSeriesCV(window=1334, horizon=365, by=365, fixed=True, dataset_fn=create_dataset)
-
-    print('Running CV!')
-    res = cv.run(model=lstm, ts=sp500, metrics=['mape', 'rmse'], max_thread=2)
-
-    print('CV results:')
-    print(json.dumps(res, indent=4, separators=(',', ': ')))
-
-
-def _create_dataset(x):
-    # reshape into X=[t-look_back, t] and Y=[t+1, t+look_ahead]
-    x, y = create_dataset(x, look_back, look_ahead)
-    x = np.reshape(x, (x.shape[0], time_steps, look_back))
-    return x, y
-
-
-def run_cv1():
-
-    lstm = RNN(cell_type='lstm',
-               layers=[50, 50],
-               stateful=False,
-               time_steps=time_steps,
-               num_epochs=300,
-               batch_size=200,
-               opt='adam')
-
-    x, y = create_dataset(sp500, look_back, look_ahead)
-    print(len(x))
-
-    cv = RegressionCV(method='time_series', window=1319, horizon=365, by=365, fixed=True)
-
-    print('Running CV!')
-    res = cv.run(model=lstm, x=x, y=y, metrics=['mape', 'rmse'], max_thread=2)
-
-    print('CV results:')
-    print(json.dumps(res, indent=4, separators=(',', ': ')))
-
-"""
-def test():
-
-    sp500_log_ret = get_log_return(sp500)
-    x, y = create_dataset(sp500_log_ret, look_back, look_ahead)
-    print(len(x))
-
-    lstm = RNN(cell_type='lstm',
-               layers=[50, 50],
-               stateful=False,
-               time_steps=time_steps,
-               num_epochs=300,
-               batch_size=200,
-               opt='adam')
-
-    cv = RegressionCV(method='time_series', window=1512, horizon=252, by=252, fixed=True)
-
-    print('Running CV!')
-    res = cv.run(model=lstm, x=x, y=y, metrics=['mape', 'rmse'], max_thread=2)
-
-    print('CV results:')
-    print(json.dumps(res, indent=4, separators=(',', ': ')))
-"""
-
 if __name__ == '__main__':
-    run_sp500()
-    #test()
-    #run_cv()
-    #run_cv1()
-    #run_forecast2()
+    run_sp500_lstm()

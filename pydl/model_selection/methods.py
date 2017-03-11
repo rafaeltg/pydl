@@ -62,4 +62,4 @@ def get_cv_method(method, **kwargs):
     elif method == 'time_series':
         return TimeSeriesSplit(**kwargs)
     else:
-        raise AttributeError('Invalid method - %s!' % method)
+        raise AttributeError('Invalid CV method - %s!' % method)

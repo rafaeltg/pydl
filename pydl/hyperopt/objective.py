@@ -22,9 +22,9 @@ class ObjectiveFunction:
 
 class CVObjectiveFunction(ObjectiveFunction):
 
-    def __init__(self, cv=None, **kwargs):
+    def __init__(self, cv):
         super().__init__()
-        self._args += tuple([CV(cv, **kwargs) if cv is not None else CV(method='split')])
+        self._args += tuple([cv])
 
     @staticmethod
     def _obj_fn(x, hp_space, data_x, data_y, *args):

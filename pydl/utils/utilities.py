@@ -1,6 +1,5 @@
 import os
 import json
-import importlib
 import numpy as np
 from keras.utils.layer_utils import layer_from_config
 import sys

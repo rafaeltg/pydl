@@ -139,7 +139,7 @@ def pacf(ts, nlags=20, method='ols', alpha=None, plot=False):
         return lag_pacf
 
 
-def test_stationarity(ts):
+def test_stationarity(ts, to_file=''):
     """
     Perform Dickey-Fuller test
     """
@@ -149,10 +149,15 @@ def test_stationarity(ts):
 
     print('Results of Dickey-Fuller Test:')
     dftest = adfuller(ts, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
-    for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
-    print(dfoutput)
+    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic', 'p-value', '#Lags Used', 'Number of Observations Used'])
+    for k, v in dftest[4].items():
+        dfoutput['Critical Value (%s)' % k] = v
+
+    if to_file != '':
+        dfoutput.to_csv(to_file)
+    else:
+        print(dfoutput)
+
     return dfoutput
 
 

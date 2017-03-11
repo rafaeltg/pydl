@@ -136,16 +136,16 @@ class Model:
         if self.opt == 'rmsprop':
             return KOpt.RMSprop(lr=self.learning_rate)
 
-        if self.opt == 'ada_grad':
+        if self.opt == 'adagrad':
             return KOpt.Adagrad(lr=self.learning_rate)
 
-        if self.opt == 'ada_delta':
+        if self.opt == 'adadelta':
             return KOpt.Adadelta(lr=self.learning_rate)
 
         if self.opt == 'adam':
             return KOpt.Adam(lr=self.learning_rate)
 
-        raise Exception('Invalid optimization function')
+        raise Exception('Invalid optimization function - %s' % self.opt)
 
     @staticmethod
     def get_func_params(f):
