@@ -34,6 +34,7 @@
       "pop_size": 5,
       "max_iter": 5
     },
+
     "obj_fn": {
       "type": "cv",
       "method": "split",

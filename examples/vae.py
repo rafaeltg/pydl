@@ -1,9 +1,7 @@
 import os
-
 import numpy as np
-
 from pydl.models import VariationalAutoencoder
-from pydl.utils.utilities import load_model
+from pydl.models.utils import load_model
 
 
 def run_vae():

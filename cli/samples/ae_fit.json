@@ -6,9 +6,13 @@
       "n_hidden": 10
     }
   },
+
   "data_set": {
-    "train_x": "/home/rafael/Documents/master/project/databases/bike/bike_train_x.csv",
-    "data_x": "/home/rafael/Documents/master/project/databases/bike/bike_test_x.csv",
-    "has_header": true
+    "train_x": {
+      "path": "/path/to/your/train/set/csv/with/header",
+      "params": {
+        "has_header": true
+      }
+    }
   }
 }

@@ -1,14 +1,14 @@
 import collections
 import os
-
-import numpy as np
 import pandas
+import numpy as np
+
 
 Dataset = collections.namedtuple('Dataset', ['x', 'y'])
 Datasets = collections.namedtuple('Datasets', ['train', 'test', 'validation'])
 
 
-def load_csv(filename, dtype=None, has_header=True, usecols=None, index_col=0):
+def load_csv(filename, dtype=None, has_header=True, usecols=None, index_col=None):
     return pandas.read_csv(filename,
                            skiprows=0 if has_header else None,
                            index_col=index_col,
@@ -20,11 +20,11 @@ def load_npy(filename):
     return np.load(filename) if filename != '' else None
 
 
-def load_data_file(filename, dtype=np.float64, has_header=True):
+def load_data_file(filename, **kwargs):
     if filename is '':
         return None
     elif os.path.splitext(filename)[1] == '.csv':
-        return load_csv(filename=filename, dtype=dtype, has_header=has_header)
+        return load_csv(filename=filename, **kwargs)
     else:
         return load_npy(filename)
 

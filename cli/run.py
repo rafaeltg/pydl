@@ -3,7 +3,7 @@ import os
 import os.path
 
 import cli.operations as op
-from pydl.utils.utilities import load_json
+from pydl.models.utils.utilities import load_json
 
 parser = argparse.ArgumentParser(prog='pydl_cli')
 

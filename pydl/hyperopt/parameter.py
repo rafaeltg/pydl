@@ -41,6 +41,12 @@ class Node:
         # literals (i.e. int, float, string...)
         return self._value
 
+    def to_json(self):
+        if isinstance(self._value, list):
+            return dict([(v.label, v.to_json()) for v in self._value])
+
+        return self._value
+
 
 class ChoiceNode(Node):
     def __init__(self, value, label=''):
@@ -52,6 +58,12 @@ class ChoiceNode(Node):
     def get_value(self, x):
         n = self._value[int(round(x[0] * (len(self._value)-1)))]
         return n.get_value(x[1:])
+
+    def to_json(self):
+        return {
+            "node_type": "hp_choice",
+            "value": [v.to_json() for v in self._value]
+        }
 
 
 class IntParameterNode(Node):
@@ -66,6 +78,13 @@ class IntParameterNode(Node):
     def get_value(self, x):
         return m.floor(self._min + x[0] * (self._max - self._min))
 
+    def to_json(self):
+        return {
+            "node_type": "hp_int",
+            "min_val": self._min,
+            "max_val": self._max,
+        }
+
 
 class FloatParameterNode(Node):
     def __init__(self, min_val, max_val, label=''):
@@ -78,6 +97,13 @@ class FloatParameterNode(Node):
 
     def get_value(self, x):
         return self._min + x[0] * (self._max - self._min)
+
+    def to_json(self):
+        return {
+            "node_type": "hp_float",
+            "min_val": self._min,
+            "max_val": self._max,
+        }
 
 
 class ListNode(Node):
@@ -95,6 +121,12 @@ class ListNode(Node):
             ret_params.append(v.get_value(x[param_idx:(param_idx+v_size)]))
             param_idx += v_size
         return ret_params
+
+    def to_json(self):
+        return {
+            "node_type": "hp_list",
+            "value": [v.to_json() for v in self._value]
+        }
 
 
 #
@@ -167,7 +199,9 @@ def hp_space_from_json(values):
             elif values['node_type'] == 'hp_float':
                 return FloatParameterNode(values['min_val'], values['max_val'])
         else:
-            for k, v in values.items():
-                values[k] = hp_space_from_json(v)
+            vals = values.copy()
+            for k, v in vals.items():
+                vals[k] = hp_space_from_json(v)
+            return nodefy(vals)
 
     return nodefy(values)

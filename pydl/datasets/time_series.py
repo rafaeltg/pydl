@@ -41,15 +41,8 @@ def get_stock_historical_data(symbol, start, end, ascending=True, usecols=None):
 
     from yahoo_finance import Share
 
-    stock = Share(symbol)
-    data = stock.get_historical(start, end)
-
-    df = pd.DataFrame(data).sort_values(by='Date', ascending=ascending)
-    df = df.drop('Symbol', 1)
-    df['Date'] = pd.to_datetime(df['Date'], format='%Y-%m-%d')
-    df.set_index(keys=['Date'], inplace=True)
-    for c in df.columns:
-        df[c] = pd.to_numeric(df[c])
+    data = Share(symbol).get_historical(start, end)
+    df = pd.DataFrame(data).set_index(['Date']).drop('Symbol', 1).astype(np.float64).sort_index(ascending=ascending)
     return df if usecols is None else df[usecols]
 
 
@@ -66,7 +59,6 @@ def get_log_return(x, periods=1):
 
 
 def decompose(ts, plot=False):
-    print(ts)
     decomposition = seasonal_decompose(ts, freq=7)
     trend = decomposition.trend
     seasonal = decomposition.seasonal

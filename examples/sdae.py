@@ -1,12 +1,10 @@
 import os
-
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-
 from pydl.datasets import mackey_glass, create_dataset
-from pydl.models import StackedAutoencoder, DenoisingAutoencoder
 from pydl.model_selection.metrics import mape
-from pydl.utils.utilities import load_model
+from pydl.models import StackedAutoencoder, DenoisingAutoencoder
+from pydl.models.utils import load_model
 
 
 def run_sdae():

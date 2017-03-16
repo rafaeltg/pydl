@@ -13,7 +13,6 @@ class StackedAutoencoder(SupervisedModel):
     def __init__(self,
                  name='sae',
                  layers=None,
-                 activation='relu',
                  out_activation='linear',
                  dropout=0,
                  **kwargs):
@@ -24,7 +23,6 @@ class StackedAutoencoder(SupervisedModel):
 
         super().__init__(name=name,
                          layers=layers,
-                         activation=activation,
                          out_activation=out_activation,
                          dropout=dropout,
                          **kwargs)

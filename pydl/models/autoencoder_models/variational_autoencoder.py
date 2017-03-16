@@ -3,8 +3,8 @@ from keras import backend as K
 from keras import objectives
 from keras.layers import Input, Dense, Lambda
 
-from pydl.utils.utilities import valid_act_functions
 from ..base import UnsupervisedModel
+from ..utils import valid_act_functions
 
 
 class VariationalAutoencoder(UnsupervisedModel):

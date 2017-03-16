@@ -1,10 +1,14 @@
+import os
+
+import numpy as np
+
+from pydl.datasets.utils import load_data_file
+from pydl.hyperopt import HyperOptModel, hp_space_from_json, opt_from_config, CVObjectiveFunction
+from pydl.model_selection.cv import CV
+from pydl.model_selection.metrics import available_metrics
 from pydl.models.base.supervised_model import SupervisedModel
 from pydl.models.base.unsupervised_model import UnsupervisedModel
-from pydl.hyperopt import HyperOptModel, hp_space_from_json, opt_from_config, CVObjectiveFunction
-from pydl.datasets.utils import *
-from pydl.utils.utilities import load_model, save_json
-from pydl.model_selection.metrics import available_metrics
-from pydl.model_selection.cv import CV
+from pydl.models.utils.utilities import load_model, save_json
 
 
 def fit(config, output):
@@ -133,7 +137,7 @@ def validate(config, output):
     # Get validation method
     method, params, metrics = get_cv_config(config)
     cv = CV(method=method, **params)
-    results = cv.run(model=m, x=x, y=y, metrics=metrics)
+    results = cv.run(model=m, x=x, y=y, scoring=metrics)
 
     # Save results into a JSON file
     save_json(results, os.path.join(output, m.name+'_cv.json'))
@@ -180,11 +184,12 @@ def get_input_data(config):
     return config['data_set']
 
 
-def load_data(data_set, set_name):
-    data_path = data_set.get(set_name, None)
-    assert data_path is not None and data_path != '', 'Missing %s file!' % set_name
-    has_header = data_set.get('has_header', False)
-    return load_data_file(data_path, has_header=has_header)
+def load_data(data_set, name):
+    data_config = data_set.get(name, None)
+    assert data_config is not None, 'Missing "%s" input!' % name
+    assert 'path' in data_config and data_config['path'] != '', 'Missing file path for %s' % name
+    params = data_config.get('params', {}) if 'params' in data_config else {}
+    return load_data_file(data_config['path'], **params)
 
 
 def get_cv_config(config):
@@ -193,8 +198,8 @@ def get_cv_config(config):
     assert 'method' in cv_config, 'Missing cross-validation method!'
     method = cv_config['method']
     params = cv_config['params'] if 'params' in cv_config else {}
-    metrics = config['cv']['metrics'] if 'metrics' in config['cv'] else []
-    return method, params, metrics
+    scoring = cv_config['scoring'] if 'scoring' in cv_config else []
+    return method, params, scoring
 
 
 def get_optimizer(config):
@@ -209,5 +214,5 @@ def get_obj_fn(config):
         obj_fn_config = config['obj_fn']
         cv_method = obj_fn_config['method']
         cv_params = obj_fn_config['params'] if 'params' in obj_fn_config else {}
-        return CVObjectiveFunction(cv_method, **cv_params)
+        return CVObjectiveFunction(CV(method=cv_method, **cv_params))
     return None

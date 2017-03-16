@@ -2,6 +2,7 @@ import json
 
 from sklearn.preprocessing import MinMaxScaler
 
+from pydl.model_selection import CV
 from pydl.datasets import mackey_glass, create_dataset
 from pydl.hyperopt import *
 
@@ -32,16 +33,16 @@ def run_optimizer():
     })
 
     print('Creating Fitness Function')
-    fit_fn = CVObjectiveFunction(cv='split')
+    fit_fn = CVObjectiveFunction()
 
     print('Creating CMAES optimizer')
-    opt = CMAESOptimizer(pop_size=4, max_iter=5)
+    opt = CMAESOptimizer(pop_size=4, max_iter=2)
 
     print('Creating HyperOptModel...')
     model = HyperOptModel(hp_space=space, fit_fn=fit_fn, opt=opt)
 
     print('Optimizing!')
-    res = model.fit(x, y)
+    res = model.fit(x, y, max_threads=2)
 
     print('Best parameters:')
     best_params = res['best_model_config']

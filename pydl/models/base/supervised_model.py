@@ -1,13 +1,14 @@
 import numpy as np
-from .model import Model
-from pydl.utils.utilities import model_from_config, expand_arg, valid_act_functions
 from keras.models import Sequential
 from keras.utils.np_utils import to_categorical
+from .model import Model
+from ..utils import *
 
 
 class SupervisedModel(Model):
 
-    """ Class representing an abstract Supervised Model.
+    """
+    Class representing an abstract Supervised Model
     """
 
     def __init__(self,

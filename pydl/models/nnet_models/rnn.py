@@ -1,6 +1,6 @@
 import numpy as np
-from ..base import SupervisedModel
 from keras.layers import Dense, Dropout, LSTM, GRU, SimpleRNN
+from ..base import SupervisedModel
 
 
 class RNN(SupervisedModel):

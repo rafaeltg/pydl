@@ -1,6 +1,6 @@
-from .optimizer import CMAESOptimizer
+from ..models.utils import load_model
 from .objective import CVObjectiveFunction
-from ..utils.utilities import load_model
+from .optimizer import CMAESOptimizer
 
 
 class HyperOptModel(object):
@@ -39,7 +39,7 @@ class HyperOptModel(object):
     def best_model(self):
         return self._best_model
 
-    def fit(self, x, y=None, retrain=False, max_threads=4):
+    def fit(self, x, y=None, retrain=False, max_threads=1):
 
         args = (self._hp_space, x, y) + self._fit_fn.args
         res = self._opt.optimize(x0=[0]*self.hp_space.size,

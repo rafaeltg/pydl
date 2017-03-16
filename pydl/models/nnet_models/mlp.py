@@ -1,6 +1,6 @@
-from ..base import SupervisedModel
 from keras.layers import Dense, Dropout
 from keras.regularizers import l1l2
+from ..base import SupervisedModel
 
 
 class MLP(SupervisedModel):

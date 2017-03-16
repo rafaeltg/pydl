@@ -131,6 +131,42 @@ class ParametersTestCase(unittest.TestCase):
 
         self.assertDictEqual(expected_config, space.get_value([0, 0.5, 1]))
 
+    def test_hp_space_to_json(self):
+        expected_json = {
+            "model": {
+                "class_name": "MLP",
+                "config": {
+                    "name": "mlp_opt",
+                    "layers": {
+                        "node_type": "hp_list",
+                        "value": [
+                            {
+                                "node_type": "hp_int",
+                                "min_val": 10,
+                                "max_val": 100
+                            },
+                            {
+                                "node_type": "hp_int",
+                                "min_val": 10,
+                                "max_val": 100
+                            }
+                        ]
+                    },
+                    "dropout": {
+                        "node_type": "hp_float",
+                        "min_val": 0,
+                        "max_val": 0.3
+                    }
+                }
+            }
+        }
+
+        space = hp_space_from_json(expected_json)
+
+        actual_json = space.to_json()
+
+        self.assertDictEqual(actual_json, expected_json)
+
 
 if __name__ == '__main__':
     unittest.main()

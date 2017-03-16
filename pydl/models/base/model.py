@@ -1,17 +1,11 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import inspect
 import os
-
-import keras.optimizers as KOpt
+import inspect
 import numpy as np
 import tensorflow as tf
-from keras.models import load_model, save_model
+import keras.models as k_models
+import keras.optimizers as k_opt
 
-import pydl.utils.utilities as utils
-from pydl.utils.logger import get_logger
+from ..utils import *
 
 
 class Model:
@@ -70,8 +64,8 @@ class Model:
     def validate_params(self):
         assert self.num_epochs > 0, 'Invalid number of training epochs'
         assert self.batch_size > 0, 'Invalid batch size'
-        assert self.loss_func in utils.valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
-        assert self.opt in utils.valid_optimization_functions, 'Invalid optimizer'
+        assert self.loss_func in valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
+        assert self.opt in valid_opt_functions, 'Invalid optimizer'
         assert self.learning_rate > 0, 'Invalid learning rate'
         if self.opt == 'sgd':
             assert self.momentum > 0, 'Invalid momentum rate'
@@ -106,8 +100,8 @@ class Model:
             'weights': w_file,
         }
 
-        utils.save_json(configs, os.path.join(path, file_name + '.json'))
-        save_model(model=self._model, filepath=w_file)
+        save_json(configs, os.path.join(path, file_name + '.json'))
+        k_models.save_model(model=self._model, filepath=w_file)
 
     def load_model(self, model_path, custom_objs=None):
         file_path = model_path
@@ -115,7 +109,7 @@ class Model:
             file_path = os.path.join(model_path, self.name+'.h5')
 
         assert os.path.isfile(file_path), 'Missing file - %s' % file_path
-        self._model = load_model(filepath=file_path, custom_objects=custom_objs)
+        self._model = k_models.load_model(filepath=file_path, custom_objects=custom_objs)
 
     @classmethod
     def from_config(cls, config):
@@ -131,19 +125,19 @@ class Model:
     def get_optimizer(self):
 
         if self.opt == 'sgd':
-            return KOpt.SGD(lr=self.learning_rate, momentum=self.momentum)
+            return k_opt.SGD(lr=self.learning_rate, momentum=self.momentum)
 
         if self.opt == 'rmsprop':
-            return KOpt.RMSprop(lr=self.learning_rate)
+            return k_opt.RMSprop(lr=self.learning_rate)
 
         if self.opt == 'adagrad':
-            return KOpt.Adagrad(lr=self.learning_rate)
+            return k_opt.Adagrad(lr=self.learning_rate)
 
         if self.opt == 'adadelta':
-            return KOpt.Adadelta(lr=self.learning_rate)
+            return k_opt.Adadelta(lr=self.learning_rate)
 
         if self.opt == 'adam':
-            return KOpt.Adam(lr=self.learning_rate)
+            return k_opt.Adam(lr=self.learning_rate)
 
         raise Exception('Invalid optimization function - %s' % self.opt)
 

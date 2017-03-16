@@ -1,4 +1,4 @@
-from ..utils.utilities import load_model
+from ..models.utils import load_model
 from ..model_selection import CV
 
 
@@ -22,9 +22,9 @@ class ObjectiveFunction:
 
 class CVObjectiveFunction(ObjectiveFunction):
 
-    def __init__(self, cv):
+    def __init__(self, cv_method='split', **kwargs):
         super().__init__()
-        self._args += tuple([cv])
+        self._args += tuple([CV(method=cv_method, **kwargs)])
 
     @staticmethod
     def _obj_fn(x, hp_space, data_x, data_y, *args):

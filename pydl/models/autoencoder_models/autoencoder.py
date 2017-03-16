@@ -3,8 +3,8 @@ import keras.models as kmodels
 from keras.layers import Input, Dense
 from keras.regularizers import l1l2
 
-from pydl.utils.utilities import valid_act_functions
 from ..base import UnsupervisedModel
+from ..utils import valid_act_functions
 
 
 class Autoencoder(UnsupervisedModel):

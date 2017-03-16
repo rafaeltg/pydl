@@ -4,7 +4,7 @@ from keras.layers import Input, Dense
 from keras.regularizers import l1l2
 
 from ..base import UnsupervisedModel
-from pydl.utils.utilities import expand_arg, valid_act_functions
+from ..utils import valid_act_functions, expand_arg
 
 
 class DeepAutoencoder(UnsupervisedModel):
