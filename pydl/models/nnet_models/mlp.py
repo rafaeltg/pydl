@@ -1,5 +1,5 @@
 from keras.layers import Dense, Dropout
-from keras.regularizers import l1l2
+from keras.regularizers import l1_l2
 from ..base import SupervisedModel
 
 
@@ -43,14 +43,14 @@ class MLP(SupervisedModel):
 
         # Hidden layers
         for i, l in enumerate(self.layers):
-            self._model.add(Dense(output_dim=l,
+            self._model.add(Dense(units=l,
                                   input_shape=[input_shape[-1] if i == 0 else None],
                                   activation=self.activation[i],
-                                  W_regularizer=l1l2(self.l1_reg[i], self.l2_reg[i]),
-                                  b_regularizer=l1l2(self.l1_reg[i], self.l2_reg[i])))
+                                  kernel_regularizer=l1_l2(self.l1_reg[i], self.l2_reg[i]),
+                                  bias_regularizer=l1_l2(self.l1_reg[i], self.l2_reg[i])))
 
             if self.dropout[i] > 0:
-                self._model.add(Dropout(p=self.dropout[i]))
+                self._model.add(Dropout(rate=self.dropout[i]))
 
         # Output layer
-        self._model.add(Dense(output_dim=n_output, activation=self.out_activation))
+        self._model.add(Dense(units=n_output, activation=self.out_activation))

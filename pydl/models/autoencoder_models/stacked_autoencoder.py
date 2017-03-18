@@ -1,5 +1,5 @@
 from keras.layers import Dense, Dropout
-from keras.regularizers import l1l2
+from keras.regularizers import l1_l2
 
 from .autoencoder import Autoencoder
 from ..base import SupervisedModel
@@ -44,11 +44,11 @@ class StackedAutoencoder(SupervisedModel):
         # Hidden layers
         for i, l in enumerate(self.layers):
             self._model.add(Dense(input_shape=[input_shape[1] if i == 0 else None],
-                                  output_dim=l.n_hidden,
+                                  units=l.n_hidden,
                                   weights=l.get_model_parameters()['enc'],
                                   activation=l.enc_activation,
-                                  W_regularizer=l1l2(l.l1_reg, l.l2_reg),
-                                  b_regularizer=l1l2(l.l1_reg, l.l2_reg)))
+                                  kernel_regularizer=l1_l2(l.l1_reg, l.l2_reg),
+                                  bias_regularizer=l1_l2(l.l1_reg, l.l2_reg)))
 
             if self.dropout[i] > 0:
                 self._model.add(Dropout(p=self.dropout[i]))

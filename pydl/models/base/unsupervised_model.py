@@ -39,7 +39,7 @@ class UnsupervisedModel(Model):
         self._input = Input(shape=input_shape[1:], name='x-input')
 
         self._create_layers(self._input)
-        self._model = kmodels.Model(input=self._input, output=self._decode_layer)
+        self._model = kmodels.Model(inputs=self._input, outputs=self._decode_layer)
 
         self._create_encoder_model()
         self._create_decoder_model()
@@ -71,7 +71,7 @@ class UnsupervisedModel(Model):
 
         self._model.fit(x=x_train,
                         y=x_train,
-                        nb_epoch=self.num_epochs,
+                        epochs=self.num_epochs,
                         batch_size=self.batch_size,
                         shuffle=False,
                         validation_data=(x_valid, x_valid) if x_valid else None,

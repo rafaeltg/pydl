@@ -58,19 +58,19 @@ class VariationalAutoencoder(UnsupervisedModel):
         self.n_inputs = K.int_shape(input_layer)[1]
 
         # Encode layers
-        encode_layer = Dense(output_dim=self.n_hidden,
+        encode_layer = Dense(units=self.n_hidden,
                              activation=self.enc_act_func)(input_layer)
 
-        z_mean = Dense(name='z_mean', output_dim=self.n_latent)(encode_layer)
-        z_log_var = Dense(name='z_log_var', output_dim=self.n_latent)(encode_layer)
+        z_mean = Dense(name='z_mean', units=self.n_latent)(encode_layer)
+        z_log_var = Dense(name='z_log_var', units=self.n_latent)(encode_layer)
 
         z = Lambda(self._sampling, output_shape=(self.n_latent,))([z_mean, z_log_var])
 
         # Decode layers
-        self._decode_layer = Dense(output_dim=self.n_hidden,
+        self._decode_layer = Dense(units=self.n_hidden,
                                    activation=self.dec_act_func)(z)
 
-        self._decode_layer = Dense(output_dim=self.n_inputs, activation='linear')(self._decode_layer)
+        self._decode_layer = Dense(units=self.n_inputs, activation='linear')(self._decode_layer)
 
     def _create_encoder_model(self):
 
@@ -81,8 +81,8 @@ class VariationalAutoencoder(UnsupervisedModel):
         self.logger.info('Creating {} encoder model'.format(self.name))
 
         # This model maps an input to its encoded representation
-        self._encoder = kmodels.Model(input=self._model.layers[0].inbound_nodes[0].output_tensors,
-                                      output=self._model.get_layer('z_mean').inbound_nodes[0].output_tensors)
+        self._encoder = kmodels.Model(inputs=self._model.layers[0].inbound_nodes[0].output_tensors,
+                                      outputs=self._model.get_layer('z_mean').inbound_nodes[0].output_tensors)
 
         self.logger.info('Done creating {} encoder model'.format(self.name))
 

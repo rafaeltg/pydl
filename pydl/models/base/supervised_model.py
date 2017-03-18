@@ -86,7 +86,7 @@ class SupervisedModel(Model):
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
-                        nb_epoch=self.num_epochs,
+                        epochs=self.num_epochs,
                         verbose=self.verbose,
                         shuffle=False,
                         validation_data=(x_valid, y_valid) if x_valid and y_valid else None)

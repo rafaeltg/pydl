@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import inspect
-from keras.utils.layer_utils import layer_from_config
+import keras.models as k_models
 
 
 valid_act_functions = ['softmax', 'softplus', 'sigmoid', 'tanh', 'relu', 'linear']
@@ -69,8 +69,8 @@ def model_from_config(config):
     assert 'class_name' in config, 'Missing model class!'
 
     # fetch all members of module 'pydl.models'
-    classes = inspect.getmembers(sys.modules['pydl.models'], inspect.isclass)
-    return layer_from_config(config, classes)
+    classes = dict(inspect.getmembers(sys.modules['pydl.models'], inspect.isclass))
+    return k_models.model_from_config(config, classes)
 
 
 def load_json(inp):

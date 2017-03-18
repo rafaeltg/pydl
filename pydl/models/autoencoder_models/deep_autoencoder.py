@@ -1,7 +1,7 @@
 import keras.backend as K
 import keras.models as kmodels
 from keras.layers import Input, Dense
-from keras.regularizers import l1l2
+from keras.regularizers import l1_l2
 
 from ..base import UnsupervisedModel
 from ..utils import valid_act_functions, expand_arg
@@ -54,11 +54,11 @@ class DeepAutoencoder(UnsupervisedModel):
 
         encode_layer = input_layer
         for i, l in enumerate(self.n_hidden):
-            encode_layer = Dense(output_dim=l,
+            encode_layer = Dense(units=l,
                                  name='encoder_%d' % i,
                                  activation=self.enc_activation[i],
-                                 W_regularizer=l1l2(self.l1_reg[i], self.l2_reg[i]),
-                                 b_regularizer=l1l2(self.l1_reg[i], self.l2_reg[i]))(encode_layer)
+                                 kernel_regularizer=l1_l2(self.l1_reg[i], self.l2_reg[i]),
+                                 bias_regularizer=l1_l2(self.l1_reg[i], self.l2_reg[i]))(encode_layer)
 
         self._decode_layer = encode_layer
         for i, l in enumerate(self.n_hidden[-2:-(len(self.n_hidden)+1):-1] + [K.int_shape(input_layer)[1]]):
@@ -74,8 +74,8 @@ class DeepAutoencoder(UnsupervisedModel):
 
         self.logger.info('Creating {} encoder model'.format(self.name))
 
-        self._encoder = kmodels.Model(input=self._model.layers[0].output,
-                                      output=self._model.layers[int(len(self._model.layers)/2)].output)
+        self._encoder = kmodels.Model(inputs=self._model.layers[0].output,
+                                      outputs=self._model.layers[int(len(self._model.layers)/2)].output)
 
         self.logger.info('Done creating {} encoder model'.format(self.name))
 

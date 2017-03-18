@@ -1,7 +1,7 @@
 import keras.backend as K
 import keras.models as kmodels
 from keras.layers import Input, Dense
-from keras.regularizers import l1l2
+from keras.regularizers import l1_l2
 
 from ..base import UnsupervisedModel
 from ..utils import valid_act_functions
@@ -56,14 +56,14 @@ class Autoencoder(UnsupervisedModel):
         self.logger.info('Creating {} layers'.format(self.name))
 
         encode_layer = Dense(name='encoder',
-                             output_dim=self.n_hidden,
+                             units=self.n_hidden,
                              activation=self.enc_activation,
-                             W_regularizer=l1l2(self.l1_reg, self.l2_reg),
-                             b_regularizer=l1l2(self.l1_reg, self.l2_reg))(input_layer)
+                             kernel_regularizer=l1_l2(self.l1_reg, self.l2_reg),
+                             bias_regularizer=l1_l2(self.l1_reg, self.l2_reg))(input_layer)
 
         n_inputs = K.int_shape(input_layer)[-1]
         self._decode_layer = Dense(name='decoder',
-                                   output_dim=n_inputs,
+                                   units=n_inputs,
                                    activation=self.dec_activation)(encode_layer)
 
     def _create_encoder_model(self):
@@ -74,8 +74,8 @@ class Autoencoder(UnsupervisedModel):
 
         self.logger.info('Creating {} encoder model'.format(self.name))
 
-        self._encoder = kmodels.Model(input=self._model.layers[0].output,
-                                      output=self._model.get_layer('encoder').output)
+        self._encoder = kmodels.Model(inputs=self._model.layers[0].output,
+                                      outputs=self._model.get_layer('encoder').output)
 
         self.logger.info('Done creating {} encoder model'.format(self.name))
 
@@ -89,8 +89,8 @@ class Autoencoder(UnsupervisedModel):
 
         encoded_input = Input(shape=(self.n_hidden,))
 
-        self._decoder = kmodels.Model(input=encoded_input,
-                                      output=self._model.get_layer('decoder')(encoded_input))
+        self._decoder = kmodels.Model(inputs=encoded_input,
+                                      outputs=self._model.get_layer('decoder')(encoded_input))
 
         self.logger.info('Done creating {} decoding layer'.format(self.name))
 

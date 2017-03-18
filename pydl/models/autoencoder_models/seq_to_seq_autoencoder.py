@@ -50,13 +50,13 @@ class SeqToSeqAutoencoder(Autoencoder):
         self.logger.info('Creating {} layers'.format(self.name))
 
         encode_layer = LSTM(name='encoder',
-                            output_dim=self.n_hidden,
+                            units=self.n_hidden,
                             activation=self.enc_activation)(input_layer)
 
         n_inputs = K.int_shape(input_layer)[-1]
         decoded = RepeatVector(n=self.time_steps)(encode_layer)
         self._decode_layer = LSTM(name='decoder',
-                                  output_dim=n_inputs,
+                                  units=n_inputs,
                                   activation=self.dec_activation,
                                   return_sequences=True)(decoded)
 
@@ -74,6 +74,6 @@ class SeqToSeqAutoencoder(Autoencoder):
         decoder_layer = RepeatVector(n=self.time_steps)(encoded_input)
         decoder_layer = self._model.get_layer('decoder')(decoder_layer)
 
-        self._decoder = kmodels.Model(input=encoded_input, output=decoder_layer)
+        self._decoder = kmodels.Model(inputs=encoded_input, outputs=decoder_layer)
 
         self.logger.info('Done creating {} decoding layer'.format(self.name))
