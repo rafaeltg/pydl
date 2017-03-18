@@ -2,9 +2,9 @@ import json
 
 from sklearn.preprocessing import MinMaxScaler
 
-from pydl.model_selection import CV
 from pydl.datasets import mackey_glass, create_dataset
 from pydl.hyperopt import *
+from pydl.models.utils import save_json
 
 
 def run_optimizer():
@@ -24,16 +24,49 @@ def run_optimizer():
     space = hp_space({
         'model': {
             'class_name': 'MLP',
-            'config': {
-                'layers': [hp_int(10, 1000), hp_int(10, 1000)],
-                'dropout': [hp_float(0, 0.3), hp_float(0, 0.3)],
-                'activation': hp_choice(['relu', 'tanh', 'sigmoid'])
-            }
+            'config': hp_choice([
+                {
+                    'name': 'mlp_',
+                    'layers': [hp_int(10, 512)],
+                    'dropout': hp_float(0, 0.5),
+                    'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
+                    'l1_reg': hp_float(0, 0.001),
+                    'l2_reg': hp_float(0, 0.001),
+                    'num_epochs': hp_int(100, 500),
+                    'batch_size': hp_int(32, 512),
+                    'opt': hp_choice(['adam', 'rmsprop', 'adadelta']),
+                    'learning_rate': hp_float(0.0001, 0.01)
+                },
+                {
+                    'name': 'mlp_',
+                    'layers': [hp_int(10, 512), hp_int(10, 512)],
+                    'dropout': [hp_float(0, 0.5), hp_float(0, 0.5)],
+                    'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
+                    'l1_reg': hp_float(0, 0.001),
+                    'l2_reg': hp_float(0, 0.001),
+                    'num_epochs': hp_int(100, 500),
+                    'batch_size': hp_int(32, 512),
+                    'opt': hp_choice(['adam', 'rmsprop', 'adadelta']),
+                    'learning_rate': hp_float(0.0001, 0.01)
+                },
+                {
+                    'name': 'mlp_',
+                    'layers': [hp_int(10, 512), hp_int(10, 512), hp_int(10, 512)],
+                    'dropout': [hp_float(0, 0.5), hp_float(0, 0.5), hp_float(0, 0.5)],
+                    'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
+                    'l1_reg': hp_float(0, 0.001),
+                    'l2_reg': hp_float(0, 0.001),
+                    'num_epochs': hp_int(100, 500),
+                    'batch_size': hp_int(32, 512),
+                    'opt': hp_choice(['adam', 'rmsprop', 'adadelta']),
+                    'learning_rate': hp_float(0.0001, 0.01)
+                }
+            ])
         }
     })
 
     print('Creating Fitness Function')
-    fit_fn = CVObjectiveFunction()
+    fit_fn = CVObjectiveFunction(scoring='mse')
 
     print('Creating CMAES optimizer')
     opt = CMAESOptimizer(pop_size=4, max_iter=2)

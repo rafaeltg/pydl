@@ -91,31 +91,40 @@ class SupervisedModel(Model):
                         shuffle=False,
                         validation_data=(x_valid, y_valid) if x_valid and y_valid else None)
 
-    def predict(self, x, class_probs=False):
+    def predict(self, x):
 
         """ Predict the labels for the test set.
         :param x: Testing data. shape(n_test_samples, n_features)
-        :param class_probs: In case of a classifier, it indicates whether it should returns
-            the class label or class probability for the given data.
         :return: labels
         """
 
         x = self._check_x_shape(x)
 
         if self.loss_func == 'binary_crossentropy' or self.loss_func == 'categorical_crossentropy':
-            if not class_probs:
-                return self._model.predict_classes(x, batch_size=self.batch_size, verbose=self.verbose)
-
-            else:
-                probs = self._model.predict_proba(x, batch_size=self.batch_size, verbose=self.verbose)
-
-                # check if binary classification
-                if probs.shape[1] == 1:
-                    # first column is probability of class 0 and second is of class 1
-                    probs = np.hstack([1 - probs, probs])
-                return probs
+            return self._model.predict_classes(x, batch_size=self.batch_size, verbose=self.verbose)
 
         return self._model.predict(x=x, batch_size=self.batch_size, verbose=self.verbose)
+
+    def predict_proba(self, x):
+
+        """ Predict classes probabilities.
+        :param x: Testing data. shape(n_test_samples, n_features)
+        :return: probabilities
+        """
+
+        if self.loss_func != 'binary_crossentropy' or self.loss_func != 'categorical_crossentropy':
+            raise TypeError('Model is not configured to predict classes probabilities. Please, use \
+                            "binary_crossentropy" or "categorical_crossentropy" as loss function!')
+
+        x = self._check_x_shape(x)
+
+        probs = self._model.predict_proba(x, batch_size=self.batch_size, verbose=self.verbose)
+
+        # check if binary classification
+        if probs.shape[1] == 1:
+            # first column is probability of class 0 and second is of class 1
+            probs = np.hstack([1 - probs, probs])
+        return probs
 
     def score(self, x, y):
 

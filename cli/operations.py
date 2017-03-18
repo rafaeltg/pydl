@@ -1,7 +1,5 @@
 import os
-
 import numpy as np
-
 from pydl.datasets.utils import load_data_file
 from pydl.hyperopt import HyperOptModel, hp_space_from_json, opt_from_config, CVObjectiveFunction
 from pydl.model_selection.cv import CV
@@ -48,6 +46,24 @@ def predict(config, output):
 
     # Save predictions as .npy file
     np.save(os.path.join(output, m.name+'_preds.npy'), preds)
+
+
+def predict_proba(config, output):
+    """
+    """
+
+    print('predict_proba', config)
+
+    m = load_model(get_model(config))
+    assert isinstance(m, SupervisedModel), 'The given model cannot perform predict_proba operation!'
+
+    data_set = get_input_data(config)
+    x = load_data(data_set, 'data_x')
+
+    preds = m.predict_proba(x)
+
+    # Save predictions as .npy file
+    np.save(os.path.join(output, m.name+'_pred_probas.npy'), preds)
 
 
 def transform(config, output):
@@ -214,5 +230,6 @@ def get_obj_fn(config):
         obj_fn_config = config['obj_fn']
         cv_method = obj_fn_config['method']
         cv_params = obj_fn_config['params'] if 'params' in obj_fn_config else {}
-        return CVObjectiveFunction(CV(method=cv_method, **cv_params))
+        cv_scoring = obj_fn_config['scoring'] if 'scoring' in obj_fn_config else None
+        return CVObjectiveFunction(scoring=cv_scoring, cv_method=cv_method, **cv_params)
     return None

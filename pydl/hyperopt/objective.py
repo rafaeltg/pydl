@@ -22,13 +22,14 @@ class ObjectiveFunction:
 
 class CVObjectiveFunction(ObjectiveFunction):
 
-    def __init__(self, cv_method='split', **kwargs):
+    def __init__(self, scoring=None, cv_method='split', **kwargs):
         super().__init__()
-        self._args += tuple([CV(method=cv_method, **kwargs)])
+        self._args += tuple([CV(method=cv_method, **kwargs), scoring])
 
     @staticmethod
     def _obj_fn(x, hp_space, data_x, data_y, *args):
         cv = args[0]
+        scoring = args[1]
         m = load_model(hp_space.get_value(x))
-        res = cv.run(model=m, x=data_x, y=data_y, max_thread=1)
-        return res[m.get_loss_func()]['mean']
+        res = cv.run(model=m, x=data_x, y=data_y, scoring=scoring, max_thread=1)
+        return res[cv.get_scorer_name(scoring)]['mean']

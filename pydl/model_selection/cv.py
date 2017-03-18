@@ -17,12 +17,14 @@ class CV(object):
     def run(self, model, x, y=None, scoring=None, pp=None, max_thread=1):
 
         # get scorers
-        scorers_fn = {}
         if scoring is not None:
             if isinstance(scoring, list):
-                scorers_fn.update([(k, get_scorer(k)) for k in scoring])
+                scorers_fn = dict([(self.get_scorer_name(k), get_scorer(k)) for k in scoring])
             else:
-                scorers_fn.update((scoring, get_scorer(scoring)))
+                scorers_fn = dict([(self.get_scorer_name(scoring), get_scorer(scoring))])
+        else:
+            # By default uses the model loss function as scoring function
+            scorers_fn = dict([(model.get_loss_func(), get_scorer(model.get_loss_func()))])
 
         args = []
         if y is not None:
@@ -63,11 +65,7 @@ class CV(object):
     @staticmethod
     def _unsupervised_cv(model, x_train, x_test, scorers):
         model.fit(x_train=x_train)
-
-        cv_result = {model.get_loss_func(): model.score(x_test)}
-        for k, scorer in scorers.items():
-            cv_result[k] = scorer(model, x_test)
-
+        cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers.items()])
         return cv_result
 
     @staticmethod
@@ -78,11 +76,7 @@ class CV(object):
             x_test = pp.transform(x_test)
 
         model.fit(x_train, y_train)
-
-        cv_result = {model.get_loss_func(): model.score(x_test, y_test)}
-        for k, scorer in scorers.items():
-            cv_result[k] = scorer(model, x_test, y_test)
-
+        cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers.items()])
         return cv_result
 
     def _consolidate_cv_scores(self, cv_results):
@@ -95,3 +89,9 @@ class CV(object):
                 'sd': np.std(scores)
             }
         return cv_scores
+
+    def get_scorer_name(self, scorer):
+        if isinstance(scorer, str):
+            return scorer
+        elif hasattr(scorer, '__call__'):
+            return scorer.__name__

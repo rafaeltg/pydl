@@ -40,13 +40,23 @@
       "method": "split",
       "params": {
         "test_size": 0.3
-      }
+      },
+      "scoring": "mse"
     }
   },
 
   "data_set": {
-    "data_x": "/home/rafael/Documents/master/project/databases/bike/bike_train_x.csv",
-    "data_y": "/home/rafael/Documents/master/project/databases/bike/bike_train_y.csv",
-    "has_header": true
+    "data_x": {
+      "path": "/path/to/your/train/x/csv/with/header",
+      "params": {
+        "has_header": true
+      }
+    },
+    "data_y": {
+      "path": "/path/to/your/train/y/csv/with/header",
+      "params": {
+        "has_header": true
+      }
+    }
   }
 }
