@@ -54,7 +54,7 @@ class StackedAutoencoder(SupervisedModel):
                 self._model.add(Dropout(p=self.dropout[i]))
 
         # Output layer
-        self._model.add(Dense(output_dim=n_output, activation=self.out_activation))
+        self._model.add(Dense(units=n_output, activation=self.out_activation))
 
     def _pretrain(self, x_train, x_valid=None):
 

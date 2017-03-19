@@ -62,7 +62,7 @@ class DeepAutoencoder(UnsupervisedModel):
 
         self._decode_layer = encode_layer
         for i, l in enumerate(self.n_hidden[-2:-(len(self.n_hidden)+1):-1] + [K.int_shape(input_layer)[1]]):
-            self._decode_layer = Dense(output_dim=l,
+            self._decode_layer = Dense(units=l,
                                        name='decoder_%d' % i,
                                        activation=self.dec_activation[i])(self._decode_layer)
 
@@ -94,7 +94,7 @@ class DeepAutoencoder(UnsupervisedModel):
         for l in self._model.layers[dec_idx+1:]:
             decoder_layer = l(decoder_layer)
 
-        self._decoder = kmodels.Model(input=encoded_input, output=decoder_layer)
+        self._decoder = kmodels.Model(inputs=encoded_input, outputs=decoder_layer)
 
         self.logger.info('Done creating {} decoding layer'.format(self.name))
 
