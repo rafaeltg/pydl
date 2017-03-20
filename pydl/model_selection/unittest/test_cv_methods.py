@@ -1,8 +1,7 @@
 import unittest
-
 import numpy as np
 
-from pydl.model_selection.methods import TrainTestSplitCV, TimeSeriesCV
+from pydl.model_selection.methods import get_cv_method
 
 
 class CVMethodsTestCase(unittest.TestCase):
@@ -14,7 +13,7 @@ class CVMethodsTestCase(unittest.TestCase):
         expected_trains = [[0, 1, 2, 3, 4, 5, 6, 7]]
         expected_tests = [[8, 9]]
 
-        cv = TrainTestSplitCV(test_size=0.2)
+        cv = get_cv_method(method='split', test_size=0.2)
         self.validate_cv(cv, x, expected_trains, expected_tests)
 
     def test_time_series_cv_fixed(self):
@@ -42,7 +41,7 @@ class CVMethodsTestCase(unittest.TestCase):
                           [7, 8],
                           [8, 9]]
 
-        cv = TimeSeriesCV(window, horizon, True)
+        cv = get_cv_method(method='time_series', window=window, horizon=horizon, fixed=True)
         self.validate_cv(cv, x, expected_trains, expected_tests)
 
         """
@@ -51,7 +50,7 @@ class CVMethodsTestCase(unittest.TestCase):
         3) train = [2 3 4 5 6] test = [7 8]
         """
 
-        cv = TimeSeriesCV(window, horizon, True, 2)
+        cv = get_cv_method(method='time_series', window=window, horizon=horizon, fixed=True, by=2)
         self.validate_cv(cv, x, [expected_trains[0], expected_trains[2]], [expected_tests[0], expected_tests[2]])
 
     def test_time_series_cv_not_fixed(self):
@@ -79,7 +78,7 @@ class CVMethodsTestCase(unittest.TestCase):
                           [7, 8],
                           [8, 9]]
 
-        cv = TimeSeriesCV(window, horizon, False)
+        cv = get_cv_method(method='time_series', window=window, horizon=horizon, fixed=True)
         self.validate_cv(cv, x, expected_trains, expected_tests)
 
         """
@@ -88,7 +87,7 @@ class CVMethodsTestCase(unittest.TestCase):
         3) train = [0 1 2 3 4 5 6] test = [7 8]
         """
 
-        cv = TimeSeriesCV(window, horizon, False, 2)
+        cv = get_cv_method(method='time_series', window=window, horizon=horizon, fixed=True, by=2)
         self.validate_cv(cv, x, [expected_trains[0], expected_trains[2]], [expected_tests[0], expected_tests[2]])
 
     def validate_cv(self, cv, x, expected_trains, expected_tests):

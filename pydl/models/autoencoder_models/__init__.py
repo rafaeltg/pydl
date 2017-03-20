@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from .autoencoder import Autoencoder
 from .denoising_autoencoder import DenoisingAutoencoder
 from .deep_autoencoder import DeepAutoencoder

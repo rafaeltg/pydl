@@ -1,10 +1,12 @@
+#!/usr/bin/env python3.5
+
 import argparse
 import os.path
 
-from pydl.models.utils.utilities import load_json
+from pydl.models.utils import load_json
 from cli.operations import *
 
-parser = argparse.ArgumentParser(prog='pydl_cli')
+parser = argparse.ArgumentParser(prog='pydl')
 
 # create global arguments
 common = argparse.ArgumentParser(add_help=False)

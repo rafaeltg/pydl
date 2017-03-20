@@ -1,11 +1,10 @@
 import os
 import numpy as np
-from pydl.datasets.utils import load_data_file
+
+from pydl.models import SupervisedModel, UnsupervisedModel
+from pydl.model_selection import CV, available_metrics
 from pydl.hyperopt import HyperOptModel, hp_space_from_json, opt_from_config, CVObjectiveFunction
-from pydl.model_selection.cv import CV
-from pydl.model_selection.metrics import available_metrics
-from pydl.models.base.supervised_model import SupervisedModel
-from pydl.models.base.unsupervised_model import UnsupervisedModel
+from pydl.datasets.utils import load_data_file
 from pydl.models.utils.utilities import load_model, save_json
 
 
