@@ -36,12 +36,13 @@
     },
 
     "obj_fn": {
-      "type": "cv",
-      "method": "split",
-      "params": {
-        "test_size": 0.3
-      },
-      "scoring": "mse"
+      "cv": {
+        "method": "split",
+        "params": {
+          "test_size": 0.3
+        },
+        "scoring": "mse"
+      }
     }
   },
 

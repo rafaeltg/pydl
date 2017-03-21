@@ -4,7 +4,7 @@ import argparse
 import os.path
 
 from pydl.models.utils import load_json
-from cli.operations import *
+from .commands import *
 
 parser = argparse.ArgumentParser(prog='pydl')
 
@@ -24,7 +24,7 @@ subparsers.add_parser('predict_proba', parents=[common], help='Predict Probabili
 subparsers.add_parser('transform', parents=[common], help='Transform operation').set_defaults(func=transform)
 subparsers.add_parser('reconstruct', parents=[common], help='Reconstruct operation').set_defaults(func=reconstruct)
 subparsers.add_parser('score', parents=[common], help='Score operation').set_defaults(func=score)
-subparsers.add_parser('validate', parents=[common], help='Validate operation').set_defaults(func=validate)
+subparsers.add_parser('cv', parents=[common], help='Cross-Validation operation').set_defaults(func=cv)
 subparsers.add_parser('optimize', parents=[common], help='Optimize operation').set_defaults(func=optimize)
 
 args = parser.parse_args()
