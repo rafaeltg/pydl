@@ -83,9 +83,9 @@ def load_json(inp):
     return data
 
 
-def save_json(data, file_path):
+def save_json(data, file_path, sort_keys=True):
     with open(file_path, 'w') as outfile:
-        json.dump(data, outfile, sort_keys=False, indent=4, ensure_ascii=False)
+        json.dump(data, outfile, sort_keys=sort_keys, indent=4, ensure_ascii=False)
 
 
 

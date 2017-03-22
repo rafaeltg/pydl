@@ -1,7 +1,6 @@
 import os
 import inspect
 import numpy as np
-import tensorflow as tf
 import keras.models as k_models
 import keras.optimizers as k_opt
 
@@ -45,7 +44,6 @@ class Model:
 
         if self.seed >= 0:
             np.random.seed(self.seed)
-            tf.set_random_seed(self.seed)
 
         self.logger = get_logger(self.name, self.verbose)
 
