@@ -1,9 +1,12 @@
 {
-  "model": "/home/rafael/models/mlp_test.json",
-  "scoring": ["rmse", "mape"],
+  "scoring": ["rmse", "mape", "r2"],
   "data_set": {
-    "data_x": "/home/rafael/Documents/master/project/databases/bike/bike_test_x.csv",
-    "data_y": "/home/rafael/Documents/master/project/databases/bike/bike_test_y.csv",
-    "has_header": true
-  }
+    "actual_out": {
+      "path": "/path/to/your/test/y/npy"
+    },
+    "predict_out": {
+      "path": "/path/to/your/predicted/test/y/npy"
+    }
+  },
+  "out_file": "mlp_test_scores.json"
 }
