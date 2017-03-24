@@ -11,6 +11,7 @@ Datasets = collections.namedtuple('Datasets', ['train', 'test', 'validation'])
 def load_csv(filename, dtype=None, has_header=True, usecols=None, index_col=None):
     return pandas.read_csv(filename,
                            skiprows=0 if has_header else None,
+                           header=None,
                            index_col=index_col,
                            usecols=usecols,
                            dtype=dtype)

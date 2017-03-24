@@ -29,8 +29,8 @@ class CV(object):
         args = []
         if y is not None:
             for train, test in self.cv.split(x, y):
-                print('\n> train: [%s - %d]' % (train[0], train[-1]))
-                print('> test: [%s - %d]' % (test[0], test[-1]))
+                #print('\n> train: [%s - %d]' % (train[0], train[-1]))
+                #print('> test: [%s - %d]' % (test[0], test[-1]))
                 args.append((model.copy(),
                              x[train],
                              y[train],

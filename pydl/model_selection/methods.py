@@ -12,7 +12,7 @@ class TrainTestSplit:
 
         n = len(X)
         train_size = floor(n * (1 - self.test_size))
-        yield range(0, train_size, 1), range(train_size, n, 1)
+        yield list(range(0, train_size, 1)), list(range(train_size, n, 1))
 
 
 class TimeSeriesSplit:
@@ -28,7 +28,7 @@ class TimeSeriesSplit:
         assert len(X) >= (self.window+self.horizon), 'window size plus horizon size cannot be greater than input size!'
 
         starts_test = list(range(self.window, len(X)-self.horizon+1, self.by))
-        print(starts_test, len(X)-self.horizon+1)
+        #print(starts_test, len(X)-self.horizon+1)
 
         if self.fixed:
             trains = [range(test_start-self.window, test_start) for test_start in starts_test]
@@ -38,7 +38,7 @@ class TimeSeriesSplit:
         tests = [range(test_start, test_start+self.horizon) for test_start in starts_test]
 
         for i in range(0, len(trains)):
-            yield trains[i], tests[i]
+            yield list(trains[i]), list(tests[i])
 
 
 def get_cv_method(method, **kwargs):

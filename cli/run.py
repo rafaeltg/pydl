@@ -4,7 +4,7 @@ import argparse
 import os.path
 
 from pydl.models.utils import load_json
-from .commands import *
+from cli.commands import *
 
 parser = argparse.ArgumentParser(prog='pydl')
 
