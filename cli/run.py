@@ -26,6 +26,7 @@ subparsers.add_parser('reconstruct', parents=[common], help='Reconstruct operati
 subparsers.add_parser('score', parents=[common], help='Score operation').set_defaults(func=score)
 subparsers.add_parser('cv', parents=[common], help='Cross-Validation operation').set_defaults(func=cv)
 subparsers.add_parser('optimize', parents=[common], help='Optimize operation').set_defaults(func=optimize)
+subparsers.add_parser('evaluate', parents=[common], help='Evaluate model predictions').set_defaults(func=evaluate)
 
 args = parser.parse_args()
 

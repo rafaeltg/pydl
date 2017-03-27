@@ -82,28 +82,20 @@ def decompose(ts, plot=False):
     return trend, seasonal, residual
 
 
-def acf(ts, nlags=20, alpha=None, plot=False):
+def acf(ts, nlags=20, plot=False):
     from statsmodels.tsa.stattools import acf
 
-    if alpha is not None:
-        lag_acf, confint, qstat, pvalue = acf(ts, nlags=nlags, alpha=alpha,  qstat=True, unbiased=True)
-    else:
-        lag_acf, qstat, pvalue = acf(ts, nlags=nlags, qstat=True, unbiased=True)
+    lag_acf = acf(ts, nlags=nlags)
+    conf_level = 1.96/np.sqrt(len(ts))
 
     if plot:
         plt.plot(lag_acf)
-        if alpha is not None:
-            plt.plot(confint[:, 0], linestyle='--', color='red')
-            plt.plot(confint[:, 1], linestyle='--', color='red')
-        plt.axhline(y=-1.96/np.sqrt(len(ts)),linestyle='--',color='gray')
-        plt.axhline(y=1.96/np.sqrt(len(ts)),linestyle='--',color='gray')
+        plt.axhline(y=-conf_level,linestyle='--',color='gray')
+        plt.axhline(y=conf_level,linestyle='--',color='gray')
         plt.title('Autocorrelation Function')
         plt.show(block=True)
 
-    if alpha:
-        return lag_acf, confint
-    else:
-        return lag_acf
+    return lag_acf, conf_level
 
 
 def pacf(ts, nlags=20, method='ols', alpha=None, plot=False):

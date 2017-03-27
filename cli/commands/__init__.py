@@ -1,4 +1,5 @@
 from .cv import cv
+from .evaluate import evaluate
 from .fit import fit
 from .optimize import optimize
 from .predict import predict

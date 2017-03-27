@@ -8,5 +8,11 @@
     "data_y": {
       "path": "/path/to/your/predicted/test/y/npy"
     }
+  },
+
+  "scoring": ["rmse", "mse", "mape", "r2"],
+
+  "errors_acf": {
+    "nlags": 20
   }
 }

@@ -1,23 +1,23 @@
 import os
-from .utils import get_input_data, load_data
-from pydl.model_selection import get_scorer
-from pydl.models.utils.utilities import save_json
+from .utils import get_input_data, load_data, get_model
+from pydl.models.utils import save_json, load_model
 
 
 def score(config, output):
     """
     """
 
-    assert 'scoring' in config, 'Missing scoring!'
-    scoring = config['scoring'] if 'scoring' in config else []
+    m = load_model(get_model(config))
 
     data_set = get_input_data(config)
-    actual_out = load_data(data_set, 'actual_out')
-    pred_out = load_data(data_set, 'predict_out')
+    x = load_data(data_set, 'data_x')
+    y = load_data(data_set, 'data_y') if 'data_y' in data_set else None
 
-    results = dict([(s, get_scorer(s)(actual_out, pred_out)) for s in scoring])
+    if y is None:
+        s = m.score(x)
+    else:
+        s = m.score(x, y)
 
-    out_file = config['out_file'] if 'out_file' in config else 'scores.json'
+    result = {m.get_loss_func(): s}
 
-    # Save results into a JSON file
-    save_json(results, os.path.join(output, out_file))
+    save_json(result, os.path.join(output, m.name+'_score.json'))

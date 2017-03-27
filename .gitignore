@@ -9,3 +9,6 @@ __pycache__/
 *.iml
 examples/models/
 pydl/pydl.egg-info/
+build/
+dist/
+pydl.egg-info/

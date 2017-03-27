@@ -67,3 +67,4 @@
 ### reconstruct
 ### cv
 ### optimize
+### evaluate
