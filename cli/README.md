@@ -33,7 +33,7 @@
     ```
 * Command: 
     ```
-    python3.5 run.py fit -c mlp_fit.json -o result/folder/
+    pydl fit -c mlp_fit.json -o result/folder/
     ```
 * Output:
     * .h5 file with model weights (mlp_test.h5)
@@ -56,7 +56,7 @@
     ```
 * Command: 
     ```
-    python3.5 run.py predict -c mlp_predict.json -o result/folder/
+    pydl predict -c mlp_predict.json -o result/folder/
     ```
 * Output:
     * .npy file with the predictions (mlp_test_preds.npy)

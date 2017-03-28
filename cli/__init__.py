@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 
 #pydl
-# Deep Learning models in Python
+#A CLI tool to help with using the pydl package
 
-from .datasets import *
-from .hyperopt import *
-from .model_selection import *
-from .models import *
+from .commands import *
 
 __version__ = "0.0.1"
 __author__ = "Rafael Thomazi Gonzalez <rthomazigonzalez@gmail.com>"
+
+__all__ = ["main"]
