@@ -1,4 +1,4 @@
-from ..models.utils import load_model
+from ..models import load_model
 from .objective import CVObjectiveFunction
 from .optimizer import CMAESOptimizer
 

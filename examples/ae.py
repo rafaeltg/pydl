@@ -1,8 +1,6 @@
 import os
-
 import numpy as np
-
-from pydl.models import Autoencoder
+from pydl.models.autoencoder_models import Autoencoder
 from pydl.models.utils import load_model
 
 

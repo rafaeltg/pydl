@@ -12,3 +12,4 @@ pydl/pydl.egg-info/
 build/
 dist/
 pydl.egg-info/
+models

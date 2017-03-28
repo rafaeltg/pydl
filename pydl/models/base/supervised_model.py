@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import numpy as np
 from keras.models import Sequential
 from keras.utils.np_utils import to_categorical

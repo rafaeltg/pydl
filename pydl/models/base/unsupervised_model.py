@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import keras.models as kmodels
 from keras.layers import Input
 from .model import Model
