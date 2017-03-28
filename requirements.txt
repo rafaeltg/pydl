@@ -1,0 +1,9 @@
+argparse
+numpy
+pandas
+scikit-learn
+matplotlib
+statsmodels
+h5py
+cma
+keras
