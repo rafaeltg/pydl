@@ -1,0 +1,21 @@
+{
+    "model": {
+        "class_name": "Autoencoder",
+        "config": {
+            "batch_size": 32,
+            "dec_activation": "linear",
+            "enc_activation": "relu",
+            "l1_reg": 0.0,
+            "l2_reg": 0.0,
+            "learning_rate": 0.001,
+            "loss_func": "mse",
+            "n_hidden": 15,
+            "name": "ae",
+            "num_epochs": 100,
+            "opt": "adam",
+            "seed": -1,
+            "verbose": 0
+        }
+    },
+    "weights": "models/ae.h5"
+}

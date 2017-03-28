@@ -17,11 +17,13 @@ def optimize(config, output):
 
     # Get HyperOptModel
     assert 'opt' in config, 'Missing optimizer parameters!'
-    opt = get_optimizer(config['opt'])
-    obj_fn = get_obj_fn(config['opt'])
+    opt_config = config['opt']
+    opt = get_optimizer(opt_config)
+    obj_fn = get_obj_fn(opt_config)
+    max_threads = opt_config['max_threads'] if 'max_threads' in opt_config else 1
 
     opt_model = HyperOptModel(hp_space=space, fit_fn=obj_fn, opt=opt)
-    result = opt_model.fit(x, y, retrain=True)
+    result = opt_model.fit(x, y, retrain=True, max_threads=max_threads)
 
     print('\n>> Best params =', result['best_model_config'])
     print('\n>> Best fit =', result['opt_result'][1])

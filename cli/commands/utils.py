@@ -33,8 +33,9 @@ def get_cv_config(config):
 def get_optimizer(config):
     assert 'method' in config, 'Missing optimization method'
     method = config['method']
-    params = config['params'] if 'params' in config else {}
-    return opt_from_config(method, **params)
+    m = method['class']
+    params = method['params'] if 'params' in method else {}
+    return opt_from_config(m, **params)
 
 
 def get_obj_fn(config):

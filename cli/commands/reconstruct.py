@@ -19,4 +19,4 @@ def reconstruct(config, output):
 
     # Save reconstructed data in a .npy file
     base_name = os.path.splitext(os.path.basename(data_set['data_x']))[0]
-    np.save(os.path.join(output, base_name+'_reconstructed.npy'), x_rec)
+    np.save(os.path.join(output, base_name+'_rec.npy'), x_rec)

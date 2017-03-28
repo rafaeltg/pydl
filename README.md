@@ -13,5 +13,7 @@ Deep Learning algorithms implemented using Keras library and Python.
 * MultiLayer Perceptron
 * Recurrent Neural Network (Simple, GRU and LSTM)
 
-### General TODO list:
-* Improve docstrings
+### Install:
+    ```
+    python3.5 setup.py install
+    ```
