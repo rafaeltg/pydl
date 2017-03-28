@@ -14,6 +14,4 @@ Deep Learning algorithms implemented using Keras library and Python.
 * Recurrent Neural Network (Simple, GRU and LSTM)
 
 ### Install:
-    ```
-    python3.5 setup.py install
-    ```
+`python3.5 setup.py install`
