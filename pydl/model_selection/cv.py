@@ -1,6 +1,5 @@
 import multiprocessing as mp
 import numpy as np
-
 from .methods import get_cv_method
 from .scorer import get_scorer
 
@@ -14,7 +13,7 @@ class CV(object):
     def __init__(self, method, **kwargs):
         self.cv = get_cv_method(method, **kwargs)
 
-    def run(self, model, x, y=None, scoring=None, pp=None, max_thread=1):
+    def run(self, model, x, y=None, scoring=None, pp=None, max_threads=1):
 
         # get scorers
         if scoring is not None:
@@ -29,8 +28,6 @@ class CV(object):
         args = []
         if y is not None:
             for train, test in self.cv.split(x, y):
-                #print('\n> train: [%s - %d]' % (train[0], train[-1]))
-                #print('> test: [%s - %d]' % (test[0], test[-1]))
                 args.append((model.copy(),
                              x[train],
                              y[train],
@@ -38,7 +35,7 @@ class CV(object):
                              y[test],
                              scorers_fn,
                              pp))
-            cv_results = self._do_cv(self._supervised_cv, args, max_thread)
+            cv_results = self._do_cv(self._supervised_cv, args, max_threads)
 
         else:
             for train, test in self.cv.split(x):
@@ -46,18 +43,16 @@ class CV(object):
                              x[train],
                              x[test],
                              scorers_fn))
-            cv_results = self._do_cv(self._unsupervised_cv, args, max_thread)
+            cv_results = self._do_cv(self._unsupervised_cv, args, max_threads)
 
         return self._consolidate_cv_scores(cv_results)
 
-    def _do_cv(self, cv_fn, args, max_thread=1):
-        cv_results = []
-        if max_thread == 1:
-            for fn_args in args:
-                cv_results.append(cv_fn(*fn_args))
+    def _do_cv(self, cv_fn, args, max_threads=1):
+        if max_threads == 1:
+            cv_results = [cv_fn(*fn_args) for fn_args in args]
 
         else:
-            with mp.Pool(max_thread) as pool:
+            with mp.Pool(max_threads) as pool:
                 cv_results = pool.starmap(func=cv_fn, iterable=args)
 
         return cv_results

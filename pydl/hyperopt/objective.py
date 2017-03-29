@@ -31,6 +31,6 @@ class CVObjectiveFunction(ObjectiveFunction):
         cv = args[0]
         scoring = args[1]
         m = load_model(hp_space.get_value(x))
-        res = cv.run(model=m, x=data_x, y=data_y, scoring=scoring, max_thread=1)
+        res = cv.run(model=m, x=data_x, y=data_y, scoring=scoring, max_threads=1)
         s = cv.get_scorer_name(scoring) if scoring is not None else m.get_loss_func()
         return res[s]['mean']

@@ -29,13 +29,13 @@ class CMAESOptimizer:
 
         if max_threads == 1:
             es.optimize(objective_fct=obj_func, args=args)
-
         else:
             with mp.Pool(max_threads) as pool:
                 while not es.stop():
                     X = es.ask()
-                    # use chunksize parameter as es.popsize/max_thread?
-                    f_values = pool.starmap(func=obj_func, iterable=[(_x, *args) for _x in X])
+                    f_values = pool.starmap(func=obj_func,
+                                            iterable=[(_x, *args) for _x in X],
+                                            chunksize=es.popsize//max_threads)
                     es.tell(X, f_values)
                     es.disp()
                     es.logger.add()
