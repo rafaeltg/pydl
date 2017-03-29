@@ -30,7 +30,7 @@ def parse_args():
     subparsers.add_parser('score', parents=[common], help='Score operation').set_defaults(func=score)
     subparsers.add_parser('cv', parents=[common], help='Cross-Validation operation').set_defaults(func=cv)
     subparsers.add_parser('optimize', parents=[common], help='Optimize operation').set_defaults(func=optimize)
-
+    subparsers.add_parser('eval', parents=[common], help='Evaluate operation').set_defaults(func=evaluate)
     return parser.parse_args()
 
 
