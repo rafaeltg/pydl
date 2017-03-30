@@ -27,7 +27,8 @@ def get_cv_config(config):
     method = cv_config['method']
     params = cv_config['params'] if 'params' in cv_config else {}
     scoring = cv_config['scoring'] if 'scoring' in cv_config else None
-    return method, params, scoring
+    max_threads = cv_config['max_threads'] if 'max_threads' in cv_config else 1
+    return method, params, scoring, max_threads
 
 
 def get_optimizer(config):
@@ -43,7 +44,7 @@ def get_obj_fn(config):
         obj_fn_config = config['obj_fn']
 
         if 'cv' in obj_fn_config:
-            method, params, scoring = get_cv_config(obj_fn_config)
+            method, params, scoring, _ = get_cv_config(obj_fn_config)
             return CVObjectiveFunction(scoring=scoring, cv_method=method, **params)
 
     return None

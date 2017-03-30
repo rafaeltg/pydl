@@ -20,8 +20,8 @@ def cv(config, output):
         y = None
 
     # Get validation method
-    method, params, scoring = get_cv_config(config)
-    results = CV(method=method, **params).run(model=m, x=x, y=y, scoring=scoring)
+    method, params, scoring, max_threads = get_cv_config(config)
+    results = CV(method=method, **params).run(model=m, x=x, y=y, scoring=scoring, max_threads=max_threads)
 
     # Save results into a JSON file
     save_json(results, os.path.join(output, m.name+'_cv.json'))
