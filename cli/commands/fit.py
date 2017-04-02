@@ -1,4 +1,4 @@
-from .utils import get_input_data, load_data
+from .utils import get_input_data, load_data, get_model
 from pydl.models import SupervisedModel
 from pydl.models.utils.utilities import load_model
 
@@ -7,7 +7,7 @@ def fit(config, output):
     """
     """
 
-    m = load_model(config)
+    m = load_model(get_model(config))
 
     data_set = get_input_data(config)
     x = load_data(data_set, 'train_x')

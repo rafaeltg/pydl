@@ -1,5 +1,5 @@
 import os
-from .utils import get_input_data, load_data, get_cv_config
+from .utils import get_input_data, load_data, get_cv_config, get_model
 from pydl.models import SupervisedModel
 from pydl.model_selection import CV
 from pydl.models.utils.utilities import load_model, save_json
@@ -9,7 +9,7 @@ def cv(config, output):
     """
     """
 
-    m = load_model(config)
+    m = load_model(get_model(config))
 
     data_set = get_input_data(config)
     x = load_data(data_set, 'data_x')
