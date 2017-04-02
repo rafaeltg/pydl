@@ -36,8 +36,6 @@ class UnsupervisedModel(Model):
         """ Creates the computational graph for the Unsupervised Model.
         """
 
-        self.logger.info('Building {} model'.format(self.name))
-
         self._input = Input(shape=input_shape[1:], name='x-input')
 
         self._create_layers(self._input)
@@ -47,8 +45,6 @@ class UnsupervisedModel(Model):
         self._create_decoder_model()
 
         self._model.compile(optimizer=self.get_optimizer(), loss=self.loss_func)
-
-        self.logger.info('Done building {} model'.format(self.name))
 
     def _create_layers(self, input_layer):
         pass
@@ -67,8 +63,6 @@ class UnsupervisedModel(Model):
         :return:
         """
 
-        self.logger.info('Starting {} unsupervised training...'.format(self.name))
-
         self.build_model(x_train.shape)
 
         self._model.fit(x=x_train,
@@ -79,8 +73,6 @@ class UnsupervisedModel(Model):
                         validation_data=(x_valid, x_valid) if x_valid else None,
                         verbose=self.verbose)
 
-        self.logger.info('Done {} unsupervised training...'.format(self.name))
-
     def transform(self, data):
 
         """ Transform data according to the model.
@@ -88,7 +80,6 @@ class UnsupervisedModel(Model):
         :return: transformed data
         """
 
-        self.logger.info('Transforming data...')
         return self._encoder.predict(x=data, verbose=self.verbose)
 
     def reconstruct(self, encoded_data):
@@ -98,7 +89,6 @@ class UnsupervisedModel(Model):
         :return:
         """
 
-        self.logger.info('Reconstructing data...')
         return self._decoder.predict(x=encoded_data, verbose=self.verbose)
 
     def score(self, data):
@@ -107,8 +97,6 @@ class UnsupervisedModel(Model):
         :param data: Input data
         :return: reconstruction cost
         """
-
-        self.logger.info('Evaluating reconstruction loss...')
 
         loss = self._model.evaluate(x=data,
                                     y=data,

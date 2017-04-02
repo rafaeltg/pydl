@@ -37,8 +37,6 @@ class Autoencoder(UnsupervisedModel):
                          l2_reg=l2_reg,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert self.n_hidden > 0, 'Invalid number of hidden units!'
@@ -52,8 +50,6 @@ class Autoencoder(UnsupervisedModel):
         """ Create the encoding and the decoding layers of the autoencoder.
         :return: self
         """
-
-        self.logger.info('Creating {} layers'.format(self.name))
 
         encode_layer = Dense(name='encoder',
                              units=self.n_hidden,
@@ -72,12 +68,8 @@ class Autoencoder(UnsupervisedModel):
         :return: self
         """
 
-        self.logger.info('Creating {} encoder model'.format(self.name))
-
         self._encoder = kmodels.Model(inputs=self._model.layers[0].output,
                                       outputs=self._model.get_layer('encoder').output)
-
-        self.logger.info('Done creating {} encoder model'.format(self.name))
 
     def _create_decoder_model(self):
 
@@ -85,14 +77,10 @@ class Autoencoder(UnsupervisedModel):
         :return: self
         """
 
-        self.logger.info('Creating {} decoder model'.format(self.name))
-
         encoded_input = Input(shape=(self.n_hidden,))
 
         self._decoder = kmodels.Model(inputs=encoded_input,
                                       outputs=self._model.get_layer('decoder')(encoded_input))
-
-        self.logger.info('Done creating {} decoding layer'.format(self.name))
 
     def get_model_parameters(self):
 

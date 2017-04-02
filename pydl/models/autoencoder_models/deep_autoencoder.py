@@ -33,8 +33,6 @@ class DeepAutoencoder(UnsupervisedModel):
                          l2_reg=expand_arg(n_hidden, l2_reg),
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert all([l > 0 for l in self.n_hidden]), 'Invalid hidden layers!'
@@ -49,8 +47,6 @@ class DeepAutoencoder(UnsupervisedModel):
         :param input_layer: Input size.
         :return: self
         """
-
-        self.logger.info('Creating {} layers'.format(self.name))
 
         encode_layer = input_layer
         for i, l in enumerate(self.n_hidden):
@@ -72,20 +68,14 @@ class DeepAutoencoder(UnsupervisedModel):
         :return: self
         """
 
-        self.logger.info('Creating {} encoder model'.format(self.name))
-
         self._encoder = kmodels.Model(inputs=self._model.layers[0].output,
                                       outputs=self._model.layers[int(len(self._model.layers)/2)].output)
-
-        self.logger.info('Done creating {} encoder model'.format(self.name))
 
     def _create_decoder_model(self):
 
         """ Create the model that maps an encoded input to the original values
         :return: self
         """
-
-        self.logger.info('Creating {} decoder model'.format(self.name))
 
         dec_idx = int(len(self._model.layers)/2)
         encoded_input = Input(shape=(self._model.layers[dec_idx].output_shape[1],))
@@ -95,8 +85,6 @@ class DeepAutoencoder(UnsupervisedModel):
             decoder_layer = l(decoder_layer)
 
         self._decoder = kmodels.Model(inputs=encoded_input, outputs=decoder_layer)
-
-        self.logger.info('Done creating {} decoding layer'.format(self.name))
 
     def get_model_parameters(self):
 

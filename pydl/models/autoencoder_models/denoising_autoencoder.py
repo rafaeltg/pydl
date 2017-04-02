@@ -41,15 +41,13 @@ class DenoisingAutoencoder(Autoencoder):
                          l2_reg=l2_reg,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert self.corr_type in ['masking', 'gaussian'], 'Invalid corruption type'
         if self.corr_type == 'gaussian':
-            assert self.corr_param > 0, 'Invalid scale parameter for gaussian corruption'
+            assert self.corr_param > .0, 'Invalid scale parameter for gaussian corruption'
         else:
-            assert 0 <= self.corr_param <= 1.0, 'Invalid keep_prob parameter for masking corruption'
+            assert .0 <= self.corr_param <= 1.0, 'Invalid keep_prob parameter for masking corruption'
 
     def _create_layers(self, input_layer):
 

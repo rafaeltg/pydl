@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import absolute_import
 
 import os
@@ -48,8 +47,6 @@ class Model:
         if self.seed >= 0:
             np.random.seed(self.seed)
 
-        self.logger = get_logger(self.name, self.verbose)
-
         self._model = None
 
         self.validate_params()
@@ -70,15 +67,6 @@ class Model:
         assert self.learning_rate > 0, 'Invalid learning rate'
         if self.opt == 'sgd':
             assert self.momentum > 0, 'Invalid momentum rate'
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['logger']
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        setattr(self, 'logger', get_logger(self.name, self.verbose))
 
     def get_model_parameters(self):
         pass

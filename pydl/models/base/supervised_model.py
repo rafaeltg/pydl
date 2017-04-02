@@ -48,15 +48,11 @@ class SupervisedModel(Model):
         :return: self
         """
 
-        self.logger.info('Building {} model'.format(self.name))
-
         self._model = Sequential(name=self.name)
 
         self._create_layers(input_shape, n_output)
 
         self._model.compile(optimizer=self.get_optimizer(), loss=self.loss_func, metrics=metrics)
-
-        self.logger.info('Done building {} model'.format(self.name))
 
     def _create_layers(self, input_shape, n_output):
         pass
@@ -71,8 +67,6 @@ class SupervisedModel(Model):
         :return: self
         """
 
-        self.logger.info('Starting {} supervised training...'.format(self.name))
-
         x_train = self._check_x_shape(x_train)
         x_valid = self._check_x_shape(x_valid) if x_valid else None
         y_train = self._check_y_shape(y_train)
@@ -81,8 +75,6 @@ class SupervisedModel(Model):
         self.build_model(x_train.shape, y_train.shape[-1])
 
         self._train_step(x_train, y_train, x_valid, y_valid)
-
-        self.logger.info('Done {} supervised training...'.format(self.name))
 
     def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
         self._model.fit(x=x_train,

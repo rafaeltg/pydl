@@ -27,8 +27,6 @@ class StackedAutoencoder(SupervisedModel):
                          dropout=dropout,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert all([isinstance(l, Autoencoder) for l in self.layers]), 'Layers must be Autoencoders'
@@ -64,14 +62,10 @@ class StackedAutoencoder(SupervisedModel):
         :return: self
         """
 
-        self.logger.info('Starting {} unsupervised pretraining...'.format(self.name))
-
         next_train = x_train
         next_valid = x_valid
 
         for i, l in enumerate(self.layers):
-            self.logger.info('Pre-training layer {}'.format(i))
-
             l.fit(next_train, next_valid)
 
             # Encode the data for the next layer
@@ -79,8 +73,6 @@ class StackedAutoencoder(SupervisedModel):
 
             if x_valid:
                 next_valid = l.transform(data=next_valid)
-
-        self.logger.info('Done {} unsupervised pretraining...'.format(self.name))
 
     def fit(self, x_train, y_train, x_valid=None, y_valid=None):
 
@@ -93,5 +85,4 @@ class StackedAutoencoder(SupervisedModel):
         """
 
         self._pretrain(x_train, x_valid)
-
         super().fit(x_train, y_train, x_valid, y_valid)

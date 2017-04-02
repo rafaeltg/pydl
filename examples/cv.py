@@ -34,7 +34,7 @@ def run_cv():
     cv = CV(method='time_series', window=1000, horizon=100, by=100, fixed=False)
 
     print('Running CV!')
-    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], pp=MinMaxScaler(feature_range=(0, 1)))
+    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], pp=MinMaxScaler(feature_range=(0, 1)), max_threads=4)
 
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))

@@ -38,8 +38,6 @@ class RNN(SupervisedModel):
                          out_activation=out_activation,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert self.time_steps > 0, "time_steps must be grater than zero!"

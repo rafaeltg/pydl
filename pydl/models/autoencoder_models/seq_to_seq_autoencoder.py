@@ -35,8 +35,6 @@ class SeqToSeqAutoencoder(Autoencoder):
                          dec_activation=dec_activation,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert self.time_steps > 0
@@ -46,8 +44,6 @@ class SeqToSeqAutoencoder(Autoencoder):
         """ Create the encoding and the decoding layers of the sequence-to-sequence autoencoder.
         :return: self
         """
-
-        self.logger.info('Creating {} layers'.format(self.name))
 
         encode_layer = LSTM(name='encoder',
                             units=self.n_hidden,
@@ -66,8 +62,6 @@ class SeqToSeqAutoencoder(Autoencoder):
         :return: self
         """
 
-        self.logger.info('Creating {} decoder model'.format(self.name))
-
         encoded_input = Input(shape=(self.n_hidden,))
 
         # retrieve the last layer of the autoencoder model
@@ -75,5 +69,3 @@ class SeqToSeqAutoencoder(Autoencoder):
         decoder_layer = self._model.get_layer('decoder')(decoder_layer)
 
         self._decoder = kmodels.Model(inputs=encoded_input, outputs=decoder_layer)
-
-        self.logger.info('Done creating {} decoding layer'.format(self.name))

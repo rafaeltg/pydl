@@ -38,8 +38,6 @@ class VariationalAutoencoder(UnsupervisedModel):
 
         self.n_inputs = None
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def validate_params(self):
         super().validate_params()
         assert self.n_latent > 0
@@ -52,8 +50,6 @@ class VariationalAutoencoder(UnsupervisedModel):
         """ Create the encoding and the decoding layers of the variational autoencoder.
         :return: self
         """
-
-        self.logger.info('Creating {} layers'.format(self.name))
 
         self.n_inputs = K.int_shape(input_layer)[1]
 
@@ -78,21 +74,15 @@ class VariationalAutoencoder(UnsupervisedModel):
         :return: self
         """
 
-        self.logger.info('Creating {} encoder model'.format(self.name))
-
         # This model maps an input to its encoded representation
         self._encoder = kmodels.Model(inputs=self._model.layers[0].inbound_nodes[0].output_tensors,
                                       outputs=self._model.get_layer('z_mean').inbound_nodes[0].output_tensors)
-
-        self.logger.info('Done creating {} encoder model'.format(self.name))
 
     def _create_decoder_model(self):
 
         """ Create the decoding layers of the variational autoencoder.
         :return: self
         """
-
-        self.logger.info('Creating {} decoder model'.format(self.name))
 
         encoded_input = Input(shape=(self.n_latent,))
 
@@ -102,12 +92,10 @@ class VariationalAutoencoder(UnsupervisedModel):
         # create the decoder model
         self._decoder = kmodels.Model(input=encoded_input, output=decoder_layer)
 
-        self.logger.info('Done creating {} decoding layer'.format(self.name))
-
     @staticmethod
     def _sampling(args):
         z_mean, z_log_var = args
-        epsilon = K.random_normal(shape=K.shape(z_log_var), mean=0., std=1.)
+        epsilon = K.random_normal(shape=K.shape(z_log_var), mean=0., stddev=1.)
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
     def _vae_loss(self, x, x_decoded_mean):
@@ -135,4 +123,3 @@ class VariationalAutoencoder(UnsupervisedModel):
 
     def load_model(self, model_path, custom_objs=None):
         super().load_model(model_path=model_path, custom_objs={'_vae_loss': self._vae_loss})
-

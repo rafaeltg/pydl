@@ -31,8 +31,6 @@ class MLP(SupervisedModel):
                          l2_reg=l2_reg,
                          **kwargs)
 
-        self.logger.info('Done {} __init__'.format(__class__.__name__))
-
     def _create_layers(self, input_shape, n_output):
 
         """ Create the network layers
