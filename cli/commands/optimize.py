@@ -26,7 +26,8 @@ def optimize(config, output):
     result = opt_model.fit(x, y, retrain=True, max_threads=max_threads)
 
     print('\n>> Best params =', result['best_model_config'])
-    print('\n>> Best fit =', result['opt_result'][1])
+    print('>> Best fit =', result['opt_result'][1])
 
     # Save best model
+    print('\n>> Saving best model at = %s' % output)
     opt_model.best_model.save_model(output)
