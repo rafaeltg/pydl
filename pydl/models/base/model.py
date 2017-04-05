@@ -89,8 +89,11 @@ class Model:
             'weights': w_file,
         }
 
-        save_json(configs, os.path.join(path, file_name + '.json'))
+        print('> Saving weights in %s' % w_file)
         k_models.save_model(model=self._model, filepath=w_file)
+
+        print('> Saving configuration file in %s' % os.path.join(path, file_name + '.json'))
+        save_json(configs, os.path.join(path, file_name + '.json'))
 
     def load_model(self, model_path, custom_objs=None):
         file_path = model_path

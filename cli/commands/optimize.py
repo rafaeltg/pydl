@@ -29,5 +29,5 @@ def optimize(config, output):
     print('>> Best fit =', result['opt_result'][1])
 
     # Save best model
-    print('\n>> Saving best model at = %s' % output)
+    print('>> Saving best model in %s' % output)
     opt_model.best_model.save_model(output)
