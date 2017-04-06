@@ -74,11 +74,17 @@ class Model:
     def save_model(self, path=None, file_name=None):
         assert path is not None, 'Missing output path!'
 
+        print('> Saving model %s' % self.name)
+
         if not os.path.exists(path):
             os.makedirs(path)
 
+        print('> Saving model %s in %s' % (self.name, path))
+
         if file_name is None:
             file_name = self.name
+
+        print('> Getting configs')
 
         w_file = os.path.join(path, file_name + '.h5')
         configs = {
