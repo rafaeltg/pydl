@@ -114,6 +114,7 @@ class Model:
         return cls(**config)
 
     def get_config(self):
+        print(':: Getting model config')
         p = self.__getstate__()
         return {k: v for k, v in p.items() if not str(k).startswith('_')}
 
