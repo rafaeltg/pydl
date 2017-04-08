@@ -146,17 +146,21 @@ class SupervisedModel(Model):
         return self._model.get_weights()
 
     def get_config(self):
+        print(':: Getting %s config' % self.name)
         conf = super().get_config()
         layers = []
         for l in self.layers:
             if isinstance(l, int):
+                print(':::: Layer = %d' % l)
                 layers.append(l)
             else:
+                print(':::: Layer = %s' % l.__class__.__name__)
                 layers.append({
                     'class_name': l.__class__.__name__,
                     'config': l.get_config(),
                 })
         conf['layers'] = layers
+        print(':: Done getting %s config' % self.name)
         return conf
 
     @classmethod
