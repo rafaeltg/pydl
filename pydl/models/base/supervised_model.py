@@ -149,6 +149,7 @@ class SupervisedModel(Model):
         print(':: Getting %s config' % self.name)
         conf = super().get_config()
         layers = []
+        print(':: Layers %d' % len(self.layers))
         for l in self.layers:
             if isinstance(l, int):
                 print(':::: Layer = %d' % l)
