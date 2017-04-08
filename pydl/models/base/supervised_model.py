@@ -109,7 +109,7 @@ class SupervisedModel(Model):
         if self.loss_func != 'binary_crossentropy' or self.loss_func != 'categorical_crossentropy':
             raise TypeError('Model is not configured to predict classes probabilities. Please, use \
                             "binary_crossentropy" or "categorical_crossentropy" as loss function!')
-
+        
         x = self._check_x_shape(x)
 
         probs = self._model.predict_proba(x, batch_size=self.batch_size, verbose=self.verbose)
