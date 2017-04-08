@@ -116,7 +116,10 @@ class Model:
     def get_config(self):
         print(':: Getting model config')
         p = self.__getstate__()
-        return {k: v for k, v in p.items() if not str(k).startswith('_')}
+        print(':: Model state: {}'.format(p))
+        config = dict([(k, v) for k, v in p.items() if not str(k).startswith('_')])
+        print(':: Model config: {}'.format(config))
+        return config
 
     def get_loss_func(self):
         return self.loss_func if isinstance(self.loss_func, str) else self.loss_func.__name__
