@@ -49,7 +49,7 @@ class StackedAutoencoder(SupervisedModel):
                                   bias_regularizer=l1_l2(l.l1_reg, l.l2_reg)))
 
             if self.dropout[i] > 0:
-                self._model.add(Dropout(p=self.dropout[i]))
+                self._model.add(Dropout(rate=self.dropout[i]))
 
         # Output layer
         self._model.add(Dense(units=n_output, activation=self.out_activation))
