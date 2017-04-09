@@ -115,9 +115,9 @@ class Model:
 
     def get_config(self):
         print(':: Getting model config')
-        conf = {k:v for k, v in self.__dict__.items() if not k.startswith('_') and not callable(v)}
+        conf = {k: v for k, v in self.__dict__.items() if not k.startswith('_') and not callable(v)}
         print(':: Model config: {}'.format(conf))
-        return config
+        return conf
 
     def get_loss_func(self):
         return self.loss_func if isinstance(self.loss_func, str) else self.loss_func.__name__
