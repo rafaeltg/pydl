@@ -82,8 +82,8 @@ class RNN(SupervisedModel):
     def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
 
         if self.stateful:
-            for i in range(self.num_epochs):
-                print('>> Epoch', i, '/', self.num_epochs)
+            for i in range(self.nb_epochs):
+                print('>> Epoch', i, '/', self.nb_epochs)
 
                 self._model.fit(x=x_train,
                                 y=y_train,

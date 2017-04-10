@@ -23,7 +23,7 @@ def run_vae():
     vae = VariationalAutoencoder(
         n_latent=n_latent,
         n_hidden=n_hidden,
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')

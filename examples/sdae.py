@@ -38,7 +38,7 @@ def run_sdae():
                                      corr_type='masking',
                                      corr_param=0.1)
         ],
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')

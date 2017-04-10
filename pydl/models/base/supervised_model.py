@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import numpy as np
 from keras.models import Sequential
 from keras.utils.np_utils import to_categorical
+from keras.callbacks import EarlyStopping
 from .model import Model
 from ..utils import *
 
@@ -13,14 +14,18 @@ class SupervisedModel(Model):
     Class representing an abstract Supervised Model
     """
 
-    def __init__(self,
-                 layers=list([]),
-                 activation='relu',
-                 out_activation='linear',
-                 dropout=0,
-                 l1_reg=0,
-                 l2_reg=0,
-                 **kwargs):
+    def __init__(self, layers=list([]), activation='relu', out_activation='linear', dropout=0,
+                 l1_reg=0, l2_reg=0, **kwargs):
+
+        """
+        :param layers: 
+        :param activation: 
+        :param out_activation: 
+        :param dropout: 
+        :param l1_reg: 
+        :param l2_reg: 
+        :param kwargs: Model's parameters
+        """
 
         self.layers = layers
         self.activation = expand_arg(self.layers, activation)
@@ -77,13 +82,21 @@ class SupervisedModel(Model):
         self._train_step(x_train, y_train, x_valid, y_valid)
 
     def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
+
+        if self.early_stopping:
+            cbs = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)]
+        else:
+            cbs = None
+
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
-                        epochs=self.num_epochs,
+                        epochs=self.nb_epochs,
                         verbose=self.verbose,
                         shuffle=False,
-                        validation_data=(x_valid, y_valid) if x_valid and y_valid else None)
+                        validation_data=(x_valid, y_valid) if x_valid and y_valid else None,
+                        validation_split=self.val_split,
+                        callbacks=cbs)
 
     def predict(self, x):
 

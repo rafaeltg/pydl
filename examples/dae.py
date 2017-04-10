@@ -22,7 +22,7 @@ def run_dae():
     dae = DenoisingAutoencoder(
         n_hidden=hidden_size,
         corr_type='gaussian',
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')

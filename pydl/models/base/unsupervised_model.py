@@ -10,13 +10,17 @@ class UnsupervisedModel(Model):
     """ Class representing an abstract Unsupervised Model.
     """
 
-    def __init__(self,
-                 n_hidden=None,
-                 enc_activation='relu',
-                 dec_activation='linear',
-                 l1_reg=0.0,
-                 l2_reg=0.0,
-                 **kwargs):
+    def __init__(self, n_hidden=None, enc_activation='relu', dec_activation='linear',
+                 l1_reg=0.0, l2_reg=0.0, **kwargs):
+
+        """
+        :param n_hidden: 
+        :param enc_activation: 
+        :param dec_activation: 
+        :param l1_reg: 
+        :param l2_reg: 
+        :param kwargs: Model parameters
+        """
 
         self.n_hidden = n_hidden
         self.enc_activation = enc_activation
@@ -67,7 +71,7 @@ class UnsupervisedModel(Model):
 
         self._model.fit(x=x_train,
                         y=x_train,
-                        epochs=self.num_epochs,
+                        epochs=self.nb_epochs,
                         batch_size=self.batch_size,
                         shuffle=False,
                         validation_data=(x_valid, x_valid) if x_valid else None,

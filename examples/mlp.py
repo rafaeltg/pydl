@@ -34,7 +34,10 @@ def run_mlp():
               dropout=0.1,
               l1_reg=0.00001,
               l2_reg=0.00001,
-              num_epochs=200)
+              nb_epochs=400,
+              early_stopping=True,
+              patient=2,
+              min_delta=1e-4)
 
     print('Training')
     mlp.fit(x_train=x_train, y_train=y_train)

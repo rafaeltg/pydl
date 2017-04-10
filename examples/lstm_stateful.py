@@ -37,7 +37,7 @@ def run_lstm_stateful():
                time_steps=1,
                cell_type='lstm',
                dropout=[0.1, 0.2],
-               num_epochs=10,
+               nb_epochs=10,
                batch_size=1)
 
     print('Training')

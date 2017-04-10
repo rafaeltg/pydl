@@ -15,37 +15,49 @@ class Model:
     Class representing an abstract Model.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, name='', loss_func='mse', nb_epochs=100, batch_size=32, opt='adam',
+                 learning_rate=0.001, momentum=0.01, early_stopping=False, patient=2,
+                 min_delta=1e-4, val_split=0.1, seed=-1, verbose=0):
 
         """
         Available parameters:
 
-        :param name: Name of the model, used as filename.
+        :param name: Name of the model.
         :param loss_func:
-        :param num_epochs:
+        :param nb_epochs:
         :param batch_size:
         :param opt:
         :param learning_rate:
         :param momentum:
+        :param early_stopping: 
+        :param patient: number of epochs with no improvement after which training will be stopped.
+        :param min_delta:
+        :param val_split: 
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         :param verbose: Level of verbosity. 0 - silent, 1 - print.
         """
 
-        self.name = kwargs.get('name', self.__class__.__name__)
-        self.loss_func = kwargs.get('loss_func', 'mse')
-        self.num_epochs = int(kwargs.get('num_epochs', 100))
-        self.batch_size = int(kwargs.get('batch_size', 32))
-        self.opt = str(kwargs.get('opt', 'adam'))
-        self.learning_rate = float(kwargs.get('learning_rate', 0.001))
+        self.name = name if name != '' else self.__class__.__name__
+        self.loss_func = loss_func
+        self.nb_epochs = nb_epochs
+        self.batch_size = batch_size
+        self.opt = opt
+        self.learning_rate = learning_rate
 
         if self.opt == 'sgd':
-            self.momentum = float(kwargs.get('momentum', 0.01))
+            self.momentum = momentum
 
-        self.seed = int(kwargs.get('seed', -1))
-        self.verbose = int(kwargs.get('verbose', 0))
+        # Early stopping callback
+        self.early_stopping = early_stopping
+        self.patient = patient
+        self.min_delta = min_delta
+        self.val_split = val_split
 
+        self.seed = seed
         if self.seed >= 0:
             np.random.seed(self.seed)
+
+        self.verbose = verbose
 
         self._model = None
 
@@ -60,13 +72,18 @@ class Model:
         self.validate_params()
 
     def validate_params(self):
-        assert self.num_epochs > 0, 'Invalid number of training epochs'
+        assert self.nb_epochs > 0, 'Invalid number of training epochs'
         assert self.batch_size > 0, 'Invalid batch size'
         assert self.loss_func in valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
         assert self.opt in valid_opt_functions, 'Invalid optimizer'
         assert self.learning_rate > 0, 'Invalid learning rate'
         if self.opt == 'sgd':
             assert self.momentum > 0, 'Invalid momentum rate'
+
+        assert isinstance(self.early_stopping, bool), 'Invalid early_stopping value'
+        if self.early_stopping:
+            assert self.min_delta > 0, 'Invalid min_delta value'
+            assert self.patient > 0, 'Invalid patient value'
 
     def get_model_parameters(self):
         pass

@@ -21,7 +21,7 @@ def run_deep_ae():
     hidden_size = 5
     deep_ae = DeepAutoencoder(
         n_hidden=[15, 10, hidden_size],
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')

@@ -24,7 +24,7 @@ def run_seq2seq_ae():
     hidden_size = 15
     s2s_ae = SeqToSeqAutoencoder(n_hidden=hidden_size,
                                  time_steps=time_steps,
-                                 num_epochs=100)
+                                 nb_epochs=100)
 
     print('Training')
     s2s_ae.fit(x_train=x_train)

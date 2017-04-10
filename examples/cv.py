@@ -19,7 +19,7 @@ def run_cv():
     print('Creating MLP')
     mlp = MLP(layers=[32, 16],
               dropout=0.1,
-              num_epochs=100)
+              nb_epochs=100)
 
     print('Creating TrainTestSplitCV method')
     cv = CV(method='split', test_size=0.2)

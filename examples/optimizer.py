@@ -27,7 +27,7 @@ def run_optimizer():
                     'layers': [hp_int(10, 512)],
                     'dropout': hp_float(0, 0.5),
                     'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
-                    'num_epochs': hp_int(100, 200),
+                    'nb_epochs': hp_int(100, 200),
                     'batch_size': hp_int(32, 512),
                     'opt': hp_choice(['adam', 'rmsprop', 'adadelta']),
                     'learning_rate': hp_float(0.0001, 0.01)
@@ -37,7 +37,7 @@ def run_optimizer():
                     'layers': [hp_int(10, 512), hp_int(10, 512)],
                     'dropout': [hp_float(0, 0.5), hp_float(0, 0.5)],
                     'activation': hp_choice(['relu', 'tanh', 'sigmoid']),
-                    'num_epochs': hp_int(100, 200),
+                    'nb_epochs': hp_int(100, 200),
                     'batch_size': hp_int(32, 512),
                     'opt': hp_choice(['adam', 'rmsprop', 'adadelta']),
                     'learning_rate': hp_float(0.0001, 0.01)

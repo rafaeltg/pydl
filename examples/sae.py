@@ -31,7 +31,7 @@ def run_sae():
     sae = StackedAutoencoder(
         layers=[Autoencoder(n_hidden=32, enc_act_func='relu'),
                 Autoencoder(n_hidden=16, enc_act_func='relu')],
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')

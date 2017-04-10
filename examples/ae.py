@@ -21,7 +21,7 @@ def run_ae():
     hidden_size = 15
     ae = Autoencoder(
         n_hidden=hidden_size,
-        num_epochs=100
+        nb_epochs=100
     )
 
     print('Training')
