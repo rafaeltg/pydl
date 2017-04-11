@@ -79,7 +79,7 @@ class RNN(SupervisedModel):
             x = np.reshape(x, (x.shape[0], self.time_steps, x.shape[1]))
         return x
 
-    def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
+    def _train_step(self, x_train, y_train, valid_data=None, valid_split=0.):
 
         if self.stateful:
             for i in range(self.nb_epochs):
@@ -88,10 +88,10 @@ class RNN(SupervisedModel):
                 self._model.fit(x=x_train,
                                 y=y_train,
                                 batch_size=self.batch_size,
-                                verbose=self.verbose,
                                 nb_epoch=1,
                                 shuffle=False,
-                                validation_data=(x_valid, y_valid) if x_valid and y_valid else None)
+                                validation_data=valid_data,
+                                verbose=self.verbose)
                 self._model.reset_states()
         else:
-            super()._train_step(x_train, y_train, x_valid, y_valid)
+            super()._train_step(x_train, y_train, valid_data, valid_split)

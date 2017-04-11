@@ -1,7 +1,6 @@
 import keras.backend as K
 import keras.models as kmodels
 from keras.layers import Input, LSTM, RepeatVector
-
 from .autoencoder import Autoencoder
 
 

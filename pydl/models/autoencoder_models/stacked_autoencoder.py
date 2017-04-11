@@ -74,13 +74,14 @@ class StackedAutoencoder(SupervisedModel):
             if x_valid:
                 next_valid = l.transform(data=next_valid)
 
-    def fit(self, x_train, y_train, x_valid=None, y_valid=None):
+    def fit(self, x_train, y_train, x_valid=None, y_valid=None, valid_split=0.):
 
         """
         :param x_train:
         :param y_train:
         :param x_valid:
         :param y_valid:
+        :param valid_split:
         :return: self
         """
 

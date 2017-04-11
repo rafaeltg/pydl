@@ -2,6 +2,7 @@ import multiprocessing as mp
 import numpy as np
 from .methods import get_cv_method
 from .scorer import get_scorer
+from ..models.utils import model_from_config
 
 
 class CV(object):
@@ -25,10 +26,12 @@ class CV(object):
             # By default uses the model loss function as scoring function
             scorers_fn = dict([(model.get_loss_func(), get_scorer(model.get_loss_func()))])
 
+        model_cfg = model.to_json()
+
         args = []
         if y is not None:
             for train, test in self.cv.split(x, y):
-                args.append((model.copy(),
+                args.append((model_cfg,
                              x[train],
                              y[train],
                              x[test],
@@ -39,7 +42,7 @@ class CV(object):
 
         else:
             for train, test in self.cv.split(x):
-                args.append((model.copy(),
+                args.append((model_cfg,
                              x[train],
                              x[test],
                              scorers_fn))
@@ -58,15 +61,18 @@ class CV(object):
         return cv_results
 
     @staticmethod
-    def _unsupervised_cv(model, x_train, x_test, scorers):
+    def _unsupervised_cv(model_cfg, x_train, x_test, scorers):
+        model = model_from_config(model_cfg)
         model.fit(x_train=x_train)
         cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers.items()])
         return cv_result
 
     @staticmethod
-    def _supervised_cv(model, x_train, y_train, x_test, y_test, scorers, pp=None):
+    def _supervised_cv(model_cfg, x_train, y_train, x_test, y_test, scorers, pp):
+        model = model_from_config(model_cfg)
+
         # Data pre-processing
-        if pp:
+        if pp is not None:
             x_train = pp.fit_transform(x_train)
             x_test = pp.transform(x_test)
 
@@ -90,3 +96,5 @@ class CV(object):
             return scorer
         elif hasattr(scorer, '__call__'):
             return scorer.__name__
+
+

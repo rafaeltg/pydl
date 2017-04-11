@@ -1,5 +1,4 @@
 from keras.layers.noise import GaussianDropout, GaussianNoise
-
 from .autoencoder import Autoencoder
 
 

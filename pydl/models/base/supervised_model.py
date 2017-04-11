@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import numpy as np
 from keras.models import Sequential
 from keras.utils.np_utils import to_categorical
-from keras.callbacks import EarlyStopping
 from .model import Model
 from ..utils import *
 
@@ -62,41 +61,46 @@ class SupervisedModel(Model):
     def _create_layers(self, input_shape, n_output):
         pass
 
-    def fit(self, x_train, y_train, x_valid=None, y_valid=None):
+    def fit(self, x_train, y_train, x_valid=None, y_valid=None, valid_split=0.):
 
         """ Fit the model to the data.
         :param x_train: Training data. shape(n_samples, n_features)
         :param y_train: Training labels. shape(n_samples, n_classes)
         :param x_valid:
         :param y_valid:
+        :param valid_split:
         :return: self
         """
 
         x_train = self._check_x_shape(x_train)
-        x_valid = self._check_x_shape(x_valid) if x_valid else None
         y_train = self._check_y_shape(y_train)
-        y_valid = self._check_y_shape(y_valid) if y_valid else None
 
         self.build_model(x_train.shape, y_train.shape[-1])
 
-        self._train_step(x_train, y_train, x_valid, y_valid)
-
-    def _train_step(self, x_train, y_train, x_valid=None, y_valid=None):
-
-        if self.early_stopping:
-            cbs = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)]
+        if x_valid is not None and y_valid is not None:
+            x_valid = self._check_x_shape(x_valid)
+            y_valid = self._check_y_shape(y_valid)
+            valid_data = (x_valid, y_valid)
         else:
-            cbs = None
+            valid_data = None
+
+            # By default use 10% of training data for testing
+            if self.early_stopping and valid_split == 0.:
+                valid_split = 0.1
+
+        self._train_step(x_train, y_train, valid_data, valid_split)
+
+    def _train_step(self, x_train, y_train, valid_data=None, valid_split=0.):
 
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
                         epochs=self.nb_epochs,
-                        verbose=self.verbose,
                         shuffle=False,
-                        validation_data=(x_valid, y_valid) if x_valid and y_valid else None,
-                        validation_split=self.val_split,
-                        callbacks=cbs)
+                        validation_data=valid_data,
+                        validation_split=valid_split,
+                        callbacks=self._callbacks,
+                        verbose=self.verbose)
 
     def predict(self, x):
 
@@ -159,22 +163,17 @@ class SupervisedModel(Model):
         return self._model.get_weights()
 
     def get_config(self):
-        print(':: Getting %s config' % self.name)
         conf = super().get_config()
         layers = []
-        print(':: Layers %d' % len(self.layers))
         for l in self.layers:
             if isinstance(l, int):
-                print(':::: Layer = %d' % l)
                 layers.append(l)
             else:
-                print(':::: Layer = %s' % l.__class__.__name__)
                 layers.append({
                     'class_name': l.__class__.__name__,
                     'config': l.get_config(),
                 })
         conf['layers'] = layers
-        print(':: Done getting %s config' % self.name)
         return conf
 
     @classmethod

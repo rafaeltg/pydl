@@ -59,22 +59,34 @@ class UnsupervisedModel(Model):
     def _create_decoder_model(self):
         pass
 
-    def fit(self, x_train, x_valid=None):
+    def fit(self, x_train, x_valid=None, valid_split=0.):
 
         """
         :param x_train: Training data. shape(n_samples, n_features)
         :param x_valid: Validation data. shape(n_samples, n_features)
+        :param valid_split:
         :return:
         """
 
         self.build_model(x_train.shape)
+
+        if x_valid is not None:
+            valid_data = (x_valid, x_valid)
+        else:
+            valid_data = None
+
+            # By default use 10% of training data for testing
+            if self.early_stopping and valid_split == 0.:
+                valid_split = 0.1
 
         self._model.fit(x=x_train,
                         y=x_train,
                         epochs=self.nb_epochs,
                         batch_size=self.batch_size,
                         shuffle=False,
-                        validation_data=(x_valid, x_valid) if x_valid else None,
+                        validation_data=valid_data,
+                        validation_split=valid_split,
+                        callbacks=self._callbacks,
                         verbose=self.verbose)
 
     def transform(self, data):

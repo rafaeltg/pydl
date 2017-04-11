@@ -4,6 +4,7 @@ from sklearn import metrics
 
 mse = metrics.mean_squared_error
 mae = metrics.mean_absolute_error
+r2_score = metrics.r2_score
 
 
 def rmse(y_true, y_pred):
@@ -29,7 +30,7 @@ available_metrics = {
     'mse': mse,
     'mae': mae,
     'mape': mape,
-    'r2_score': metrics.r2_score,
+    'r2_score': r2_score,
     'variance': metrics.explained_variance_score,
     'accuracy': metrics.accuracy_score,
     'log_loss': metrics.log_loss

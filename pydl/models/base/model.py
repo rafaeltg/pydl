@@ -5,7 +5,7 @@ import inspect
 import numpy as np
 import keras.models as k_models
 import keras.optimizers as k_opt
-
+from keras.callbacks import EarlyStopping
 from ..utils import *
 
 
@@ -17,7 +17,7 @@ class Model:
 
     def __init__(self, name='', loss_func='mse', nb_epochs=100, batch_size=32, opt='adam',
                  learning_rate=0.001, momentum=0.01, early_stopping=False, patient=2,
-                 min_delta=1e-4, val_split=0.1, seed=-1, verbose=0):
+                 min_delta=1e-4, seed=-1, verbose=0):
 
         """
         Available parameters:
@@ -32,7 +32,6 @@ class Model:
         :param early_stopping: 
         :param patient: number of epochs with no improvement after which training will be stopped.
         :param min_delta:
-        :param val_split: 
         :param seed: positive integer for seeding random generators. Ignored if < 0.
         :param verbose: Level of verbosity. 0 - silent, 1 - print.
         """
@@ -51,7 +50,7 @@ class Model:
         self.early_stopping = early_stopping
         self.patient = patient
         self.min_delta = min_delta
-        self.val_split = val_split
+        self._callbacks = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)] if self.early_stopping else None
 
         self.seed = seed
         if self.seed >= 0:
@@ -105,11 +104,8 @@ class Model:
 
         w_file = os.path.join(path, file_name + '.h5')
         configs = {
-            'model': {
-                'class_name': self.__class__.__name__,
-                'config': self.get_config()
-            },
-            'weights': w_file,
+            'model': self.to_json(),
+            'weights': w_file
         }
 
         print('> Saving weights in %s' % w_file)
@@ -131,9 +127,7 @@ class Model:
         return cls(**config)
 
     def get_config(self):
-        print(':: Getting model config')
         conf = {k: v for k, v in self.__dict__.items() if not k.startswith('_') and not callable(v)}
-        print(':: Model config: {}'.format(conf))
         return conf
 
     def get_loss_func(self):
@@ -158,8 +152,7 @@ class Model:
 
         raise Exception('Invalid optimization function - %s' % self.opt)
 
-    @staticmethod
-    def get_func_params(f):
+    def get_func_params(self, f):
         p = inspect.getcallargs(f)
         if 'self' in p:
             del p['self']
@@ -169,3 +162,9 @@ class Model:
         c = self.__new__(self.__class__)
         c.__dict__.update(self.__dict__.copy())
         return c
+
+    def to_json(self):
+        return {
+            'class_name': self.__class__.__name__,
+            'config': self.get_config()
+        }
