@@ -7,6 +7,7 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 
 def create_dataset(ts, look_back=1, time_ahead=1):
     """
+    Time series to supervised data set (X, Y)
     :param ts:
     :param look_back:
     :param time_ahead:
@@ -49,7 +50,7 @@ def get_stock_historical_data(symbol, start, end, ascending=True, usecols=None):
 def get_return(x, periods=1):
     if not isinstance(x, pd.DataFrame):
         x = pd.DataFrame(x)
-    return x.pct_change(periods) + 1
+    return x.pct_change(periods)[periods:]
 
 
 def get_log_return(x, periods=1):
