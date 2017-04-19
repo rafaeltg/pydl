@@ -23,11 +23,7 @@ def optimize(config, output):
     max_threads = opt_config['max_threads'] if 'max_threads' in opt_config else 1
 
     opt_model = HyperOptModel(hp_space=space, fit_fn=obj_fn, opt=opt)
-    result = opt_model.fit(x, y, retrain=True, max_threads=max_threads)
-
-    print('\n>> Best params =', result['best_model_config'])
-    print('>> Best fit =', result['opt_result'][1])
+    opt_model.fit(x, y, retrain=True, max_threads=max_threads)
 
     # Save best model
-    print('>> Saving best model in %s' % output)
     opt_model.best_model.save_model(output)
