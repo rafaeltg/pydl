@@ -13,7 +13,7 @@ def run_cv():
 
     print('Creating dataset')
     # Create time series data
-    ts = mackey_glass(sample_len=2000)
+    ts = mackey_glass(sample_len=3000)
     x, y = create_dataset(ts, look_back=10)
 
     print('Creating MLP')
@@ -34,7 +34,7 @@ def run_cv():
     cv = CV(method='time_series', window=1000, horizon=100, by=100, fixed=False)
 
     print('Running CV!')
-    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], pp=MinMaxScaler(feature_range=(0, 1)), max_threads=4)
+    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], max_threads=4)
 
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))

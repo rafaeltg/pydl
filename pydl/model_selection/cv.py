@@ -5,6 +5,26 @@ from .scorer import get_scorer
 from ..models.utils import model_from_config
 
 
+def _supervised_cv(model_cfg, x_train, y_train, x_test, y_test, scorers, pp):
+    model = model_from_config(model_cfg)
+
+    # Data pre-processing
+    if pp is not None:
+        x_train = pp.fit_transform(x_train)
+        x_test = pp.transform(x_test)
+
+    model.fit(x_train, y_train)
+    cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers.items()])
+    return cv_result
+
+
+def _unsupervised_cv(model_cfg, x_train, x_test, scorers):
+    model = model_from_config(model_cfg)
+    model.fit(x_train=x_train)
+    cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers.items()])
+    return cv_result
+
+
 class CV(object):
 
     """
@@ -38,7 +58,8 @@ class CV(object):
                              y[test],
                              scorers_fn,
                              pp))
-            cv_results = self._do_cv(self._supervised_cv, args, max_threads)
+            del y
+            cv_fn = _supervised_cv
 
         else:
             for train, test in self.cv.split(x):
@@ -46,7 +67,10 @@ class CV(object):
                              x[train],
                              x[test],
                              scorers_fn))
-            cv_results = self._do_cv(self._unsupervised_cv, args, max_threads)
+            cv_fn = _unsupervised_cv
+
+        del x
+        cv_results = self._do_cv(cv_fn, args, max_threads)
 
         return self._consolidate_cv_scores(cv_results)
 
@@ -60,26 +84,6 @@ class CV(object):
                 cv_results = pool.starmap(func=cv_fn, iterable=args, chunksize=len(args)//max_threads)
 
         return cv_results
-
-    @staticmethod
-    def _unsupervised_cv(model_cfg, x_train, x_test, scorers):
-        model = model_from_config(model_cfg)
-        model.fit(x_train=x_train)
-        cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers.items()])
-        return cv_result
-
-    @staticmethod
-    def _supervised_cv(model_cfg, x_train, y_train, x_test, y_test, scorers, pp):
-        model = model_from_config(model_cfg)
-
-        # Data pre-processing
-        if pp is not None:
-            x_train = pp.fit_transform(x_train)
-            x_test = pp.transform(x_test)
-
-        model.fit(x_train, y_train)
-        cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers.items()])
-        return cv_result
 
     def _consolidate_cv_scores(self, cv_results):
         cv_scores = {}
