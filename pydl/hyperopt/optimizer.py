@@ -30,6 +30,7 @@ class CMAESOptimizer:
         if max_threads == 1:
             es.optimize(objective_fct=obj_func, args=args)
         else:
+            max_threads = min(self.pop_size, max_threads)
             while not es.stop():
                 X = es.ask()
                 

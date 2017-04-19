@@ -55,8 +55,9 @@ class CV(object):
             cv_results = [cv_fn(*fn_args) for fn_args in args]
 
         else:
+            max_threads = min(max_threads, len(args))
             with mp.Pool(max_threads) as pool:
-                cv_results = pool.starmap(func=cv_fn, iterable=args)
+                cv_results = pool.starmap(func=cv_fn, iterable=args, chunksize=len(args)//max_threads)
 
         return cv_results
 
