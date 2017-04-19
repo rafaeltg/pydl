@@ -21,9 +21,10 @@ def optimize(config, output):
     opt = get_optimizer(opt_config)
     obj_fn = get_obj_fn(opt_config)
     max_threads = opt_config['max_threads'] if 'max_threads' in opt_config else 1
+    retrain = opt_config['retrain'] if 'retrain' in opt_config else False
 
     opt_model = HyperOptModel(hp_space=space, fit_fn=obj_fn, opt=opt)
-    opt_model.fit(x, y, retrain=True, max_threads=max_threads)
+    opt_model.fit(x, y, retrain=retrain, max_threads=max_threads)
 
     # Save best model
     opt_model.best_model.save_model(output)
