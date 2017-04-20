@@ -4,7 +4,7 @@ import multiprocessing as mp
 
 class CMAESOptimizer:
 
-    def __init__(self, pop_size=10, sigma0=0.5, max_iter=50, verbose=-9, ):
+    def __init__(self, pop_size=10, sigma0=0.5, max_iter=50, verbose=-9):
         assert pop_size > 0, 'pop_size must be greater than zero'
         assert sigma0 > 0 if isinstance(sigma0, float) else True, 'sigma0 must be greater than zero'
         assert max_iter > 0, 'max_iter must be greater than zero'
@@ -13,6 +13,7 @@ class CMAESOptimizer:
         self.max_iter = max_iter
         self.sigma0 = sigma0
         self.verbose = verbose
+        self.child_initializer = None
 
     def optimize(self, x0, obj_func, args=(), max_threads=1):
         assert max_threads > 0, 'Invalid number of threads!'
@@ -34,11 +35,9 @@ class CMAESOptimizer:
             while not es.stop():
                 X = es.ask()
                 
-                with mp.Pool(max_threads) as pool:
-                    f_values = pool.starmap(func=obj_func,
-                                            iterable=[(_x, *args) for _x in X],
-                                            chunksize=es.popsize//max_threads)
-                
+                with mp.Pool(max_threads, initializer=self.child_initializer, initargs=args) as pool:
+                    f_values = pool.map_async(obj_func, X, chunksize=es.popsize//max_threads).get()
+
                 es.tell(X, f_values)
                 es.disp()
                 es.logger.add()

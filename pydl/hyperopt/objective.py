@@ -16,7 +16,7 @@ class ObjectiveFunction:
         return self._obj_fn
 
     @staticmethod
-    def _obj_fn(x, hp_space, data_x, data_y, *args):
+    def _obj_fn(x):
         pass
 
 
@@ -27,9 +27,16 @@ class CVObjectiveFunction(ObjectiveFunction):
         self._args += tuple([CV(method=cv_method, **kwargs), scoring])
 
     @staticmethod
-    def _obj_fn(x, hp_space, data_x, data_y, *args):
-        cv = args[0]
-        scoring = args[1]
+    def child_initialize(_hp_space, _x, _y, _cv, _scoring):
+        global hp_space, data_x, data_y, cv, scoring
+        hp_space = _hp_space
+        data_x = _x
+        data_y = _y
+        cv = _cv
+        scoring = _scoring
+
+    @staticmethod
+    def _obj_fn(x):
         m = load_model(hp_space.get_value(x))
         res = cv.run(model=m, x=data_x, y=data_y, scoring=scoring, max_threads=1)
         s = cv.get_scorer_name(scoring) if scoring is not None else m.get_loss_func()

@@ -42,6 +42,10 @@ class HyperOptModel(object):
     def fit(self, x, y=None, retrain=False, max_threads=1):
 
         args = (self._hp_space, x, y) + self._fit_fn.args
+
+        if max_threads > 1:
+            self._opt.child_initializer = self._fit_fn.child_initialize
+
         res = self._opt.optimize(x0=[0]*self.hp_space.size,
                                  obj_func=self._fit_fn.obj_fn,
                                  args=args,

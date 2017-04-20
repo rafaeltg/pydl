@@ -25,16 +25,16 @@ def run_cv():
     cv = CV(method='split', test_size=0.2)
 
     print('Running CV!')
-    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'])
+    #res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'])
 
     print('CV results:')
-    print(json.dumps(res, indent=4, separators=(',', ': ')))
+    #print(json.dumps(res, indent=4, separators=(',', ': ')))
 
     print('\nCreating TimeSeriesCV method')
     cv = CV(method='time_series', window=1000, horizon=100, by=100, fixed=False)
 
     print('Running CV!')
-    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], max_threads=4)
+    res = cv.run(model=mlp, x=x, y=y, scoring=['mape', 'rmse'], pp=MinMaxScaler(), max_threads=4)
 
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))
