@@ -24,5 +24,4 @@ def cv(config, output):
     results = CV(method=method, **params).run(model=m, x=x, y=y, scoring=scoring, max_threads=max_threads)
 
     # Save results into a JSON file
-    print('\n>> Saving cv results as = %s' % os.path.join(output, m.name+'_cv.json'))
     save_json(results, os.path.join(output, m.name+'_cv.json'))
