@@ -18,5 +18,4 @@ def predict(config, output):
     preds = m.predict(x)
 
     # Save predictions as .npy file
-    print('\n>> Saving predictions at = %s' % os.path.join(output, m.name+'_preds.npy'))
     np.save(os.path.join(output, m.name+'_preds.npy'), preds)
