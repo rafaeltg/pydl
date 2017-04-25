@@ -1,56 +1,10 @@
-import multiprocessing as mp
+import gc
 import numpy as np
+import multiprocessing as mp
 from .methods import get_cv_method
 from .scorer import get_scorer
 from ..models.utils import model_from_config
-
-
-def _supervised_cv(x_train, y_train, x_test, y_test, model_config, scorers, pp):
-    model = model_from_config(model_config)
-
-    # Data pre-processing
-    if pp is not None:
-        x_train = pp.fit_transform(x_train)
-        x_test = pp.transform(x_test)
-
-    model.fit(x_train, y_train)
-    cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers.items()])
-    return cv_result
-
-
-def _supervised_cv_parallel(train_idxs, test_idxs):
-    x_train, y_train = x[train_idxs], y[train_idxs]
-    x_test, y_test   = x[test_idxs], y[test_idxs]
-
-    model = model_from_config(model_cfg)
-
-    # Data pre-processing
-    if pp is not None:
-        x_train = pp.fit_transform(x_train)
-        x_test = pp.transform(x_test)
-
-    model.fit(x_train, y_train)
-    cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers_fn.items()])
-    return cv_result
-
-
-def _unsupervised_cv(train_idxs, test_idxs):
-    x_train = x[train_idxs]
-    x_test = x[test_idxs]
-
-    model = model_from_config(model_cfg)
-    model.fit(x_train=x_train)
-    cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers_fn.items()])
-    return cv_result
-
-
-def _child_initialize(_model_cfg, _x, _y, _scorers_fn, _pp):
-    global model_cfg, x, y, scorers_fn, pp
-    model_cfg = _model_cfg
-    x = _x
-    y = _y
-    scorers_fn = _scorers_fn
-    pp = _pp
+from ..utils import dump_np_data_set, free_mmap_data_set
 
 
 class CV(object):
@@ -62,7 +16,7 @@ class CV(object):
     def __init__(self, method, **kwargs):
         self.cv = get_cv_method(method, **kwargs)
 
-    def run(self, model, x, y=None, scoring=None, pp=None, max_threads=1):
+    def run(self, model, x, y=None, scoring=None, max_threads=1, in_memory=False):
 
         # get scorers
         if scoring is not None:
@@ -74,24 +28,51 @@ class CV(object):
             # By default uses the model loss function as scoring function
             scorers_fn = dict([(model.get_loss_func(), get_scorer(model.get_loss_func()))])
 
-        model_cfg = model.to_json()
-        args = [(train, test) for train, test in self.cv.split(x, y)]
+        try:
+            model_cfg = model.to_json()
 
-        if max_threads == 1:
+            if in_memory:
+                x, y = dump_np_data_set(x, y)
+                gc.collect()
+
             if y is None:
-                cv_results = [_unsupervised_cv(x[arg[0]], x[arg[1]], model_cfg, scorers_fn) for arg in args]
+                args = [(model_cfg, train, test, x, scorers_fn) for train, test in self.cv.split(x, y)]
+                cv_fn = self._do_unsupervised_cv
             else:
-                cv_results = [_supervised_cv(x[arg[0]], y[arg[0]], x[arg[1]], y[arg[1]], model_cfg, scorers_fn, pp) for arg in args]
+                args = [(model_cfg, train, test, x, y, scorers_fn) for train, test in self.cv.split(x, y)]
+                cv_fn = self._do_supervised_cv
 
-        else:
-            cv_fn = _supervised_cv_parallel if y is not None else _unsupervised_cv
-            max_threads = min(max_threads, len(args))
-            with mp.Pool(max_threads, initializer=_child_initialize, initargs=(model_cfg, x, y, scorers_fn, pp)) as pool:
-                cv_results = pool.starmap(func=cv_fn, iterable=args, chunksize=len(args)//max_threads)
+            if max_threads == 1:
+                cv_results = [cv_fn(*a) for a in args]
+            else:
+                max_threads = min(max_threads, len(args))
+                with mp.Pool(max_threads) as pool:
+                    cv_results = pool.starmap(func=cv_fn, iterable=args, chunksize=len(args)//max_threads)
+
+        finally:
+            if in_memory:
+                free_mmap_data_set(x, y)
 
         return self._consolidate_cv_scores(cv_results)
 
-    def _consolidate_cv_scores(self, cv_results):
+    @staticmethod
+    def _do_supervised_cv(model_cfg, train, test, x, y, scorers_fn):
+        model = model_from_config(model_cfg)
+        model.fit(x[train], y[train])
+        x_test, y_test = x[test], y[test]
+        cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers_fn.items()])
+        return cv_result
+
+    @staticmethod
+    def _do_unsupervised_cv(model_cfg, train, test, x, scorers_fn):
+        model = model_from_config(model_cfg)
+        model.fit(x[train])
+        x_test = x[test]
+        cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers_fn.items()])
+        return cv_result
+
+    @staticmethod
+    def _consolidate_cv_scores(cv_results):
         cv_scores = {}
         for k in cv_results[0].keys():
             scores = [result[k] for result in cv_results]
@@ -102,7 +83,8 @@ class CV(object):
             }
         return cv_scores
 
-    def get_scorer_name(self, scorer):
+    @staticmethod
+    def get_scorer_name(scorer):
         if isinstance(scorer, str):
             return scorer
         elif hasattr(scorer, '__call__'):
