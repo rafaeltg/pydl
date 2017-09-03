@@ -12,6 +12,8 @@ Deep Learning algorithms implemented using Keras library and Python.
 * Stacked Denoising Autoencoder
 * MultiLayer Perceptron
 * Recurrent Neural Network (Simple, GRU and LSTM)
+* Custom
+  - Residual Forecast Model (RFM)
 
 ### Install:
 
