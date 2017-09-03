@@ -91,7 +91,6 @@ class SupervisedModel(Model):
         self._train_step(x_train, y_train, valid_data, valid_split)
 
     def _train_step(self, x_train, y_train, valid_data=None, valid_split=0.):
-
         self._model.fit(x=x_train,
                         y=y_train,
                         batch_size=self.batch_size,
@@ -169,10 +168,7 @@ class SupervisedModel(Model):
             if isinstance(l, int):
                 layers.append(l)
             else:
-                layers.append({
-                    'class_name': l.__class__.__name__,
-                    'config': l.get_config(),
-                })
+                layers.append(l.to_json()['model'])
         conf['layers'] = layers
         return conf
 

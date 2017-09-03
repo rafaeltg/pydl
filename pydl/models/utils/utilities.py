@@ -45,6 +45,15 @@ def expand_arg(layers, arg_to_expand):
     return result
 
 
+def save_model(model, dir=None, file_name=None):
+    if dir is None:
+        dir = os.getcwd()
+    elif not os.path.exists(dir):
+        os.makedirs(dir)
+
+    model.save(dir, file_name)
+
+
 def load_model(config=None):
     assert config is not None, 'Missing input configuration'
 
@@ -86,6 +95,3 @@ def load_json(inp):
 def save_json(data, file_path, sort_keys=True):
     with open(file_path, 'w') as outfile:
         json.dump(data, outfile, sort_keys=sort_keys, indent=4, ensure_ascii=False)
-
-
-

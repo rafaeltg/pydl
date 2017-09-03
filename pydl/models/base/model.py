@@ -50,7 +50,7 @@ class Model:
         self.early_stopping = early_stopping
         self.patient = patient
         self.min_delta = min_delta
-        self._callbacks = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)] if self.early_stopping else None
+        self._callbacks = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)] if self.early_stopping else []
 
         self.seed = seed
         if self.seed >= 0:
@@ -86,32 +86,6 @@ class Model:
 
     def get_model_parameters(self):
         pass
-
-    def save_model(self, path=None, file_name=None):
-        assert path is not None, 'Missing output path!'
-
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        if file_name is None:
-            file_name = self.name
-
-        w_file = os.path.join(path, file_name + '.h5')
-        configs = {
-            'model': self.to_json(),
-            'weights': w_file
-        }
-
-        k_models.save_model(model=self._model, filepath=w_file)
-        save_json(configs, os.path.join(path, file_name + '.json'))
-
-    def load_model(self, model_path, custom_objs=None):
-        file_path = model_path
-        if os.path.isdir(model_path):
-            file_path = os.path.join(model_path, self.name+'.h5')
-
-        assert os.path.isfile(file_path), 'Missing file - %s' % file_path
-        self._model = k_models.load_model(filepath=file_path, custom_objects=custom_objs)
 
     @classmethod
     def from_config(cls, config):
@@ -156,6 +130,33 @@ class Model:
 
     def to_json(self):
         return {
-            'class_name': self.__class__.__name__,
-            'config': self.get_config()
+            'model': {
+                'class_name': self.__class__.__name__,
+                'config': self.get_config()
+            }
         }
+
+    def save(self, dir='', file_name=None):
+        assert os.path.exists(dir)
+
+        if file_name is None:
+            file_name = self.name
+
+        cfg = self.to_json()
+
+        if self.is_built():
+            cfg['weights'] = os.path.join(dir, file_name + '.h5')
+            k_models.save_model(self._model, cfg['weights'])
+
+        save_json(cfg, os.path.join(dir, file_name+'.json'))
+
+    def load_model(self, model_path, custom_objs=None):
+        file_path = model_path
+        if os.path.isdir(model_path):
+            file_path = os.path.join(model_path, self.name+'.h5')
+
+        assert os.path.isfile(file_path), 'Missing file - %s' % file_path
+        self._model = k_models.load_model(filepath=file_path, custom_objects=custom_objs)
+
+    def is_built(self):
+        return self._model is not None
