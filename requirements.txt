@@ -8,5 +8,4 @@ h5py
 keras
 cma
 yahoo_finance
-tensorflow
 joblib

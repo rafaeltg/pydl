@@ -52,7 +52,7 @@ class CMAESOptimizer(Optimizer):
                 es.disp()
                 es.logger.add()
 
-        return es.result()
+        return es.result
 
 
 def opt_from_config(algo, **kwargs):
