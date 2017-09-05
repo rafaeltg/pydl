@@ -131,6 +131,8 @@ def acf(ts, nlags=20, plot=False, ax=None):
         ax.plot(lag_acf)
         ax.axhline(y=-conf_level, linestyle='--', color='gray')
         ax.axhline(y=conf_level, linestyle='--', color='gray')
+        ax.set_xlabel('Lags')
+        ax.set_ylabel('ACF')
         return lag_acf, conf_level, ax
 
     return lag_acf.tolist(), conf_level
