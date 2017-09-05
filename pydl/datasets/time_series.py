@@ -133,10 +133,11 @@ def acf(ts, nlags=20, plot=False, ax=None):
         ax.axhline(y=conf_level, linestyle='--', color='gray')
         return lag_acf, conf_level, ax
 
-    return lag_acf, conf_level
+    return lag_acf.tolist(), conf_level
 
 
 def pacf(ts, nlags=20, method='ols', alpha=None, plot=False):
+
     from statsmodels.tsa.stattools import pacf
 
     if alpha is not None:
@@ -169,7 +170,6 @@ def test_stationarity(ts, to_file=''):
     if isinstance(ts, np.ndarray):
         ts = ts.flatten()
 
-    print('Results of Dickey-Fuller Test:')
     dftest = adfuller(ts, autolag='AIC')
     dfoutput = pd.Series(dftest[0:4], index=['Test Statistic', 'p-value', '#Lags Used', 'Number of Observations Used'])
     for k, v in dftest[4].items():
@@ -178,6 +178,7 @@ def test_stationarity(ts, to_file=''):
     if to_file != '':
         dfoutput.to_csv(to_file)
     else:
+        print('Results of Dickey-Fuller Test:')
         print(dfoutput)
 
     return dfoutput
