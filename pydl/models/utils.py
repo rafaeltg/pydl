@@ -5,6 +5,10 @@ import inspect
 import keras.models as k_models
 
 
+__all__ = ['expand_arg', 'save_model', 'load_model', 'model_from_config', 'load_json', 'save_json',
+           'valid_act_functions', 'valid_loss_functions', 'valid_opt_functions']
+
+
 valid_act_functions = ['softmax', 'softplus', 'sigmoid', 'tanh', 'relu', 'linear']
 
 valid_loss_functions = ['mse',                       # Mean Squared Error

@@ -1,7 +1,6 @@
 import os
 import numpy as np
-from pydl.models.autoencoder_models import Autoencoder
-from pydl.models.utils import load_model, save_model
+from pydl.models import Autoencoder, load_model, save_model
 
 
 def run_ae():

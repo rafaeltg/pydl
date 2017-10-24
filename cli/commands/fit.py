@@ -1,6 +1,5 @@
 from .utils import get_input_data, load_data, get_model
-from pydl.models import SupervisedModel
-from pydl.models.utils.utilities import load_model, save_model
+from pydl.models import SupervisedModel, load_model, save_model
 
 
 def fit(config, output):

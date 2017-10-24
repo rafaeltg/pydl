@@ -1,7 +1,6 @@
 import os
 import numpy as np
-from pydl.models import VariationalAutoencoder
-from pydl.models.utils import load_model, save_model
+from pydl.models import VariationalAutoencoder, load_model, save_model
 
 
 def run_vae():
@@ -68,6 +67,7 @@ def run_vae():
     print('Calculating testing set score')
     test_score_new = vae_new.score(data=x_test)
     assert test_score == test_score_new
+
 
 if __name__ == '__main__':
     run_vae()

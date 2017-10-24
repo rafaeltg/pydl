@@ -17,5 +17,8 @@ Deep Learning algorithms implemented using Keras library and Python.
 
 ### Install:
 
-1. Install required packages: `pip3 install -r requirements.txt -U`
+1. Install required packages: 
+    * `pip3 install -r requirements.txt -U`
+    * [pyts](https://github.com/rafaeltg/pyts)
+    
 2. Install lib: `python3.5 setup.py install`

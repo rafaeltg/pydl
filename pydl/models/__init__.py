@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from .autoencoder_models import *
+from .autoencoder import *
 from .base import *
-from .nnet_models import *
-from .utils import *
+from .nnet import *
 from .custom import RFM
+from .utils import *

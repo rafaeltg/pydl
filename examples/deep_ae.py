@@ -1,7 +1,6 @@
 import os
 import numpy as np
-from pydl.models import DeepAutoencoder
-from pydl.models.utils import load_model, save_model
+from pydl.models import DeepAutoencoder, load_model, save_model
 
 
 def run_deep_ae():

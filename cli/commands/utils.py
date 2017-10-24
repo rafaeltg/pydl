@@ -1,4 +1,4 @@
-from pydl.datasets.utils import load_data_file
+from pyts import load_data_file
 
 
 def get_model(config):

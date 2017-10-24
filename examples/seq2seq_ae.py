@@ -1,7 +1,6 @@
 import os
 import numpy as np
-from pydl.models import SeqToSeqAutoencoder
-from pydl.models.utils import load_model, save_model
+from pydl.models import SeqToSeqAutoencoder, load_model, save_model
 
 
 def run_seq2seq_ae():

@@ -85,7 +85,7 @@ class RFM:
     def from_config(cls, config):
         return cls(name=config['name'] if 'name' in config else 'rfm',
                    fm=load_model(config['fm']),
-                   em=load_model(config['rm']))
+                   rm=load_model(config['rm']))
 
     def to_json(self):
         return {

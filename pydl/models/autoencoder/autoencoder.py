@@ -2,7 +2,6 @@ import keras.backend as K
 import keras.models as kmodels
 from keras.layers import Input, Dense
 from keras.regularizers import l1_l2
-
 from ..base import UnsupervisedModel
 from ..utils import valid_act_functions
 

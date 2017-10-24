@@ -1,8 +1,8 @@
 import os
+from pyts import acf
 from .utils import get_input_data, load_data, get_model
 from pydl.model_selection import get_scorer
 from pydl.models.utils import save_json, load_model
-from pydl.datasets.time_series import acf
 
 
 def evaluate(config, output):

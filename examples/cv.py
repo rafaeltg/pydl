@@ -1,5 +1,5 @@
 import json
-from pydl.datasets import mackey_glass, create_dataset
+from pyts import mackey_glass, create_dataset
 from pydl.models import MLP
 from pydl.model_selection import CV
 
@@ -12,7 +12,7 @@ def run_cv():
 
     print('Creating dataset')
     # Create time series data
-    ts = mackey_glass(sample_len=2000)
+    ts = mackey_glass(n=2000)
     x, y = create_dataset(ts, look_back=10)
 
     print('Creating MLP')
@@ -37,6 +37,7 @@ def run_cv():
 
     print('CV results:')
     print(json.dumps(res, indent=4, separators=(',', ': ')))
+
 
 if __name__ == '__main__':
     run_cv()

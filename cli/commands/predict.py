@@ -1,8 +1,7 @@
 import os
 import numpy as np
 from .utils import get_model, get_input_data, load_data
-from pydl.models import SupervisedModel
-from pydl.models.utils.utilities import load_model
+from pydl.models import SupervisedModel, load_model
 
 
 def predict(config, output):

@@ -1,6 +1,5 @@
 import json
-from sklearn.preprocessing import MinMaxScaler
-from pydl.datasets import mackey_glass, create_dataset
+from pyts import mackey_glass, create_dataset
 from pydl.hyperopt import *
 
 
@@ -12,9 +11,7 @@ def run_optimizer():
 
     print('Creating dataset')
     # Create time series data
-    ts = mackey_glass(sample_len=2000)
-    # Normalize the dataset
-    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
+    ts = mackey_glass(n=2000)
     x, y = create_dataset(ts, look_back=10)
 
     print('Creating MLP ConfigOptimizer')

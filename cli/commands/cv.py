@@ -1,8 +1,7 @@
 import os
 from .utils import get_input_data, load_data, get_cv_config, get_model
-from pydl.models import SupervisedModel
+from pydl.models import SupervisedModel, load_model, save_json
 from pydl.model_selection import CV
-from pydl.models.utils.utilities import load_model, save_json
 
 
 def cv(config, output):

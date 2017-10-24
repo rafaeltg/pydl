@@ -1,10 +1,8 @@
 import os
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from pydl.datasets import mackey_glass, create_dataset
+from pyts import mackey_glass, create_dataset
 from pydl.model_selection.metrics import r2_score
-from pydl.models import RNN
-from pydl.models.utils import load_model, save_model
+from pydl.models import RNN, load_model, save_model
 
 
 def run_lstm_stateful():
@@ -14,18 +12,16 @@ def run_lstm_stateful():
     """
 
     # Create time series data
-    ts = mackey_glass(sample_len=2000)
-    # Normalize the dataset
-    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
-
-    # split into train and test sets
-    train_size = int(len(ts) * 0.8)
-    train, test = ts[0:train_size], ts[train_size:len(ts)]
+    ts = mackey_glass(n=2000)
 
     # reshape into X=t and Y=t+1
     look_back = 10
-    x_train, y_train = create_dataset(train, look_back)
-    x_test, y_test = create_dataset(test, look_back)
+    x, y = create_dataset(ts, look_back)
+
+    # split into train and test sets
+    train_size = int(len(x) * 0.8)
+    x_train, y_train = x[0:train_size], y[0:train_size]
+    x_test, y_test = x[train_size:len(x)], y[train_size:len(y)]
 
     # reshape input to be [n_samples, time_steps, n_features]
     x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))

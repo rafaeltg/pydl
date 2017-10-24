@@ -1,33 +1,29 @@
 import os
 import json
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-from pydl.datasets import mackey_glass, create_dataset
+from pyts import mackey_glass, create_dataset
 from pydl.model_selection import r2_score
-from pydl.models import RNN, RFM
-from pydl.models.utils import load_model, save_model
+from pydl.models import RNN, RFM, load_model, save_model
 from pydl.hyperopt import *
 
 
-def run_fem():
+def run_rfm():
 
     """
-        FEM example
+        RFM example
     """
 
     # Create time series data
-    ts = mackey_glass(sample_len=2000)
-    # Normalize the dataset
-    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
-
-    # split into train and test sets
-    train_size = int(len(ts) * 0.8)
-    train, test = ts[0:train_size], ts[train_size:len(ts)]
+    ts = mackey_glass(n=2000)
 
     # reshape into X=t and Y=t+1
     look_back = 10
-    x_train, y_train = create_dataset(train, look_back)
-    x_test, y_test = create_dataset(test, look_back)
+    x, y = create_dataset(ts, look_back)
+
+    # split into train and test sets
+    train_size = int(len(x) * 0.8)
+    x_train, y_train = x[0:train_size], y[0:train_size]
+    x_test, y_test = x[train_size:len(x)], y[train_size:len(y)]
 
     # reshape input to be [n_samples, time_steps, n_features]
     x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
@@ -42,10 +38,10 @@ def run_fem():
                nb_epochs=100,
                batch_size=50)
 
-    fem = RFM(fm=lstm, em=lstm.copy())
+    rfm = RFM(fm=lstm, rm=lstm.copy())
 
     print('Training')
-    fem.fit(x_train=x_train, y_train=y_train)
+    rfm.fit(x_train=x_train, y_train=y_train)
 
     #train_score = lstm.score(x=x_train, y=y_train)
     #print('Train score = {}'.format(train_score))
@@ -54,20 +50,20 @@ def run_fem():
     #print('Test score = {}'.format(test_score))
 
     print('Predicting test data')
-    y_test_pred = fem.predict(x_test)
+    y_test_pred = rfm.predict(x_test)
     assert y_test_pred.shape == y_test.shape
 
     y_test_r2 = r2_score(y_test, y_test_pred)
     print('r2_score for y_test forecasting = {}'.format(y_test_r2))
 
     print('Saving model')
-    save_model(fem, 'models/', 'fem')
-    assert os.path.exists('models/fem.json')
-    assert os.path.exists('models/fem_fm.h5')
-    assert os.path.exists('models/fem_em.h5')
+    save_model(rfm, 'models/', 'rfm')
+    assert os.path.exists('models/rfm.json')
+    assert os.path.exists('models/rfm_fm.h5')
+    assert os.path.exists('models/rfm_rm.h5')
 
     print('Loading model')
-    fem_new = load_model('models/fem.json')
+    fem_new = load_model('models/rfm.json')
 
     #print('Calculating train score')
     #assert train_score == lstm_new.score(x=x_train, y=y_train)
@@ -83,28 +79,26 @@ def run_fem():
     assert y_test_r2 == r2_score(y_test, y_test_pred_new)
 
 
-def optimize_fem():
+def optimize_rfm():
 
     """
-        Optimizing FEM
+        Optimizing RFM
     """
 
     print('Creating dataset')
     # Create time series data
-    ts = mackey_glass(sample_len=1000)
-    # Normalize the dataset
-    ts = MinMaxScaler(feature_range=(0, 1)).fit_transform(ts)
+    ts = mackey_glass(n=2000)
     x, y = create_dataset(ts, look_back=10)
 
     # reshape input to be [n_samples, time_steps, n_features]
     x = np.reshape(x, (x.shape[0], 1, x.shape[1]))
 
-    print('Creating FEM ConfigOptimizer')
+    print('Creating RFM ConfigOptimizer')
     space = hp_space({
         'model': {
-            'class_name': 'FEM',
+            'class_name': 'RFM',
             'config': {
-                'name': 'fem',
+                'name': 'rfm',
                 'fm': {
                     'model': {
                         'class_name': 'RNN',
@@ -117,7 +111,7 @@ def optimize_fem():
                         },
                     }
                 },
-                'em': {
+                'rm': {
                     'model': {
                         'class_name': 'RNN',
                         'config': {
@@ -148,6 +142,7 @@ def optimize_fem():
 
     print('Test R2 of the best model = {}'.format(res['opt_result'][1]))
 
+
 if __name__ == '__main__':
-    #run_fem()
-    optimize_fem()
+    run_rfm()
+    #optimize_rfm()
