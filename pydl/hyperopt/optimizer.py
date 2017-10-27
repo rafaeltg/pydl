@@ -8,6 +8,8 @@ class Optimizer:
         assert max_iter > 0, 'max_iter must be greater than zero!'
         self.max_iter = max_iter
         self.verbose = verbose
+        self.tolfun = float(kwargs.get('tolfun', 1e-11)) if 'tolfun' in kwargs else 1e-11
+        self.ftarget = float(kwargs.get('ftarget', -1e-12)) if 'ftarget' in kwargs else -1e-12
 
     def optimize(self, x0, obj_func, args=(), max_threads=1):
         pass
@@ -35,7 +37,9 @@ class CMAESOptimizer(Optimizer):
                                           'maxiter': self.max_iter,
                                           'bounds': [0, 1],
                                           'popsize': self.pop_size,
-                                          'verbose': self.verbose
+                                          'verbose': self.verbose,
+                                          'ftarget': self.ftarget,
+                                          'tolfun': self.tolfun
                                       })
 
         if max_threads == 1:
