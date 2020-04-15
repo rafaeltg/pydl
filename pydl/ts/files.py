@@ -21,7 +21,7 @@ def load_npy(filename):
 
 
 def load_data_file(filename, **kwargs):
-    if filename is '':
+    if filename == '':
         return None
     elif os.path.splitext(filename)[1] == '.csv':
         return load_csv(filename=filename, **kwargs)
