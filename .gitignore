@@ -1,10 +1,9 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
+**/__pycache__
+**/*.py[cod]
+**/*.py~
 
 .idea/
-
-*.py~
 
 *.iml
 examples/models/

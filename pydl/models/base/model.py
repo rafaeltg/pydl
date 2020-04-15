@@ -1,82 +1,80 @@
-from __future__ import absolute_import
-
-import os
-import inspect
-import numpy as np
-import keras.models as k_models
+import keras.models as km
 import keras.optimizers as k_opt
 from keras.callbacks import EarlyStopping
 from ..utils import *
 
 
-class Model:
+class Model(km.Sequential):
 
     """
     Class representing an abstract Model.
     """
 
-    def __init__(self, name='', loss_func='mse', nb_epochs=100, batch_size=32, opt='adam',
-                 learning_rate=0.001, momentum=0.01, early_stopping=False, patient=2,
-                 min_delta=1e-4, seed=-1, verbose=0):
+    def __init__(self,
+                 name: str = None,
+                 loss_func: str = 'mse',
+                 epochs: int = 1,
+                 batch_size: int = None,
+                 opt: str = 'adam',
+                 early_stopping: bool = False,
+                 verbose: int = 0,
+                 **kwargs):
 
         """
-        Available parameters:
-
         :param name: Name of the model.
         :param loss_func:
-        :param nb_epochs:
+        :param epochs:
         :param batch_size:
         :param opt:
+        :param early_stopping: stop training when a monitored quantity has stopped improving
+        :param verbose: Level of verbosity. 0 - silent, 1 - print.
+
+        Optional parameters:
         :param learning_rate:
         :param momentum:
-        :param early_stopping: 
-        :param patient: number of epochs with no improvement after which training will be stopped.
-        :param min_delta:
-        :param seed: positive integer for seeding random generators. Ignored if < 0.
-        :param verbose: Level of verbosity. 0 - silent, 1 - print.
+        :param patient: Early Stopping parameter. Number of epochs with no improvement after which training will
+            be stopped.
+        :param min_delta: Early Stopping parameter. Minimum change in the monitored quantity to qualify as
+            an improvement, i.e. an absolute change of less than min_delta, will count as no improvement.
         """
 
-        self.name = name if name != '' else self.__class__.__name__
-        self.loss_func = loss_func
-        self.nb_epochs = nb_epochs
-        self.batch_size = batch_size
-        self.opt = opt
-        self.learning_rate = learning_rate
+        super().__init__(name=name if name else self.__class__.__name__)
 
-        if self.opt == 'sgd':
-            self.momentum = momentum
+        self.loss_func = loss_func
+        self.epochs = epochs
+        self.batch_size = batch_size
+
+        self.opt = opt
+        self.learning_rate = kwargs.get('learning_rate', None)
+        self.momentum = kwargs.get('momentum', None)
 
         # Early stopping callback
         self.early_stopping = early_stopping
-        self.patient = patient
-        self.min_delta = min_delta
-        self._callbacks = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)] if self.early_stopping else []
-
-        self.seed = seed
-        if self.seed >= 0:
-            np.random.seed(self.seed)
+        if early_stopping:
+            self.patient = int(kwargs.get('patient', 2))
+            self.min_delta = float(kwargs.get('min_delta', 0.1))
+            self._callbacks = [EarlyStopping(min_delta=self.min_delta, patience=self.patient)]
+        else:
+            self._callbacks = []
 
         self.verbose = verbose
-
-        self._model = None
-
-        self.validate_params()
-
-    def set_params(self, **params):
-        valid_params = self.get_func_params(self.__init__).keys()
-        for key, value in params.items():
-            if key in valid_params:
-                setattr(self, key, value)
-
         self.validate_params()
 
     def validate_params(self):
-        assert self.nb_epochs > 0, 'Invalid number of training epochs'
-        assert self.batch_size > 0, 'Invalid batch size'
-        assert self.loss_func in valid_loss_functions if isinstance(self.loss_func, str) else True, 'Invalid loss function'
-        assert self.opt in valid_opt_functions, 'Invalid optimizer'
-        assert self.learning_rate > 0, 'Invalid learning rate'
-        if self.opt == 'sgd':
+        assert isinstance(self.epochs, int) and self.epochs > 0, 'Invalid number of training epochs'
+
+        if self.batch_size:
+            assert isinstance(self.batch_size, int) and self.batch_size > 0, 'Invalid batch size'
+
+        if isinstance(self.loss_func, str):
+            assert self.loss_func in valid_loss_functions, 'Invalid loss function'
+
+        assert self.opt in valid_optimizers, 'Invalid optimizer'
+
+        if self.learning_rate:
+            assert self.learning_rate > 0, 'Invalid learning rate'
+
+        if self.momentum:
             assert self.momentum > 0, 'Invalid momentum rate'
 
         assert isinstance(self.early_stopping, bool), 'Invalid early_stopping value'
@@ -84,79 +82,125 @@ class Model:
             assert self.min_delta > 0, 'Invalid min_delta value'
             assert self.patient > 0, 'Invalid patient value'
 
-    def get_model_parameters(self):
-        pass
-
-    @classmethod
-    def from_config(cls, config):
-        return cls(**config)
-
-    def get_config(self):
-        conf = {k: v for k, v in self.__dict__.items() if not k.startswith('_') and not callable(v)}
-        return conf
-
     def get_loss_func(self):
         return self.loss_func if isinstance(self.loss_func, str) else self.loss_func.__name__
 
     def get_optimizer(self):
+        config = {}
 
-        if self.opt == 'sgd':
-            return k_opt.SGD(lr=self.learning_rate, momentum=self.momentum)
+        if self.learning_rate:
+            config['lr'] = self.learning_rate
 
-        if self.opt == 'rmsprop':
-            return k_opt.RMSprop(lr=self.learning_rate)
+        if self.momentum:
+            config['momentum'] = self.momentum
 
-        if self.opt == 'adagrad':
-            return k_opt.Adagrad(lr=self.learning_rate)
+        return k_opt.get({
+            'class_name': self.opt,
+            'config': config
+        })
 
-        if self.opt == 'adadelta':
-            return k_opt.Adadelta(lr=self.learning_rate)
+    def save(self,
+             filepath=None,
+             overwrite: bool = True,
+             include_optimizer: bool = True):
 
-        if self.opt == 'adam':
-            return k_opt.Adam(lr=self.learning_rate)
+        if filepath is None or isinstance(filepath, str):
+            filepath = check_filepath(filepath, self.name, 'h5')
 
-        raise Exception('Invalid optimization function - %s' % self.opt)
+        super().save(
+            filepath=filepath,
+            overwrite=overwrite,
+            include_optimizer=include_optimizer)
 
-    def get_func_params(self, f):
-        p = inspect.getcallargs(f)
-        if 'self' in p:
-            del p['self']
-        return p
+    def save_json(self, filepath: str = None):
+        filepath = check_filepath(filepath, self.name, 'json')
+        cfg_json = self.to_json(sort_keys=True, indent=4, ensure_ascii=False, separators=(',', ': '))
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(cfg_json)
 
-    def copy(self):
-        c = self.__new__(self.__class__)
-        c.__dict__.update(self.__dict__.copy())
-        return c
+    def save_weights(self, filepath, overwrite=True):
+        super().save_weights(
+            filepath=check_filepath(filepath, self.name + '_weights', 'h5'),
+            overwrite=overwrite)
 
-    def to_json(self):
-        return {
-            'model': {
-                'class_name': self.__class__.__name__,
-                'config': self.get_config()
-            }
-        }
+    def get_config(self):
+        config = super().get_config()
+        config['loss_func'] = self.loss_func
+        config['epochs'] = self.epochs
+        config['batch_size'] = self.batch_size
+        config['opt'] = self.opt
+        config['learning_rate'] = self.learning_rate
+        config['momentum'] = self.momentum
 
-    def save(self, dir='', file_name=None):
-        assert os.path.exists(dir)
+        config['early_stopping'] = self.early_stopping
+        if self.early_stopping:
+            config['patient'] = self.patient
+            config['min_delta'] = self.min_delta
 
-        if file_name is None:
-            file_name = self.name
+        config['verbose'] = self.verbose
+        return config
 
-        cfg = self.to_json()
+    @classmethod
+    def from_config(cls, config: dict, custom_objects=None):
+        model = super().from_config(config, custom_objects)
+        model.__dict__.update(config)
+        return model
 
-        if self.is_built():
-            cfg['weights'] = os.path.join(dir, file_name + '.h5')
-            k_models.save_model(self._model, cfg['weights'])
+    def fit(self,
+            x=None,
+            y=None,
+            batch_size=None,
+            epochs=None,
+            verbose=None,
+            callbacks=None,
+            validation_split=0.,
+            validation_data=None,
+            shuffle=False,
+            class_weight=None,
+            sample_weight=None,
+            initial_epoch=0,
+            steps_per_epoch=None,
+            validation_steps=None,
+            **kwargs):
 
-        save_json(cfg, os.path.join(dir, file_name+'.json'))
+        self.compile(
+            optimizer=self.get_optimizer(),
+            loss=self.loss_func)
 
-    def load_model(self, model_path, custom_objs=None):
-        file_path = model_path
-        if os.path.isdir(model_path):
-            file_path = os.path.join(model_path, self.name+'.h5')
+        # By default use 10% of training data for testing
+        if self.early_stopping and ((validation_split == 0.) and (validation_data is None)):
+            validation_split = 0.1
 
-        assert os.path.isfile(file_path), 'Missing file - %s' % file_path
-        self._model = k_models.load_model(filepath=file_path, custom_objects=custom_objs)
+        if callbacks is not None:
+            self._callbacks.extend(callbacks)
 
-    def is_built(self):
-        return self._model is not None
+        super().fit(
+            x=x,
+            y=y,
+            batch_size=batch_size if batch_size else self.batch_size,
+            epochs=epochs if epochs else self.epochs,
+            verbose=verbose if verbose else self.verbose,
+            callbacks=self._callbacks,
+            validation_split=validation_split,
+            validation_data=validation_data,
+            shuffle=shuffle,
+            class_weight=class_weight,
+            sample_weight=sample_weight,
+            initial_epoch=initial_epoch,
+            steps_per_epoch=steps_per_epoch,
+            validation_steps=validation_steps,
+            **kwargs)
+
+    def score(self, x, y=None):
+        """
+        :param x: Input data
+        :param y: Target values
+        """
+
+        loss = super().evaluate(
+            x=x,
+            y=y,
+            batch_size=self.batch_size,
+            verbose=self.verbose)
+
+        return loss[0] if isinstance(loss, list) else loss

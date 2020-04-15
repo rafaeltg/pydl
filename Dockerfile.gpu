@@ -1,0 +1,20 @@
+FROM tensorflow/tensorflow:latest-gpu-py3
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TF_XLA_FLAGS "--tf_xla_cpu_global_jit"
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:/usr/local/cuda/lib64/stubs/:/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
+
+USER root
+
+COPY requirements.txt .
+RUN apt-get --only-upgrade install libcudnn7 -y && \
+    pip install --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt -U
+
+ADD . pydl/
+
+RUN cd pydl && \
+    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
+    python3 setup.py install -O2 && \
+    cd .. && \
+    rm -rf pydl

@@ -1,0 +1,17 @@
+.idea/
+*.iml
+.git
+.gitignore
+.DS_Store
+Dockerfile
+Dockerfile.gpu
+**/*.py[cod]
+**/*.py~
+**/*.pyc
+**/__pycache__
+**/README.md
+examples/models/
+pydl/pydl.egg-info/
+build/
+dist/
+pydl.egg-info/

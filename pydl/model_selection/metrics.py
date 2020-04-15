@@ -33,5 +33,7 @@ available_metrics = {
     'r2_score': r2_score,
     'variance': metrics.explained_variance_score,
     'accuracy': metrics.accuracy_score,
-    'log_loss': metrics.log_loss
+    'log_loss': metrics.log_loss,
+    'recall_score': metrics.recall_score,
+    'precision_score': metrics.precision_score
 }

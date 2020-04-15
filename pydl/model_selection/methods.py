@@ -1,4 +1,4 @@
-from math import floor
+from math import floor, ceil
 from sklearn.model_selection import LeaveOneOut, KFold, StratifiedKFold, ShuffleSplit, StratifiedShuffleSplit
 
 
@@ -17,15 +17,32 @@ class TrainTestSplit:
 
 class TimeSeriesSplit:
 
-    def __init__(self, window, horizon, fixed=True, by=1):
+    def __init__(self,
+                 window=None,
+                 horizon=None,
+                 n_folds=None,
+                 window_size=0.8,
+                 horizon_size=0.2,
+                 fixed=True,
+                 by=1):
         self.window = window
         self.horizon = horizon
+        self.n_folds = n_folds
+        self.window_size = window_size
+        self.horizon_size = horizon_size
         self.fixed = fixed
         self.by = by
 
     def split(self, X, y=None):
         assert (X is not None) and (len(X) > 0), 'X cannot be empty!'
-        assert len(X) >= (self.window+self.horizon), 'window size plus horizon size cannot be greater than input size!'
+
+        if self.n_folds is not None:
+            assert isinstance(self.window_size, float) and (self.window_size > 0), "'window_size' must be greater than zero"
+            assert isinstance(self.horizon_size, float) and (self.horizon_size > 0), "'horizon_size' must be greater than zero"
+            self._calc_params(len(X))
+
+        if (self.window is not None) and (self.horizon is not None):
+            assert len(X) >= (self.window+self.horizon), 'window size plus horizon size cannot be greater than input size!'
 
         starts_test = list(range(self.window, len(X)-self.horizon+1, self.by))
 
@@ -38,6 +55,12 @@ class TimeSeriesSplit:
 
         for i in range(0, len(trains)):
             yield list(trains[i]), list(tests[i])
+
+    def _calc_params(self, x_size):
+        aux = self.window_size + (self.n_folds * self.horizon_size)
+        self.horizon = ceil(x_size * (self.horizon_size / aux))
+        self.window = x_size - (self.n_folds * self.horizon)
+        self.by = self.horizon
 
 
 def get_cv_method(method, **kwargs):

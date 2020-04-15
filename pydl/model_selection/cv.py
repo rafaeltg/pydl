@@ -2,7 +2,28 @@ import numpy as np
 from joblib import Parallel, delayed
 from .methods import get_cv_method
 from .scorer import get_scorer
-from ..models.utils import model_from_config
+from ..models import Model, Pipeline, model_from_json
+
+
+def _do_supervised_cv(model, train, test, x, y, scorers_fn):
+    x_train, y_train = x[train], y[train]
+    x_test, y_test = x[test], y[test]
+
+    m = model_from_json(model) if isinstance(model, str) else model
+    m.fit(x_train, y_train)
+    if isinstance(m, Pipeline):
+        _, y_test = m.transform(x_test, y_test)
+
+    return dict([(k, scorer(m, x_test, y_test)) for k, scorer in scorers_fn.items()])
+
+
+def _do_unsupervised_cv(model, train, test, x, scorers_fn):
+    x_train = x[train]
+    x_test = x[test]
+
+    m = model_from_json(model) if isinstance(model, str) else model
+    m.fit(x_train)
+    return dict([(k, scorer(m, x_test)) for k, scorer in scorers_fn.items()])
 
 
 class CV(object):
@@ -26,38 +47,21 @@ class CV(object):
             # By default uses the model loss function as scoring function
             scorers_fn = dict([(model.get_loss_func(), get_scorer(model.get_loss_func()))])
 
-        model_cfg = model.to_json()
+        m = model.to_json() if isinstance(model, Model) else model
 
         if y is None:
-            args = [(model_cfg['model'], train, test, x, scorers_fn) for train, test in self.cv.split(x, y)]
-            cv_fn = self._do_unsupervised_cv
+            args = [(m, train, test, x, scorers_fn) for train, test in self.cv.split(x, y)]
+            cv_fn = _do_unsupervised_cv
         else:
-            args = [(model_cfg['model'], train, test, x, y, scorers_fn) for train, test in self.cv.split(x, y)]
-            cv_fn = self._do_supervised_cv
+            args = [(m, train, test, x, y, scorers_fn) for train, test in self.cv.split(x, y)]
+            cv_fn = _do_supervised_cv
 
         with Parallel(n_jobs=min(max_threads, len(args))) as parallel:
-            cv_results = parallel(delayed(function=cv_fn, check_pickle=False)(*a) for a in args)
+            cv_results = parallel(delayed(cv_fn)(*a) for a in args)
 
         return self._consolidate_cv_scores(cv_results)
 
-    @staticmethod
-    def _do_supervised_cv(model_cfg, train, test, x, y, scorers_fn):
-        model = model_from_config(model_cfg)
-        model.fit(x[train], y[train])
-        x_test, y_test = x[test], y[test]
-        cv_result = dict([(k, scorer(model, x_test, y_test)) for k, scorer in scorers_fn.items()])
-        return cv_result
-
-    @staticmethod
-    def _do_unsupervised_cv(model_cfg, train, test, x, scorers_fn):
-        model = model_from_config(model_cfg)
-        model.fit(x[train])
-        x_test = x[test]
-        cv_result = dict([(k, scorer(model, x_test)) for k, scorer in scorers_fn.items()])
-        return cv_result
-
-    @staticmethod
-    def _consolidate_cv_scores(cv_results):
+    def _consolidate_cv_scores(self, cv_results):
         cv_scores = {}
         for k in cv_results[0].keys():
             scores = [result[k] for result in cv_results]
@@ -74,5 +78,3 @@ class CV(object):
             return scorer
         elif hasattr(scorer, '__call__'):
             return scorer.__name__
-
-

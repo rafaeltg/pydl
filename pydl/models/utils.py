@@ -3,13 +3,28 @@ import sys
 import json
 import inspect
 import keras.models as k_models
+from keras.utils.io_utils import H5Dict
 
 
-__all__ = ['expand_arg', 'save_model', 'load_model', 'model_from_config', 'load_json', 'save_json',
-           'valid_act_functions', 'valid_loss_functions', 'valid_opt_functions']
+__all__ = ['expand_arg',
+           'load_model',
+           'model_from_config',
+           'model_from_json',
+           'load_json',
+           'save_json',
+           'get_custom_objects',
+           'valid_act_functions',
+           'valid_loss_functions',
+           'valid_optimizers',
+           'check_filepath']
 
 
-valid_act_functions = ['softmax', 'softplus', 'sigmoid', 'tanh', 'relu', 'linear']
+valid_act_functions = ['softmax',
+                       'softplus',
+                       'sigmoid',
+                       'tanh',
+                       'relu',
+                       'linear']
 
 valid_loss_functions = ['mse',                       # Mean Squared Error
                         'mae',                       # Mean Absolute Error
@@ -20,7 +35,14 @@ valid_loss_functions = ['mse',                       # Mean Squared Error
                         'kld'                        # Kullback Leibler Divergence (information gain)
                         ]
 
-valid_opt_functions = ['sgd', 'rmsprop', 'adagrad', 'adadelta', 'adam']
+valid_optimizers = ['sgd',
+                    'rmsprop',
+                    'adagrad',
+                    'adadelta',
+                    'adam',
+                    'adamax',
+                    'nadam',
+                    'ftrl']
 
 
 def expand_arg(layers, arg_to_expand):
@@ -49,53 +71,143 @@ def expand_arg(layers, arg_to_expand):
     return result
 
 
-def save_model(model, dir=None, file_name=None):
-    if dir is None:
-        dir = os.getcwd()
-    elif not os.path.exists(dir):
-        os.makedirs(dir)
+def get_custom_objects(c_objs: dict = None) -> dict:
+    custom_objects = dict(inspect.getmembers(sys.modules['pydl.models'], inspect.isclass))
+    if c_objs is not None:
+        if isinstance(c_objs, dict):
+            custom_objects.update(c_objs)
+        else:
+            raise ValueError('Invalid custom_objects')
 
-    model.save(dir, file_name)
-
-
-def load_model(config=None):
-    assert config is not None, 'Missing input configuration'
-
-    configs = config
-    if isinstance(config, str):
-        configs = load_json(config)
-
-    assert len(configs) > 0, 'No configuration specified!'
-    assert 'model' in configs, 'Missing model definition!'
-
-    m = model_from_config(configs['model'])
-    if m is None:
-        raise Exception('Invalid model!')
-
-    if 'weights' in configs:
-        m.load_model(configs['weights'])
-
-    return m
+    return custom_objects
 
 
-def model_from_config(config):
-    assert 'class_name' in config, 'Missing model class!'
+def load_model(filepath, custom_objects: dict = None, compile: bool = True):
+    if isinstance(filepath, str):
+        if not os.path.isfile(filepath):
+            raise FileNotFoundError('{} does not exists.'.format(filepath))
 
-    # fetch all members of module 'pydl.models'
-    classes = dict(inspect.getmembers(sys.modules['pydl.models'], inspect.isclass))
-    return k_models.model_from_config(config, classes)
+        if not filepath.endswith('.h5'):
+            raise ValueError('Input file must be in H5 format.')
+
+    try:
+        c_objs = get_custom_objects(custom_objects)
+        model = k_models.load_model(filepath, custom_objects=c_objs, compile=compile)
+    except:
+        try:
+            model = load_pipeline(filepath, custom_objects=custom_objects, compile=compile)
+        except:
+            model = load_base_model(filepath, custom_objects=custom_objects)
+
+    return model
 
 
-def load_json(inp):
-    if os.path.isfile(inp):
-        with open(inp) as file:
+def load_pipeline(filepath, custom_objects: dict = None, compile: bool = False):
+    with H5Dict(filepath, mode='r') as h5dict:
+        model_config = h5dict['model_config']
+        if model_config is None:
+            raise ValueError('No model found in config.')
+
+        c = {}
+
+        config = model_config['config']
+
+        name = config.get('name', None)
+        if name is not None:
+            c['name'] = name
+
+        features = config.get('features', None)
+        if features is not None:
+            c['features'] = json.loads(features.decode('utf-8'))
+
+        reshaper = config.get('reshaper', None)
+        if reshaper is not None:
+            c['reshaper'] = model_from_json(reshaper.decode('utf-8'), custom_objects=custom_objects)
+
+        estimator = config.get('estimator', None)
+        if estimator is None:
+            raise ValueError('No estimator found in config.')
+
+        c['estimator'] = load_model(estimator.data, custom_objects=custom_objects, compile=compile)
+
+    return get_custom_objects()['Pipeline'](**c)
+
+
+def load_base_model(filepath, custom_objects: dict = None):
+    with H5Dict(filepath, mode='r') as h5dict:
+        model_config = h5dict.get('model_config', None)
+        if model_config is None:
+            raise ValueError('No model found in config.')
+
+        model_config = json.loads(model_config.decode('utf-8'))
+        model = model_from_config(model_config, custom_objects=custom_objects)
+
+    return model
+
+
+def model_from_config(config: dict, custom_objects: dict = None):
+    c_objs = get_custom_objects(custom_objects)
+    return k_models.model_from_config(config, c_objs)
+
+
+def model_from_json(model_json: str,
+                    custom_objects: dict = None,
+                    weights_filepath: str = None,
+                    compile: bool = False):
+
+    if model_json.endswith('.json') and os.path.isfile(model_json):
+        with open(model_json) as json_file:
+            model_json = json_file.read()
+
+    c_objs = get_custom_objects(custom_objects)
+    model = k_models.model_from_json(model_json, c_objs)
+
+    if weights_filepath:
+        model.load_weights(weights_filepath)
+
+    if compile:
+        model.compile(
+            optimizer=model.get_optimizer(),
+            loss=model.get_loss_func())
+
+    return model
+
+
+def load_json(json_string: str):
+    if os.path.isfile(json_string):
+        with open(json_string) as file:
             data = json.load(file)
     else:
-        data = json.loads(inp)
+        data = json.loads(json_string)
 
     return data
 
 
-def save_json(data, file_path, sort_keys=True):
-    with open(file_path, 'w') as outfile:
-        json.dump(data, outfile, sort_keys=sort_keys, indent=4, ensure_ascii=False)
+def save_json(data, file_path, sort_keys=True, indent=2, ensure_ascii=False):
+    directory = os.path.dirname(file_path)
+    if directory != '' and not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(file_path, 'w', encoding='utf-8') as outfile:
+        json.dump(data,
+                  outfile,
+                  sort_keys=sort_keys,
+                  indent=indent,
+                  ensure_ascii=ensure_ascii,
+                  separators=(',', ': '))
+
+
+def check_filepath(filepath: str, name: str, extension: str):
+    if filepath is None:
+        filepath = os.getcwd()
+
+    ext = '.' + extension
+
+    if not filepath.endswith(ext):
+        filepath = os.path.join(filepath, '{}{}'.format(name, ext))
+
+    dir = os.path.dirname(filepath)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    return filepath

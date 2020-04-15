@@ -1,8 +1,55 @@
 import os
 import numpy as np
-from pyts import mackey_glass, create_dataset
-from pydl.model_selection import r2_score
-from pydl.models import RNN, load_model, save_model
+from pydl.model_selection import r2_score, rmse
+from pydl.models.layers import LSTM, Dense, Dropout
+from pydl.models import RNN, load_model, model_from_json
+from dataset import create_multivariate_dataset
+
+
+# Example of valid configurations of layers
+models = [
+    RNN(
+        name='lstm1',
+        layers=[
+            LSTM(units=32, activation='relu')
+        ],
+        epochs=200
+    ),
+    RNN(
+        name='lstm2',
+        layers=[
+            LSTM(units=32, activation='relu'),
+            Dense(units=16)
+        ],
+        epochs=200
+    ),
+    RNN(
+        name='lstm3',
+        layers=[
+            LSTM(units=32, activation='relu'),
+            Dense(units=16),
+            Dropout(0.1)
+        ],
+        epochs=200
+    ),
+    RNN(
+        name='lstm4',
+        layers=[
+            LSTM(units=32, activation='relu'),
+            LSTM(units=32, activation='relu')
+        ],
+        epochs=200
+    ),
+    RNN(
+        name='lstm5',
+        layers=[
+            LSTM(units=32, activation='relu'),
+            LSTM(units=32, activation='relu'),
+            Dense(units=8)
+        ],
+        epochs=200
+    )
+]
 
 
 def run_lstm():
@@ -11,68 +58,83 @@ def run_lstm():
         LSTM example
     """
 
-    # Create time series data
-    ts = mackey_glass(n=2000)
+    n_features = 4
+    n_steps = 1
 
-    # reshape into X=t and Y=t+1
-    look_back = 10
-    x, y = create_dataset(ts, look_back)
+    x, y, x_test, y_test = create_multivariate_dataset(
+        size=n_steps * 100,
+        n_steps=n_steps,
+        n_features=n_features)
 
-    # split into train and test sets
-    train_size = int(len(x) * 0.8)
-    x_train, y_train = x[0:train_size], y[0:train_size]
-    x_test, y_test = x[train_size:len(x)], y[train_size:len(y)]
+    for model in models:
+        print('\nTraining')
+        model.fit(x=x, y=y)
 
-    # reshape input to be [n_samples, time_steps, n_features]
-    x_train = np.reshape(x_train, (x_train.shape[0], 1, x_train.shape[1]))
-    x_test = np.reshape(x_test, (x_test.shape[0], 1, x_test.shape[1]))
+        print(model.summary())
 
-    print('Creating a stateless LSTM')
-    lstm = RNN(layers=[50, 50],
-               dropout=[0., 0.2],
-               stateful=False,
-               time_steps=1,
-               cell_type='lstm',
-               nb_epochs=100,
-               batch_size=50)
+        train_score = model.score(x=x, y=y)
+        print('Train score = {}'.format(train_score))
 
-    print('Training')
-    lstm.fit(x_train=x_train, y_train=y_train)
+        test_score = model.score(x=x_test, y=y_test)
+        print('Test score = {}'.format(test_score))
 
-    train_score = lstm.score(x=x_train, y=y_train)
-    print('Train score = {}'.format(train_score))
+        print('Predicting test data')
+        y_test_pred = model.predict(x_test)
 
-    test_score = lstm.score(x=x_test, y=y_test)
-    print('Test score = {}'.format(test_score))
+        y_test_rmse = rmse(y_test, y_test_pred)
+        print('y_test RMSE = {}'.format(y_test_rmse))
 
-    print('Predicting test data')
-    y_test_pred = lstm.predict(x_test)
+        y_test_r2 = r2_score(y_test, y_test_pred)
+        print('y_test R2 = {}'.format(y_test_r2))
 
-    assert y_test_pred.shape == y_test.shape
+        print('Saving model')
+        model.save('models/')
+        model.save_json('models/')
+        model.save_weights('models/')
 
-    y_test_r2 = r2_score(y_test, y_test_pred)
-    print('r2_score for y_test forecasting = {}'.format(y_test_r2))
+        assert os.path.exists('models/{}.h5'.format(model.name))
+        assert os.path.exists('models/{}.json'.format(model.name))
+        assert os.path.exists('models/{}_weights.h5'.format(model.name))
 
-    print('Saving model')
-    save_model(lstm, 'models/', 'lstm')
-    assert os.path.exists('models/lstm.json')
-    assert os.path.exists('models/lstm.h5')
+        print('Loading model from .h5 file')
+        model1 = load_model('models/{}.h5'.format(model.name))
+        assert isinstance(model1, RNN)
+        assert model1.name == model.name
 
-    print('Loading model')
-    lstm_new = load_model('models/lstm.json')
+        print('Validating train score')
+        np.testing.assert_equal(train_score, model1.score(x=x, y=y))
 
-    print('Calculating train score')
-    assert train_score == lstm_new.score(x=x_train, y=y_train)
+        print('Validating test score')
+        np.testing.assert_equal(test_score, model1.score(x=x_test, y=y_test))
 
-    print('Calculating test score')
-    assert test_score == lstm_new.score(x=x_test, y=y_test)
+        print('Validating predicted test data')
+        y_test_pred_new = model1.predict(x_test)
+        np.testing.assert_allclose(y_test_pred, y_test_pred_new, atol=1e-6)
+        np.testing.assert_equal(y_test_rmse, rmse(y_test, y_test_pred_new))
+        np.testing.assert_equal(y_test_r2, r2_score(y_test, y_test_pred_new))
 
-    print('Predicting test data')
-    y_test_pred_new = lstm_new.predict(x_test)
-    assert np.array_equal(y_test_pred, y_test_pred_new)
+        del model1
 
-    print('Calculating r2 score')
-    assert y_test_r2 == r2_score(y_test, y_test_pred_new)
+        print('Loading model from json and weights files')
+        model2 = model_from_json('models/{}.json'.format(model.name),
+                                 weights_filepath='models/{}_weights.h5'.format(model.name),
+                                 compile=True)
+        assert isinstance(model2, RNN)
+        assert model2.name == model.name
+
+        print('Validating train score')
+        np.testing.assert_equal(train_score, model2.score(x=x, y=y))
+
+        print('Validating test score')
+        np.testing.assert_equal(test_score, model2.score(x=x_test, y=y_test))
+
+        print('Validating predicted test data')
+        y_test_pred_new = model2.predict(x_test)
+        np.testing.assert_allclose(y_test_pred, y_test_pred_new, atol=1e-6)
+        np.testing.assert_equal(y_test_rmse, rmse(y_test, y_test_pred_new))
+        np.testing.assert_equal(y_test_r2, r2_score(y_test, y_test_pred_new))
+
+        del model2
 
 
 if __name__ == '__main__':

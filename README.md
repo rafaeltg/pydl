@@ -1,17 +1,12 @@
 # Deep Learning algorithms with Keras library
 
-Deep Learning algorithms implemented using Keras library and Python.
+Deep Learning models implemented using Keras library and Python.
 
 ### Available Models:
-* Autoencoder
-* Denoising Autoencoder
-* Deep Autoencoder
-* Variational Autoencoder
-* Sequence-To-Sequence Autoencoder
-* Stacked Autoencoder
-* Stacked Denoising Autoencoder
-* MultiLayer Perceptron
-* Recurrent Neural Network (Simple, GRU and LSTM)
+* MultiLayer Perceptron (MLP)
+* Recurrent Neural Network (Simple, GRU, LSTM, ConvLSTM)
+* Convolutional Neural Network
+* Convolutional Neural Network + LSTM
 * Custom
   - Residual Forecast Model (RFM)
 
@@ -19,6 +14,5 @@ Deep Learning algorithms implemented using Keras library and Python.
 
 1. Install required packages: 
     * `pip3 install -r requirements.txt -U`
-    * [pyts](https://github.com/rafaeltg/pyts)
     
-2. Install lib: `python3.5 setup.py install`
+2. Install lib: `python3 setup.py install -O`

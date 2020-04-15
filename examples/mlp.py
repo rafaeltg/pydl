@@ -1,8 +1,9 @@
 import os
 import numpy as np
-from pyts import mackey_glass, create_dataset
-from pydl.model_selection.metrics import r2_score
-from pydl.models import MLP, load_model, save_model
+from pydl.model_selection.scorer import r2_score, rmse
+from pydl.models.layers import Dense, Dropout
+from pydl.models import MLP, load_model, model_from_json
+from dataset import create_multivariate_data, train_test_split
 
 
 def run_mlp():
@@ -11,67 +12,95 @@ def run_mlp():
         MLP example
     """
 
-    # Create time series data
-    ts = mackey_glass(n=2000)
+    n_features = 4
 
-    # reshape into X=t and Y=t+1
-    look_back = 10
-    x, y = create_dataset(ts, look_back)
-
-    # split into train and test sets
-    train_size = int(len(x) * 0.8)
-    x_train, y_train = x[0:train_size], y[0:train_size]
-    x_test, y_test = x[train_size:len(x)], y[train_size:len(y)]
+    data = create_multivariate_data(n_features=n_features)
+    x, y, x_test, y_test = train_test_split(data[:, :-1], data[:, -1])
 
     print('Creating MLP')
-    mlp = MLP(layers=[32, 16],
-              activation='relu',
-              out_activation='linear',
-              dropout=0.1,
-              l1_reg=0.00001,
-              l2_reg=0.00001,
-              nb_epochs=400,
-              early_stopping=True,
-              patient=2,
-              min_delta=1e-4)
+    model = MLP(
+        name='mlp',
+        layers=[
+            Dense(units=16, activation='relu'),
+            Dropout(0.1),
+            Dense(units=8, activation='relu')
+        ],
+        epochs=200)
 
     print('Training')
-    mlp.fit(x_train=x_train, y_train=y_train)
+    model.fit(x=x, y=y)
 
-    train_score = mlp.score(x=x_train, y=y_train)
-    print('Train score = {}'.format(train_score))
+    print(model.summary())
 
-    test_score = mlp.score(x=x_test, y=y_test)
-    print('Test score = {}'.format(test_score))
+    train_score = model.score(x=x, y=y)
+    print('Train {} = {}'.format(model.get_loss_func().upper(), train_score))
+
+    test_score = model.score(x=x_test, y=y_test)
+    print('Test {} = {}'.format(model.get_loss_func().upper(), test_score))
 
     print('Predicting test data')
-    y_test_pred = mlp.predict(x_test)
-    print('Predicted y_test shape = {}'.format(y_test_pred.shape))
-    assert y_test_pred.shape == y_test.shape
+    y_test_pred = model.predict(x_test)
+
+    y_test_rmse = rmse(y_test, y_test_pred)
+    print('y_test RMSE = {}'.format(y_test_rmse))
 
     y_test_r2 = r2_score(y_test, y_test_pred)
-    print('R2 for y_test forecasting = {}'.format(y_test_r2))
+    print('y_test R2 = {}'.format(y_test_r2))
 
     print('Saving model')
-    save_model(mlp, 'models/', 'mlp')
+    model.save('models/mlp.h5')
+    model.save_json('models/mlp.json')
+    model.save_weights('models/mlp_weights.h5')
+
     assert os.path.exists('models/mlp.json')
     assert os.path.exists('models/mlp.h5')
+    assert os.path.exists('models/mlp_weights.h5')
 
-    print('Loading model')
-    mlp_new = load_model('models/mlp.json')
+    del model
+
+    print('Loading model from .h5 file')
+    model = load_model('models/mlp.h5')
+    assert isinstance(model, MLP)
+    assert model.name == 'mlp'
 
     print('Calculating train score')
-    assert train_score == mlp_new.score(x=x_train, y=y_train)
+    np.testing.assert_equal(train_score, model.score(x=x, y=y))
 
     print('Calculating test score')
-    assert test_score == mlp_new.score(x=x_test, y=y_test)
+    np.testing.assert_equal(test_score, model.score(x=x_test, y=y_test))
 
     print('Predicting test data')
-    y_test_pred_new = mlp_new.predict(x_test)
-    assert np.array_equal(y_test_pred, y_test_pred_new)
+    y_test_pred_new = model.predict(x_test)
+    np.testing.assert_allclose(y_test_pred, y_test_pred_new, atol=1e-6)
 
-    print('Calculating MAPE')
-    assert y_test_r2 == r2_score(y_test, y_test_pred_new)
+    print('Calculating RMSE for test set')
+    np.testing.assert_equal(y_test_rmse, rmse(y_test, y_test_pred_new))
+
+    print('Calculating R2 for test set')
+    np.testing.assert_equal(y_test_r2, r2_score(y_test, y_test_pred_new))
+
+    del model
+
+    print('Loading model from json and weights files')
+    model = model_from_json('models/mlp.json', weights_filepath='models/mlp_weights.h5', compile=True)
+    assert isinstance(model, MLP)
+    assert model.name == 'mlp'
+
+    print('Calculating train score')
+    np.testing.assert_equal(train_score, model.score(x=x, y=y))
+
+    print('Calculating test score')
+    np.testing.assert_equal(test_score, model.score(x=x_test, y=y_test))
+
+    print('Predicting test data')
+    y_test_pred_new = model.predict(x_test)
+    np.testing.assert_allclose(y_test_pred, y_test_pred_new, atol=1e-6)
+
+    print('Calculating RMSE for test set')
+    np.testing.assert_equal(y_test_rmse, rmse(y_test, y_test_pred_new))
+
+    print('Calculating R2 for test set')
+    np.testing.assert_equal(y_test_r2, r2_score(y_test, y_test_pred_new))
 
 
 if __name__ == '__main__':
