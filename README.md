@@ -1,3 +1,5 @@
+![pydl](https://github.com/rafaeltg/pydl/workflows/pydl/badge.svg?branch=master)
+
 # Deep Learning algorithms with Keras library
 
 Deep Learning models implemented using Keras library and Python.
