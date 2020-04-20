@@ -25,6 +25,30 @@ def corr(y_true, y_pred):
     return np.corrcoef(y_true, y_pred)
 
 
+def upward_precision(y_true, y_pred):
+    up_true = (y_true > 0).as_type(int)
+    up_pred = (y_pred > 0).as_type(int)
+    return metrics.precision_score(up_true, up_pred)
+
+
+def upward_recall(y_true, y_pred):
+    up_true = (y_true > 0).as_type(int)
+    up_pred = (y_pred > 0).as_type(int)
+    return metrics.recall_score(up_true, up_pred)
+
+
+def downward_precision(y_true, y_pred):
+    down_true = (y_true < 0).as_type(int)
+    down_pred = (y_pred < 0).as_type(int)
+    return metrics.precision_score(down_true, down_pred)
+
+
+def downward_recall(y_true, y_pred):
+    down_true = (y_true < 0).as_type(int)
+    down_pred = (y_pred < 0).as_type(int)
+    return metrics.recall_score(down_true, down_pred)
+
+
 available_metrics = {
     'rmse': rmse,
     'mse': mse,
@@ -32,6 +56,10 @@ available_metrics = {
     'mape': mape,
     'r2_score': r2_score,
     'variance': metrics.explained_variance_score,
+    'upward_precision': upward_precision,
+    'upward_recall': upward_precision,
+    'downward_precision': upward_precision,
+    'downward_recall': upward_precision,
     'accuracy': metrics.accuracy_score,
     'log_loss': metrics.log_loss,
     'recall_score': metrics.recall_score,

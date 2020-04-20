@@ -73,16 +73,6 @@ def fit_predict(model,
 def pred_analysis(y_true, y_pred, metrics):
     ret = {m: available_metrics[m](y_true, y_pred) for m in metrics}
 
-    up_true = (y_true > 0).as_type(int)
-    up_pred = (y_pred > 0).as_type(int)
-    ret['upward_precision'] = available_metrics['precision_score'](up_true, up_pred)
-    ret['upward_recall'] = available_metrics['recall_score'](up_true, up_pred)
-
-    down_true = (y_true < 0).as_type(int)
-    down_pred = (y_pred < 0).as_type(int)
-    ret['downward_precision'] = available_metrics['precision_score'](down_true, down_pred)
-    ret['downward_recall'] = available_metrics['recall_score'](down_true, down_pred)
-
     residuals = y_true - y_pred
     acf_lags, acf_conf_level = acf(residuals, nlags=50)
     pacf_lags = pacf(residuals)
