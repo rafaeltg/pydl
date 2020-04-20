@@ -9,6 +9,10 @@ mae_scorer = make_scorer(mean_absolute_error)
 mape_scorer = make_scorer(mape)
 r2_scorer = make_scorer(r2_score)
 neg_r2_scorer = make_scorer(r2_score, greater_is_better=False)
+upward_precision_scorer = make_scorer(upward_precision)
+upward_recall_scorer = make_scorer(upward_recall)
+downward_precision_scorer = make_scorer(downward_precision)
+downward_recall_scorer = make_scorer(downward_recall)
 
 # Classification scorers
 accuracy_scorer = make_scorer(accuracy_score)
@@ -25,6 +29,10 @@ _scorers = dict(
     mape=mape_scorer,
     r2=r2_scorer,
     neg_r2=neg_r2_scorer,
+    upward_precision=upward_precision_scorer,
+    upward_recall=upward_recall_scorer,
+    downward_precision=downward_precision_scorer,
+    downward_recall=downward_recall_scorer,
     accuracy=accuracy_scorer,
     f1=f1_scorer,
     log_loss=log_loss_scorer,

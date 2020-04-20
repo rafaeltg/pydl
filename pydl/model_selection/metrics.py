@@ -26,26 +26,26 @@ def corr(y_true, y_pred):
 
 
 def upward_precision(y_true, y_pred):
-    up_true = (y_true > 0).as_type(int)
-    up_pred = (y_pred > 0).as_type(int)
+    up_true = (y_true > 0).astype(int)
+    up_pred = (y_pred > 0).astype(int)
     return metrics.precision_score(up_true, up_pred)
 
 
 def upward_recall(y_true, y_pred):
-    up_true = (y_true > 0).as_type(int)
-    up_pred = (y_pred > 0).as_type(int)
+    up_true = (y_true > 0).astype(int)
+    up_pred = (y_pred > 0).astype(int)
     return metrics.recall_score(up_true, up_pred)
 
 
 def downward_precision(y_true, y_pred):
-    down_true = (y_true < 0).as_type(int)
-    down_pred = (y_pred < 0).as_type(int)
+    down_true = (y_true < 0).astype(int)
+    down_pred = (y_pred < 0).astype(int)
     return metrics.precision_score(down_true, down_pred)
 
 
 def downward_recall(y_true, y_pred):
-    down_true = (y_true < 0).as_type(int)
-    down_pred = (y_pred < 0).as_type(int)
+    down_true = (y_true < 0).astype(int)
+    down_pred = (y_pred < 0).astype(int)
     return metrics.recall_score(down_true, down_pred)
 
 
