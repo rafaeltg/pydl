@@ -67,7 +67,7 @@ class CMAES(Optimizer):
                 args=(search_space, ) + args,
                 bipop=self.bipop)
 
-        return result[0]
+        return result
 
     @classmethod
     def from_config(cls, config: dict):

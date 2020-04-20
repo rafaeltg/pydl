@@ -98,7 +98,7 @@ def run_hp_pipeline():
         args=(x, y),
         max_threads=1)
 
-    best_model_cfg = space.get_value(res)
+    best_model_cfg = space.get_value(res[0])
 
     print(json.dumps(best_model_cfg, indent=4, separators=(',', ': ')))
 
