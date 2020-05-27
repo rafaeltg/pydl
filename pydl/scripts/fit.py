@@ -5,7 +5,7 @@ def fit(model,
         x, y,
         save_built_model: bool = False,
         model_filename: str = '',
-        output_dir=''):
+        output_dir: str = ''):
 
     """
     Fit model

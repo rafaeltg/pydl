@@ -1,3 +1,6 @@
 from .pipeline import Pipeline
-from .reshape import *
-from .hyperopt import hp_pipeline, hp_reshaper3d, hp_reshaper4d, hp_reshaper5d
+from .reshaper import *
+from .feature_selection import *
+from .preprocessing import *
+from .decomposition import *
+from .hyperopt import *

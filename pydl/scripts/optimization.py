@@ -28,7 +28,9 @@ def optimization(search_space: Node,
                  output_dir: str = '',
                  refit_best_model: bool = True,
                  best_model_fit_kwargs: dict = None,
-                 save_to_json: bool = False):
+                 save_to_json: bool = False,
+                 features: list = None,
+                 max_threads: int = 1):
 
     """
     Hyperparameters optimization and/or feature selection
@@ -44,6 +46,8 @@ def optimization(search_space: Node,
     :param refit_best_model:
     :param best_model_fit_kwargs:
     :param save_to_json:
+    :param features:
+    :param max_threads:
 
     :return: best model configuration
     """
@@ -57,18 +61,29 @@ def optimization(search_space: Node,
 
     opt = CMAES(
         verb_filenameprefix=os.path.join(output_dir, 'cmaes/out_'),
-        **(cmaes_params or {}))
+        **(cmaes_params or {})
+    )
 
     result = opt.fmin(
         search_space=search_space,
         x0=x0,
         obj_func=obj_fn,
-        args=(x, y))
+        args=(x, y),
+        max_threads=max_threads
+    )
 
     s = search_space.get_value(result[0])
 
     model = model_from_config(config=s)
     model.name += '_best'
+
+    if refit_best_model:
+        fit(model=model, x=x, y=y, **(best_model_fit_kwargs or {}))
+
+    if features and hasattr(model, 'get_support'):
+        sup = getattr(model, 'get_support')()
+        if sup:
+            features = list(np.array(features)[sup])
 
     res = {
         'model': {
@@ -76,13 +91,11 @@ def optimization(search_space: Node,
             'config': model.get_config()
         },
         'best_fit_func': result[1],
-        'best_x': list(result[0])
+        'best_x': list(result[0]),
+        'best_features': features
     }
 
     if save_to_json:
         save_json(res, os.path.join(output_dir, '{}_opt.json'.format(model.name)))
-
-    if refit_best_model:
-        fit(model=model, x=x, y=y, **(best_model_fit_kwargs or {}))
 
     return res, model

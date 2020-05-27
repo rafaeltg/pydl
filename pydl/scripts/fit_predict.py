@@ -1,6 +1,6 @@
 import os
 from ..models.pipeline import Pipeline
-from ..models.utils import save_json
+from ..models.json import save_json
 from ..model_selection import available_metrics
 from ..ts import acf, pacf, test_stationarity
 from .fit import fit
@@ -37,14 +37,16 @@ def fit_predict(model,
             x=x_train,
             y=y_train,
             save_built_model=save_model,
-            output_dir=output_dir)
+            output_dir=output_dir
+        )
 
     y_train_pred = predict(
         model=model,
         x=x_train,
         filename='{}_y_train_pred'.format(model.name),
         save_format=preds_save_format,
-        output_dir=output_dir)
+        output_dir=output_dir
+    )
 
     y_test_pred = None
     if x_test is not None and y_test is not None:
@@ -53,7 +55,8 @@ def fit_predict(model,
             x=x_test,
             filename='{}_y_test_pred'.format(model.name),
             save_format=preds_save_format,
-            output_dir=output_dir)
+            output_dir=output_dir
+        )
 
     if metrics:
         if isinstance(model, Pipeline):

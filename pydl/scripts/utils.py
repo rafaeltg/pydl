@@ -1,6 +1,7 @@
 import tensorflow as tf
 from ..models.utils import load_json
-from ..hyperopt.components import hp_feature_selection, hp_space_from_json
+from ..models.pipeline import hp_base_filter_select
+from ..hyperopt import hp_space_from_json
 
 
 def init_gpus():
@@ -19,6 +20,19 @@ def get_search_space(s: str, features: list = None):
     space = load_json(s)
 
     if features is not None:
-        space['config']['features'] = hp_feature_selection(len(features)).to_json()
+        if space['class_name'] == 'Pipeline':
+            space['config']['steps']['config']['value'] = [
+                hp_base_filter_select(n_features=len(features)).to_json()
+            ] + space['config']['steps']['config']['value']
+        else:
+            space = dict(
+                class_name='Pipeline',
+                config=dict(
+                    steps=[
+                        hp_base_filter_select(n_features=len(features)).to_json(),
+                        space
+                    ]
+                )
+            )
 
     return hp_space_from_json(space)

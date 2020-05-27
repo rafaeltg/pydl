@@ -11,7 +11,6 @@ __all__ = ['expand_arg',
            'model_from_config',
            'model_from_json',
            'load_json',
-           'save_json',
            'get_custom_objects',
            'valid_act_functions',
            'valid_loss_functions',
@@ -116,19 +115,14 @@ def load_pipeline(filepath, custom_objects: dict = None, compile: bool = False):
         if name is not None:
             c['name'] = name
 
-        features = config.get('features', None)
-        if features is not None:
-            c['features'] = json.loads(features.decode('utf-8'))
-
-        reshaper = config.get('reshaper', None)
-        if reshaper is not None:
-            c['reshaper'] = model_from_json(reshaper.decode('utf-8'), custom_objects=custom_objects)
+        steps = config.get('steps', None)
+        c['steps'] = [model_from_json(s.decode('utf-8'), custom_objects=custom_objects) for s in steps]
 
         estimator = config.get('estimator', None)
         if estimator is None:
             raise ValueError('No estimator found in config.')
 
-        c['estimator'] = load_model(estimator.data, custom_objects=custom_objects, compile=compile)
+        c['steps'].append(load_model(estimator.data, custom_objects=custom_objects, compile=compile))
 
     return get_custom_objects()['Pipeline'](**c)
 
@@ -168,7 +162,8 @@ def model_from_json(model_json: str,
     if compile:
         model.compile(
             optimizer=model.get_optimizer(),
-            loss=model.get_loss_func())
+            loss=model.get_loss_func()
+        )
 
     return model
 
@@ -181,20 +176,6 @@ def load_json(json_string: str):
         data = json.loads(json_string)
 
     return data
-
-
-def save_json(data, file_path, sort_keys=True, indent=2, ensure_ascii=False):
-    directory = os.path.dirname(file_path)
-    if directory != '' and not os.path.exists(directory):
-        os.makedirs(directory)
-
-    with open(file_path, 'w', encoding='utf-8') as outfile:
-        json.dump(data,
-                  outfile,
-                  sort_keys=sort_keys,
-                  indent=indent,
-                  ensure_ascii=ensure_ascii,
-                  separators=(',', ': '))
 
 
 def check_filepath(filepath: str, name: str, extension: str):

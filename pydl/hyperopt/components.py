@@ -1,5 +1,16 @@
-from .nodes import nodefy, ListNode, IntParameterNode, FloatParameterNode, ChoiceNode, BooleanParameterNode, \
-    FeatureSelectionNode
+from copy import deepcopy
+from .nodes import nodefy, ListNode, IntParameterNode, FloatParameterNode, ChoiceNode, BooleanParameterNode
+
+
+__all__ = [
+    'hp_space',
+    'hp_choice',
+    'hp_int',
+    'hp_boolean',
+    'hp_float',
+    'hp_list',
+    'hp_space_from_json'
+]
 
 
 def hp_space(**values):
@@ -7,64 +18,54 @@ def hp_space(**values):
     return nodefy(values)
 
 
-def hp_choice(options):
+def hp_choice(options, label=''):
     assert isinstance(options, list), 'options must be a list!'
     assert len(options) > 0, 'options cannot be empty!'
-    return ChoiceNode(options)
+    return ChoiceNode(options, label=label)
 
 
-def hp_int(min_value, max_value):
+def hp_int(min_value, max_value, label=''):
     assert min_value < max_value, 'max_value must be greater than min_value'
-    return IntParameterNode(min_value, max_value)
+    return IntParameterNode(min_value, max_value, label=label)
 
 
-def hp_float(min_value, max_value):
+def hp_float(min_value, max_value, label=''):
     assert min_value < max_value, 'max_value must be greater than min_value'
-    return FloatParameterNode(min_value, max_value)
+    return FloatParameterNode(min_value, max_value, label=label)
 
 
-def hp_boolean():
-    return BooleanParameterNode()
+def hp_boolean(label=''):
+    return BooleanParameterNode(label=label)
 
 
 def hp_list(value, label=''):
     assert isinstance(value, list), "'value' must be a list"
     assert len(value) > 0, "'value' cannot be an empty list"
-    return ListNode(value, label)
-
-
-def hp_feature_selection(n_features, label=''):
-    assert n_features > 0, "'n_features' must be greater than zero"
-    return FeatureSelectionNode(n_features, label=label)
-
-
-def hp_model(class_name: str, config: dict):
-    return hp_space(
-        class_name=class_name,
-        config=hp_space(**config)
-    )
+    return ListNode(value, label=label)
 
 
 def hp_space_from_json(values):
     if isinstance(values, dict):
-        if "node_type" in values:
-            if values['node_type'] == 'hp_choice':
-                return ChoiceNode([hp_space_from_json(v) for v in values['value']])
+        class_name = values.get('class_name', '')
+        config = deepcopy(values.get('config', {}))
 
-            elif values['node_type'] == 'hp_list':
-                return ListNode([hp_space_from_json(v) for v in values['value']])
+        if class_name == 'ChoiceNode':
+            config['value'] = [hp_space_from_json(v) for v in config['value']]
+            return ChoiceNode(**config)
 
-            elif values['node_type'] == 'hp_int':
-                return IntParameterNode(values['min_val'], values['max_val'])
+        elif class_name == 'ListNode':
+            config['value'] = [hp_space_from_json(v) for v in config['value']]
+            return ListNode(**config)
 
-            elif values['node_type'] == 'hp_float':
-                return FloatParameterNode(values['min_val'], values['max_val'])
+        elif class_name == 'IntParameterNode':
+            return IntParameterNode(**config)
 
-            elif values['node_type'] == 'hp_boolean':
-                return BooleanParameterNode()
+        elif class_name == 'FloatParameterNode':
+            return FloatParameterNode(**config)
 
-            elif values['node_type'] == 'hp_feature_selection':
-                return FeatureSelectionNode(values['value'])
+        elif class_name == 'BooleanParameterNode':
+            return BooleanParameterNode(**config)
+
         else:
             vals = values.copy()
             for k, v in vals.items():

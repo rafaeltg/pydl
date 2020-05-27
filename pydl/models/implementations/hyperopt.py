@@ -1,4 +1,4 @@
-from pydl.hyperopt.components import hp_model
+from pydl.hyperopt.components import hp_space
 
 
 """
@@ -7,28 +7,28 @@ from pydl.hyperopt.components import hp_model
 
 
 def hp_mlp(**kwargs):
-    return hp_model(
+    return hp_space(
         class_name='MLP',
         config=kwargs
     )
 
 
 def hp_cnn(**kwargs):
-    return hp_model(
+    return hp_space(
         class_name='CNN',
         config=kwargs
     )
 
 
 def hp_rnn(**kwargs):
-    return hp_model(
+    return hp_space(
         class_name='RNN',
         config=kwargs
     )
 
 
 def hp_cnnlstm(**kwargs):
-    return hp_model(
+    return hp_space(
         class_name='CNNLSTM',
         config=kwargs
     )

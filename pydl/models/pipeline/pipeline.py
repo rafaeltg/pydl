@@ -1,104 +1,102 @@
 import json
 from keras.utils.io_utils import H5Dict
 from ..utils import check_filepath, model_from_config
-from .reshape import Reshaper
+from ..json import save_json
 
 
 class Pipeline:
 
     def __init__(self,
-                 estimator,
-                 name: str = 'pipeline',
-                 features: list = None,
-                 reshaper: Reshaper = None):
-        self._estimator = estimator
-        self.name = name or estimator.name
-        self._features = features
-        self._reshaper = reshaper
-        self._validate_params()
+                 steps: list = [],
+                 name: str = 'pipeline'):
+        self.steps = steps
+        self._validate_steps()
+        self.name = name or steps[-1].name
+        self.named_steps = {s.name.lower(): s for s in steps if s != 'passthrough'}
+        self._support = None
 
-    def _validate_params(self):
-        if self._estimator is None:
-            raise ValueError('missing estimator')
+    def _validate_steps(self):
+        if len(self.steps) == 0:
+            raise ValueError('missing steps')
 
-        self._validate_features()
+        if not all([(isinstance(s, str) and (s == 'passthrough')) or hasattr(s, 'fit_transform') for s in
+                    self.steps[:-1]]):
+            raise ValueError('invalid steps')
 
-        if self._reshaper is not None:
-            assert isinstance(self._reshaper, Reshaper), ValueError("'reshaper' must be a instance of Reshaper")
+        if not (hasattr(self.steps[-1], 'fit') and
+                hasattr(self.steps[-1], 'predict') and
+                hasattr(self.steps[-1], 'score')):
+            raise ValueError('invalid estimator')
 
-    def _validate_features(self):
-        if self._features is not None:
-            if not isinstance(self._features, list):
-                raise ValueError("'features' must be a list")
+    def get_support(self):
+        if not self.built:
+            return None
 
-            if len(self._features) == 0:
-                raise ValueError("'features' cannot be empty")
+        for k, step in self.named_steps.items():
+            if hasattr(step, 'get_support'):
+                self._support = getattr(step, 'get_support')()
 
-            if not all([isinstance(f, int) for f in self._features]):
-                raise ValueError("'features' must be a list of integers")
-
-    @property
-    def features(self):
-        return self._features
-
-    @features.setter
-    def features(self, value):
-        self._features = value
-        self._validate_features()
+        return self._support
 
     @property
     def built(self):
-        return self._estimator.built
+        return self.steps[-1].built
 
     def fit(self, x, y):
-        x, y = self.transform(x, y)
-        self._estimator.fit(x, y)
+        self._support = [True] * x.shape[1]
+
+        for s in self.steps[:-1]:
+            if s != 'passthrough':
+                x, y = s.fit_transform(x, y)
+
+        return self.steps[-1].fit(x, y)
 
     def predict(self, x):
         x, _ = self.transform(x)
-        return self._estimator.predict(x)
+        return self.steps[-1].predict(x)
 
     def score(self, x, y):
         x, y = self.transform(x, y)
-        loss = self._estimator.evaluate(x=x, y=y)
+        loss = self.steps[-1].score(x=x, y=y)
         return loss[0] if isinstance(loss, list) else loss
 
     def transform(self, x, y=None):
-        if self._features is not None:
-            x = x[..., self._features]
-
-        if self._reshaper is not None:
-            x, y = self._reshaper.reshape(x, y)
+        for s in self.steps[:-1]:
+            if s != 'passthrough':
+                x, y = s.transform(x, y)
 
         return x, y
 
+    def set_params(self, **params):
+        for k, v in params.items():
+            keys = k.split('__')
+            if keys[0] in self.named_steps:
+                self.named_steps[keys[0]].set_params(**{keys[1]: v})
+
     def get_config(self) -> dict:
         config = {
-            'name': self.name
-        }
-
-        if self._features is not None:
-            config['features'] = self._features
-
-        if self._reshaper is not None:
-            config['reshaper'] = {
-                'class_name': self._reshaper.__class__.__name__,
-                'config': self._reshaper.get_config()
-            }
-
-        config['estimator'] = {
-            'class_name': self._estimator.__class__.__name__,
-            'config': self._estimator.get_config()
+            'name': self.name,
+            'steps': [
+                {
+                    'class_name': s.__class__.__name__,
+                    'config': s.get_config()
+                } for s in self.named_steps.values()
+            ]
         }
 
         return config
 
     @classmethod
     def from_config(cls, config: dict, custom_objects: dict = None):
-        if 'reshaper' in config:
-            config['reshaper'] = model_from_config(config=config.get('reshaper', {}), custom_objects=custom_objects)
-        config['estimator'] = model_from_config(config=config.get('estimator', {}), custom_objects=custom_objects)
-        return cls(**config)
+        cfg = config.copy()
+
+        if 'steps' in config:
+            cfg['steps'] = [
+                model_from_config(config=s, custom_objects=custom_objects)
+                for s in config['steps'] if not isinstance(s, str)
+            ]
+
+        return cls(**cfg)
 
     def to_json(self, **kwargs) -> str:
         m = {
@@ -109,9 +107,7 @@ class Pipeline:
 
     def save_json(self, filepath: str = None):
         filepath = check_filepath(filepath, self.name, 'json')
-        cfg_json = self.to_json(sort_keys=True, indent=2, ensure_ascii=False, separators=(',', ': '))
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(cfg_json)
+        save_json(self, filepath)
 
     def save(self, filepath=None):
         filepath = check_filepath(filepath, self.name, 'h5')
@@ -123,28 +119,32 @@ class Pipeline:
 
             config['name'] = self.name
 
-            if self._features is not None:
-                config['features'] = json.dumps(self._features).encode('utf-8')
+            if len(self.steps) > 1:
+                config['steps'] = [s.to_json() for s in self.steps[:-1]]
 
-            if self._reshaper is not None:
-                config['reshaper'] = self._reshaper.to_json()
-
-            if hasattr(self._estimator, 'save'):
+            if hasattr(self.steps[-1], 'save'):
                 estimator = config['estimator']
-                self._estimator.save(estimator.data)
+                self.steps[-1].save(estimator.data)
 
     def compile(self, optimizer, loss=None):
-        if hasattr(self._estimator, 'compile'):
-            self._estimator.compile(
+        if hasattr(self.steps[-1], 'compile'):
+            self.steps[-1].compile(
                 optimizer=optimizer,
-                loss=loss)
+                loss=loss
+            )
 
     def get_optimizer(self):
-        if hasattr(self._estimator, 'get_optimizer'):
-            return self._estimator.get_optimizer()
+        if hasattr(self.steps[-1], 'get_optimizer'):
+            return self.steps[-1].get_optimizer()
         return None
 
     def get_loss_func(self):
-        if hasattr(self._estimator, 'get_loss_func'):
-            return self._estimator.get_loss_func()
+        if hasattr(self.steps[-1], 'get_loss_func'):
+            return self.steps[-1].get_loss_func()
         return None
+
+    def __len__(self):
+        """
+        Returns the length of the Pipeline
+        """
+        return len(self.steps)

@@ -18,8 +18,12 @@ def _space_decoder_wrap(obj_func):
 
 def _parallel_objective(obj_func, max_threads):
     def _wrap(pop, *args):
-        with Parallel(n_jobs=max_threads, batch_size=1) as parallel:
-            f = parallel(delayed(function=obj_func, check_pickle=False)(x, *args) for x in pop)
+        if isinstance(pop, list):
+            with Parallel(n_jobs=max_threads, batch_size=1) as parallel:
+                f = parallel(delayed(function=obj_func, check_pickle=False)(x, *args) for x in pop)
+
+        else:
+            f = obj_func(pop, *args)
 
         return f
 

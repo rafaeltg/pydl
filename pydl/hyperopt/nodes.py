@@ -1,4 +1,3 @@
-import numpy as np
 import math as m
 
 
@@ -39,7 +38,7 @@ class Node:
         self._size = value
 
     def get_value(self, x):
-        assert len(x) >= self._size, 'x must contains at least %d elements!' % self._size
+        assert len(x) >= self._size, 'x must contains at least %d items' % self._size
 
         if isinstance(self._value, list):
             ret_params = {}
@@ -58,6 +57,12 @@ class Node:
 
         return self._value
 
+    def get_config(self) -> dict:
+        return {
+            "value": [v.to_json() for v in self._value] if isinstance(self._value, list) else self._value,
+            "label": self.label
+        }
+
 
 class ChoiceNode(Node):
     def __init__(self, value, label=''):
@@ -72,8 +77,14 @@ class ChoiceNode(Node):
 
     def to_json(self):
         return {
-            "node_type": "hp_choice",
-            "value": [v.to_json() for v in self._value]
+            "class_name": self.__class__.__name__,
+            "config": self.get_config()
+        }
+
+    def get_config(self) -> dict:
+        return {
+            "value": [v.to_json() for v in self._value],
+            "label": self.label
         }
 
 
@@ -91,9 +102,15 @@ class IntParameterNode(Node):
 
     def to_json(self):
         return {
-            "node_type": "hp_int",
+            "class_name": self.__class__.__name__,
+            "config": self.get_config()
+        }
+
+    def get_config(self) -> dict:
+        return {
             "min_val": self._min,
             "max_val": self._max,
+            "label": self.label
         }
 
 
@@ -111,9 +128,15 @@ class FloatParameterNode(Node):
 
     def to_json(self):
         return {
-            "node_type": "hp_float",
+            "class_name": self.__class__.__name__,
+            "config": self.get_config()
+        }
+
+    def get_config(self) -> dict:
+        return {
             "min_val": self._min,
             "max_val": self._max,
+            "label": self.label
         }
 
 
@@ -129,7 +152,13 @@ class BooleanParameterNode(Node):
 
     def to_json(self):
         return {
-            "node_type": "hp_boolean"
+            "class_name": self.__class__.__name__,
+            "config": self.get_config()
+        }
+
+    def get_config(self) -> dict:
+        return {
+            "label": self.label
         }
 
 
@@ -151,30 +180,14 @@ class ListNode(Node):
 
     def to_json(self):
         return {
-            "node_type": "hp_list",
-            "value": [v.to_json() for v in self._value]
+            "class_name": self.__class__.__name__,
+            "config": self.get_config()
         }
 
-
-class FeatureSelectionNode(Node):
-    def __init__(self, value, label=''):
-        """
-        :param value: is the number of features
-        :param label:
-        """
-        super().__init__([BooleanParameterNode()] * value, label)
-
-    def _get_size(self):
-        return len(self._value)
-
-    def get_value(self, x):
-        ret_params = [v.get_value(x[i]) for i, v in enumerate(self._value)]
-        return np.argwhere(ret_params).flatten().tolist()
-
-    def to_json(self):
+    def get_config(self) -> dict:
         return {
-            "node_type": "hp_feature_selection",
-            "value": len(self._value)
+            "value": [v.to_json() for v in self._value],
+            "label": self.label
         }
 
 

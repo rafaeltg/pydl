@@ -51,4 +51,3 @@ class Lasso(sk_lin.Lasso, LinearMixin):
     @property
     def built(self):
         return hasattr(self, 'coef_')
-

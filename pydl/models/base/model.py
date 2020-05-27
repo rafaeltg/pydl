@@ -2,6 +2,7 @@ import keras.models as km
 import keras.optimizers as k_opt
 from keras.callbacks import EarlyStopping
 from ..utils import *
+from ..json import save_json
 
 
 class Model(km.Sequential):
@@ -82,6 +83,11 @@ class Model(km.Sequential):
             assert self.min_delta > 0, 'Invalid min_delta value'
             assert self.patient > 0, 'Invalid patient value'
 
+    def set_params(self, **params):
+        for k, v in params.items():
+            if k in self.__dict__:
+                setattr(self, k, v)
+
     def get_loss_func(self):
         return self.loss_func if isinstance(self.loss_func, str) else self.loss_func.__name__
 
@@ -114,9 +120,7 @@ class Model(km.Sequential):
 
     def save_json(self, filepath: str = None):
         filepath = check_filepath(filepath, self.name, 'json')
-        cfg_json = self.to_json(sort_keys=True, indent=4, ensure_ascii=False, separators=(',', ': '))
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(cfg_json)
+        save_json(self, filepath)
 
     def save_weights(self, filepath, overwrite=True):
         super().save_weights(

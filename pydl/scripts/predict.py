@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from ..models.utils import save_json
+from ..models.json import save_json
 
 
 def predict(model,

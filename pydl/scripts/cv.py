@@ -1,6 +1,6 @@
 import os
 from ..model_selection import CV
-from ..models.utils import save_json
+from ..models.json import save_json
 
 
 def cv(model,
