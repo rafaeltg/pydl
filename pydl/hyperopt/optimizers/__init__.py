@@ -2,6 +2,13 @@ from .optimizer import Optimizer
 from .cmaes import CMAES
 
 
+__all__ = [
+    'Optimizer',
+    'CMAES',
+    'optimizer_from_config'
+]
+
+
 _objs = {
     CMAES.__name__: CMAES
 }
