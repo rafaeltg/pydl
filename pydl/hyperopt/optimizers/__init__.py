@@ -29,6 +29,6 @@ def optimizer_from_config(config: dict) -> [Optimizer]:
     cfg = config.get("config", dict())
 
     if len(cfg) > 0 and hasattr(cls, "from_config"):
-        return cls.from_config(**cfg)
+        return cls.from_config(cfg)
 
     return cls(**cfg)
