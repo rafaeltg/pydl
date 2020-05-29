@@ -72,4 +72,7 @@ def hp_space_from_json(values):
                 vals[k] = hp_space_from_json(v)
             return nodefy(vals)
 
+    if isinstance(values, list):
+        return ListNode([hp_space_from_json(v) for v in values])
+
     return nodefy(values)
