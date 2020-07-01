@@ -116,7 +116,8 @@ class Model(km.Sequential):
         super().save(
             filepath=filepath,
             overwrite=overwrite,
-            include_optimizer=include_optimizer)
+            include_optimizer=include_optimizer,
+            save_format='h5')
 
     def save_json(self, filepath: str = None):
         filepath = check_filepath(filepath, self.name, 'json')

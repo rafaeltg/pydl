@@ -1,5 +1,5 @@
+import h5py
 import json
-from keras.utils.io_utils import H5Dict
 from ..json import save_json
 
 
@@ -18,13 +18,20 @@ class LinearMixin:
     def save_json(self, filepath: str = None):
         save_json(self, filepath)
 
-    def save(self, filepath: str = None):
-        with H5Dict(filepath, mode='w') as h5dict:
-            model_config = {
-                'class_name': self.__class__.__name__,
-                'config': self.get_config()
-            }
-            h5dict['model_config'] = json.dumps(model_config).encode('utf-8')
+    def save(self, filepath = None):
+        if filepath is None:
+            filepath = self.__class__.__name__.lower()
+
+        def _save(f):
+            model_config = f.create_group('model_config')
+            model_config['class_name'] = self.__class__.__name__
+            model_config['config'] = json.dumps(self.get_config(), ensure_ascii=False).encode('utf-8')
+
+        if isinstance(filepath, str):
+            with h5py.File(filepath, mode='w') as hf:
+                _save(hf)
+        else:
+            _save(filepath)
 
     @property
     def built(self):

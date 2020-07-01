@@ -2,12 +2,11 @@ import os
 import sys
 import json
 import inspect
+import h5py
 import keras.models as k_models
-from keras.utils.io_utils import H5Dict
 
 
-__all__ = ['expand_arg',
-           'load_model',
+__all__ = ['load_model',
            'model_from_config',
            'model_from_json',
            'load_json',
@@ -44,32 +43,6 @@ valid_optimizers = ['sgd',
                     'ftrl']
 
 
-def expand_arg(layers, arg_to_expand):
-
-    """Expands the arg_to_expand into the length of layers.
-    This is used as a convenience so that the user does not need to specify the
-    complete list of parameters for model initialization.
-    IE: the user can just specify one parameter and this function will expand it
-    :param layers:
-    :param arg_to_expand:
-    :return:
-    """
-
-    if not isinstance(arg_to_expand, list):
-        arg_to_expand = [arg_to_expand]
-
-    if len(arg_to_expand) == len(layers):
-        return arg_to_expand
-
-    if len(arg_to_expand) > len(layers):
-        return arg_to_expand[0:len(layers)]
-
-    missing_values = len(layers) - len(arg_to_expand)
-    result = arg_to_expand + [arg_to_expand[-1] for _ in range(missing_values)]
-
-    return result
-
-
 def get_custom_objects(c_objs: dict = None) -> dict:
     custom_objects = dict(inspect.getmembers(sys.modules['pydl.models'], inspect.isclass))
     if c_objs is not None:
@@ -102,8 +75,8 @@ def load_model(filepath, custom_objects: dict = None, compile: bool = True):
 
 
 def load_pipeline(filepath, custom_objects: dict = None, compile: bool = False):
-    with H5Dict(filepath, mode='r') as h5dict:
-        model_config = h5dict['model_config']
+    with h5py.File(filepath, mode='r') as hf:
+        model_config = hf['model_config']
         if model_config is None:
             raise ValueError('No model found in config.')
 
@@ -112,29 +85,53 @@ def load_pipeline(filepath, custom_objects: dict = None, compile: bool = False):
         config = model_config['config']
 
         name = config.get('name', None)
-        if name is not None:
-            c['name'] = name
+        if name:
+            c['name'] = name.value
 
-        steps = config.get('steps', None)
+        steps = config.get('steps', [])
         c['steps'] = [model_from_json(s.decode('utf-8'), custom_objects=custom_objects) for s in steps]
 
         estimator = config.get('estimator', None)
         if estimator is None:
             raise ValueError('No estimator found in config.')
 
-        c['steps'].append(load_model(estimator.data, custom_objects=custom_objects, compile=compile))
+        try:
+            with open('tmpmodel.h5', 'wb') as hf_file:
+                hf_file.write(eval(estimator[()]))
 
-    return get_custom_objects()['Pipeline'](**c)
+            c['steps'].append(load_model('tmpmodel.h5', custom_objects=custom_objects, compile=compile))
+
+            m = get_custom_objects()['Pipeline'](**c)
+        except Exception:
+            m = None
+
+        finally:
+            os.remove('tmpmodel.h5')
+
+    return m
 
 
 def load_base_model(filepath, custom_objects: dict = None):
-    with H5Dict(filepath, mode='r') as h5dict:
+    with h5py.File(filepath, mode='r') as h5dict:
         model_config = h5dict.get('model_config', None)
         if model_config is None:
             raise ValueError('No model found in config.')
 
-        model_config = json.loads(model_config.decode('utf-8'))
-        model = model_from_config(model_config, custom_objects=custom_objects)
+        class_name = model_config.get('class_name', None)
+        if class_name is None:
+            raise ValueError('missing class_name attribute.')
+
+        class_name = class_name.value
+
+        config = model_config.get('config', None)
+        config = json.loads(config.value) if config else {}
+
+        cfg = {
+            'class_name': class_name,
+            'config': config
+        }
+
+        model = model_from_config(cfg, custom_objects=custom_objects)
 
     return model
 

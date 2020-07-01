@@ -1,5 +1,4 @@
 import sklearn.decomposition as sd
-from sklearn.utils.validation import check_is_fitted
 from ._base_transformer import SerializerMixin
 
 

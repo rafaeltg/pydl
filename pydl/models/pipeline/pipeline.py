@@ -1,5 +1,7 @@
+import os
+import h5py
 import json
-from keras.utils.io_utils import H5Dict
+import numpy as np
 from ..utils import check_filepath, model_from_config
 from ..json import save_json
 
@@ -112,19 +114,29 @@ class Pipeline:
     def save(self, filepath=None):
         filepath = check_filepath(filepath, self.name, 'h5')
 
-        with H5Dict(filepath, mode='w') as h5dict:
-            model_config = h5dict['model_config']
+        with h5py.File(filepath, mode='w') as hf:
+            model_config = hf.create_group('model_config')
             model_config['class_name'] = self.__class__.__name__
-            config = model_config['config']
+            config = model_config.create_group('config')
 
             config['name'] = self.name
 
             if len(self.steps) > 1:
-                config['steps'] = [s.to_json() for s in self.steps[:-1]]
+                config['steps'] = np.asarray([s.to_json().encode('utf-8') for s in self.steps[:-1]])
 
             if hasattr(self.steps[-1], 'save'):
-                estimator = config['estimator']
-                self.steps[-1].save(estimator.data)
+                try:
+                    with h5py.File('tmpmodel.h5', mode='w') as model_hf:
+                        self.steps[-1].save(filepath=model_hf)
+
+                    with open('tmpmodel.h5', mode='rb') as in_file:
+                        config['estimator'] = str(in_file.read())
+
+                except Exception as e:
+                    raise e
+
+                finally:
+                    os.remove('tmpmodel.h5')
 
     def compile(self, optimizer, loss=None):
         if hasattr(self.steps[-1], 'compile'):

@@ -127,8 +127,6 @@ class CVMethodsTestCase(unittest.TestCase):
         cv = get_cv_method(method='time_series', n_folds=n_folds, fixed=False)
         self.validate_cv(cv, x, expected_trains, expected_tests)
 
-
-
     def validate_cv(self, cv, x, expected_trains, expected_tests):
         actual_trains = []
         actual_tests = []
